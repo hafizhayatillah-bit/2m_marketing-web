@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15
+    container_name: sembako_db_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sembako_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

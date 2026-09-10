@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-6">Tambah Promo Baru</h2>
+
+<form action="/admin/promos/create" method="POST" class="max-w-lg space-y-4">
+    <div>
+        <label class="block mb-1 font-medium">Judul Promo</label>
+        <input type="text" name="title" required class="w-full border p-2 rounded">
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="block mb-1 font-medium">Harga Normal (Rp)</label>
+            <input type="number" name="normal_price" required class="w-full border p-2 rounded">
+        </div>
+        <div>
+            <label class="block mb-1 font-medium">Harga Promo (Rp)</label>
+            <input type="number" name="promo_price" required class="w-full border p-2 rounded">
+        </div>
+    </div>
+    <div class="flex space-x-4 pt-4">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Simpan</button>
+        <a href="/admin/promos/" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Batal</a>
+    </div>
+</form>
+{% endblock %}

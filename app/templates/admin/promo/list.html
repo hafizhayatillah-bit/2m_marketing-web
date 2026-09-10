@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold">Daftar Promo</h2>
+    <a href="/admin/promos/create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Tambah Promo</a>
+</div>
+
+<table class="w-full text-left border-collapse">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="p-3 border">Judul</th>
+            <th class="p-3 border">Harga Normal</th>
+            <th class="p-3 border">Harga Promo</th>
+            <th class="p-3 border">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for promo in promos %}
+        <tr>
+            <td class="p-3 border">{{ promo.title }}</td>
+            <td class="p-3 border">Rp {{ promo.normal_price }}</td>
+            <td class="p-3 border">Rp {{ promo.promo_price }}</td>
+            <td class="p-3 border">{{ "Aktif" if promo.is_active else "Nonaktif" }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4" class="p-3 border text-center text-gray-500">Belum ada data promo.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
