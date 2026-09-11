@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Info & Event — 2M Sembako{% endblock %}
+
+{% block content %}
+<section class="bg-slate-900 py-16 text-center">
+    <div class="max-w-7xl mx-auto px-4">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-4">Info & Event Cabang</h1>
+        <p class="text-slate-400 max-w-2xl mx-auto">Pantau jadwal bazar murah, pembukaan cabang baru, dan pengumuman penting dari 2M Sembako.</p>
+    </div>
+</section>
+
+<section class="max-w-5xl mx-auto px-4 py-12">
+    <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Skeleton Loading -->
+        <div class="animate-pulse bg-white rounded-3xl border border-slate-100 h-72"></div>
+        <div class="animate-pulse bg-white rounded-3xl border border-slate-100 h-72"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const newsContainer = document.getElementById("news-container");
+
+        try {
+            const response = await fetch('/api/v1/public/news');
+            if (!response.ok) throw new Error("Gagal mengambil data berita");
+            
+            const newsList = await response.json();
+            newsContainer.innerHTML = ""; 
+
+            if (newsList.length === 0) {
+                newsContainer.innerHTML = "<p class='text-slate-500 col-span-full text-center'>Belum ada event atau berita terbaru.</p>";
+                newsContainer.classList.remove('grid');
+                return;
+            }
+
+            // Fungsi format tanggal (contoh: 15 Sep 2026)
+            const formatDate = (dateString) => {
+                const options = { day: 'numeric', month: 'short', year: 'numeric' };
+                return new Date(dateString).toLocaleDateString('id-ID', options);
+            };
+
+            newsList.forEach(news => {
+                const imgUrl = news.image_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';
+                
+                const cardHTML = `
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
+                        <div class="h-48 overflow-hidden relative">
+                            <div class="absolute top-4 left-4 bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg z-10 shadow-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                ${formatDate(news.event_date)}
+                            </div>
+                            <img src="${imgUrl}" alt="${news.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col">
+                            <h2 class="text-xl font-bold text-slate-900 mb-3">${news.title}</h2>
+                            <p class="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-4 flex-grow">${news.content}</p>
+                            <button class="text-blue-700 font-semibold text-sm hover:text-blue-800 text-left mt-auto">Baca selengkapnya &rarr;</button>
+                        </div>
+                    </div>
+                `;
+                newsContainer.innerHTML += cardHTML;
+            });
+
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            newsContainer.innerHTML = "<p class='text-red-500 col-span-full text-center'>Gagal memuat info event.</p>";
+        }
+    });
+</script>
+{% endblock %}

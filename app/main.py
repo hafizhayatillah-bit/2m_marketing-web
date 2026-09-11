@@ -1,19 +1,21 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from app.routers import admin_promo
+from app.routers import admin_promo, branches, news, products, promos
 from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base, get_db
+from app.routers import pages
 
 # Kita gunakan Alembic untuk manajemen tabel, jadi tidak perlu Base.metadata.create_all(bind=engine)
 app = FastAPI(title="2M Sembako API")
 
 # Daftarkan router
 app.include_router(admin_promo.router)
-
-@app.get("/")
-def health_check():
-    return {"status": "ok", "message": "2M Sembako API is live!"}
+app.include_router(branches.router, prefix="/api/v1/public")
+app.include_router(promos.router, prefix="/api/v1/public")
+app.include_router(products.router, prefix="/api/v1/public")
+app.include_router(news.router, prefix="/api/v1/public")
+app.include_router(pages.router)
 
 @app.get("/health")
 def health():

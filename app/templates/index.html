@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}2M Sembako — Belanja Grosir & Eceran Hemat{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="max-w-7xl mx-auto px-4 py-8 md:py-12">
+    <div class="bg-blue-50 rounded-3xl p-8 md:p-16 flex flex-col md:flex-row items-center justify-between relative overflow-hidden border border-blue-100">
+        <div class="md:w-1/2 relative z-10">
+            <span class="text-blue-700 font-bold text-sm tracking-wider uppercase mb-2 block">Belanja Pintar</span>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-4">
+                Penuhi Kebutuhan <br> Dapur Lebih <span class="text-blue-700">Hemat</span>
+            </h1>
+            <p class="text-slate-600 mb-8 md:text-lg">Kualitas terbaik, harga grosir. Tersedia di 11 cabang terdekat kami atau pesan langsung via WhatsApp.</p>
+            <div class="flex gap-4">
+                <a href="#promo-section" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all">Lihat Promo</a>
+                <a href="/about" class="bg-white border border-slate-200 hover:border-blue-700 text-slate-700 hover:text-blue-700 font-bold px-6 py-3 rounded-xl shadow-sm transition-all">Cari Cabang</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Promo Section -->
+<section id="promo-section" class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900">🔥 Promo Sedang Berjalan</h2>
+            <p class="text-sm text-slate-500 mt-1">Berlaku di seluruh cabang 2M Sembako</p>
+        </div>
+    </div>
+    
+    <!-- Container Promo dinamis -->
+    <div id="promo-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <!-- Skeleton Loading State (Bisa dihapus jika tidak mau ada loading state) -->
+        <div class="animate-pulse bg-white rounded-2xl p-4 border border-slate-100 h-64"></div>
+        <div class="animate-pulse bg-white rounded-2xl p-4 border border-slate-100 h-64"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const container = document.getElementById("promo-container");
+        
+        try {
+            // Ambil data promo dari endpoint backend publik
+            const response = await fetch('/api/v1/public/promos');
+            if (!response.ok) throw new Error("Gagal mengambil data promo");
+            
+            const promos = await response.json();
+            container.innerHTML = ""; // Bersihkan loading state
+
+            if (promos.length === 0) {
+                container.innerHTML = "<p class='text-slate-500 text-sm'>Saat ini tidak ada promo aktif.</p>";
+                container.classList.remove('grid');
+                return;
+            }
+
+            const formatRupiah = (number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(number);
+
+            // Render Card Promo
+            promos.forEach(promo => {
+                // Hitung persen diskon untuk badge
+                const diskonPersen = Math.round(((promo.normal_price - promo.promo_price) / promo.normal_price) * 100);
+                
+                // Fallback image jika null
+                const imageUrl = promo.image_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
+
+                const cardHTML = `
+                    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm relative group hover:shadow-md transition-all">
+                        <div class="absolute top-4 left-4 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-lg z-10">-${diskonPersen}%</div>
+                        <div class="bg-slate-50 rounded-xl mb-4 h-48 overflow-hidden">
+                            <img src="${imageUrl}" alt="${promo.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <h3 class="font-bold text-slate-900 mb-1 truncate" title="${promo.title}">${promo.title}</h3>
+                        <p class="text-xs text-slate-500 mb-2 truncate">${promo.description || ''}</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-blue-700 font-extrabold text-lg">${formatRupiah(promo.promo_price)}</span>
+                            <span class="text-slate-400 text-sm line-through">${formatRupiah(promo.normal_price)}</span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            container.innerHTML = "<p class='text-red-500 text-sm'>Gagal memuat promo. Silakan muat ulang halaman.</p>";
+        }
+    });
+</script>
+{% endblock %}

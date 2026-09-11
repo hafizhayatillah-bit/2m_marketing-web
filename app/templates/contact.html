@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Kontak — 2M Sembako{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 py-16">
+    <div class="text-center mb-12">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">Hubungi Kami</h1>
+        <p class="text-slate-600">Punya pertanyaan seputar grosir atau kemitraan? Hubungi layanan pelanggan kami melalui saluran di bawah ini.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- WA Card -->
+        <div class="bg-white border border-slate-100 rounded-3xl p-8 text-center shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <!-- Icon WA SVG -->
+                <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.205.534 1.291.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.383-.058c.108-.13.477-.558.606-.751.13-.193.26-.16.419-.101l1.32.624c.159.087.26.131.298.203.039.072.039.426-.105.831z"></path><path d="M12 2C6.477 2 2 6.477 2 12c0 1.83.496 3.542 1.365 5.01L2 22l5.16-1.3A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.25c-1.579 0-3.085-.411-4.405-1.157l-.316-.179-2.793.71.745-2.678-.196-.328A8.254 8.254 0 013.75 12c0-4.549 3.701-8.25 8.25-8.25s8.25 3.701 8.25 8.25-3.701 8.25-8.25 8.25z"></path></svg>
+            </div>
+            <h3 class="font-bold text-slate-900 text-lg mb-2">WhatsApp Pusat</h3>
+            <p class="text-slate-500 text-sm mb-6">Respon cepat setiap hari pukul 08:00 - 20:00.</p>
+            <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm transition-all w-full">
+                Chat Admin
+            </a>
+        </div>
+
+        <!-- Email & Sosmed Card -->
+        <div class="bg-white border border-slate-100 rounded-3xl p-8 text-center shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <!-- Icon Mail SVG -->
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            </div>
+            <h3 class="font-bold text-slate-900 text-lg mb-2">Email & Sosial Media</h3>
+            <p class="text-slate-500 text-sm mb-6">Untuk keperluan kerjasama dan penawaran B2B.</p>
+            <div class="flex flex-col gap-3">
+                <a href="mailto:info@2msembako.com" class="bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold px-6 py-2.5 rounded-xl transition-all w-full border border-slate-200">
+                    info@2msembako.com
+                </a>
+                <div class="flex justify-center gap-4 mt-2">
+                    <a href="#" class="text-slate-400 hover:text-blue-600">Instagram</a>
+                    <span class="text-slate-300">•</span>
+                    <a href="#" class="text-slate-400 hover:text-blue-600">Facebook</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

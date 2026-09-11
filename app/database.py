@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 # Gunakan env var DATABASE_URL (Supabase Session Pooler di production)
 # Ganti 'postgres://' ke 'postgresql://' jika diperlukan oleh SQLAlchemy
