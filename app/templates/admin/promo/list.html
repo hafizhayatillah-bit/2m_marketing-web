@@ -13,6 +13,7 @@
             <th class="p-3 border">Harga Normal</th>
             <th class="p-3 border">Harga Promo</th>
             <th class="p-3 border">Status</th>
+            <th class="p-3 border">Aksi</th>
         </tr>
     </thead>
     <tbody>
@@ -22,10 +23,19 @@
             <td class="p-3 border">Rp {{ promo.normal_price }}</td>
             <td class="p-3 border">Rp {{ promo.promo_price }}</td>
             <td class="p-3 border">{{ "Aktif" if promo.is_active else "Nonaktif" }}</td>
+            <td class="p-3 border space-x-2 whitespace-nowrap">
+                <a href="/admin/promos/{{ promo.id }}/edit" class="text-blue-600 hover:underline">Edit</a>
+                <form action="/admin/promos/{{ promo.id }}/toggle-active" method="POST" class="inline">
+                    <button type="submit" class="text-amber-600 hover:underline">{{ "Nonaktifkan" if promo.is_active else "Aktifkan" }}</button>
+                </form>
+                <form action="/admin/promos/{{ promo.id }}/delete" method="POST" class="inline" onsubmit="return confirm('Yakin hapus promo ini?')">
+                    <button type="submit" class="text-red-600 hover:underline">Hapus</button>
+                </form>
+            </td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="4" class="p-3 border text-center text-gray-500">Belum ada data promo.</td>
+            <td colspan="5" class="p-3 border text-center text-gray-500">Belum ada data promo.</td>
         </tr>
         {% endfor %}
     </tbody>

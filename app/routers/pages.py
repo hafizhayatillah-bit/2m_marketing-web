@@ -1,24 +1,29 @@
-from fastapi import APIRouter, Request
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from pathlib import Path
+
+from fastapi import APIRouter
+from fastapi.responses import FileResponse
 
 router = APIRouter(tags=["Public UI"])
 
-# Arahkan Jinja2 ke folder root templates
-templates = Jinja2Templates(directory="app/templates")
+# Halaman publik sekarang berupa static HTML (root project), bukan Jinja2 template.
+STATIC_PAGES_DIR = Path(__file__).resolve().parent.parent.parent
 
-@router.get("/", response_class=HTMLResponse)
-async def render_home(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+@router.get("/")
+async def render_home():
+    return FileResponse(STATIC_PAGES_DIR / "index.html")
 
-@router.get("/products", response_class=HTMLResponse)
-async def render_products(request: Request):
-    return templates.TemplateResponse(request, "products.html")
+@router.get("/product")
+async def render_product():
+    return FileResponse(STATIC_PAGES_DIR / "product.html")
 
-@router.get("/news", response_class=HTMLResponse)
-async def render_news(request: Request):
-    return templates.TemplateResponse(request, "news.html")
+@router.get("/about")
+async def render_about():
+    return FileResponse(STATIC_PAGES_DIR / "about.html")
 
-@router.get("/contact", response_class=HTMLResponse)
-async def render_contact(request: Request):
-    return templates.TemplateResponse(request, "contact.html")
+@router.get("/news")
+async def render_news():
+    return FileResponse(STATIC_PAGES_DIR / "news.html")
+
+@router.get("/contact")
+async def render_contact():
+    return FileResponse(STATIC_PAGES_DIR / "contact.html")

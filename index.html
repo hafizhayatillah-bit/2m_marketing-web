@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2M Sembako — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/output.css">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-brands/css/uicons-brands.css">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+</head>
+<body data-page="home" class="bg-canvas text-ink font-body flex flex-col min-h-screen">
+  <div id="site-header"></div>
+
+  <main class="flex-grow">
+    <!-- Hero -->
+    <div class="bg-surface border-b border-ink/10">
+      <section class="max-w-7xl mx-auto px-4 py-12 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <div class="order-2 md:order-1">
+          <h1 class="font-display font-bold uppercase text-4xl md:text-6xl leading-[0.95] tracking-tight text-ink">
+            Grosir Sembako Harga <span class="text-primary">Bersahabat</span>
+          </h1>
+          <p class="font-body text-ink-muted mt-4 text-lg max-w-md">
+            Kebutuhan sehari-hari lengkap, tersedia di 11 cabang 2M Sembako terdekat dari Anda.
+          </p>
+          <a href="https://wa.me/" data-wa-link
+             class="mt-8 inline-flex bg-primary hover:bg-secondary text-white rounded-full px-6 py-3 items-center gap-2 font-bold uppercase tracking-wide text-sm shadow-sm hover:-translate-y-0.5 transition-all">
+            <i class="fi fi-brands-whatsapp" aria-hidden="true"></i> Belanja via WA
+          </a>
+        </div>
+        <div class="order-1 md:order-2">
+          <div class="rounded-2xl bg-canvas aspect-square md:aspect-[4/3] overflow-hidden border border-ink/10">
+            <img id="hero-image" src="/assets/img/hero-produk.jpg" alt="Produk sembako 2M Sembako"
+                 class="w-full h-full object-cover">
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Produk Unggulan (replaces the legacy Promo Aktif section; see partials/promo-section.html) -->
+    <section id="featured-products-section" class="hidden max-w-7xl mx-auto px-4 py-12 md:py-16">
+      <h2 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink text-center">Produk Unggulan</h2>
+
+      <div class="relative mt-8">
+        <button id="featured-prev" type="button" aria-label="Sebelumnya"
+                class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-surface border border-ink/10 shadow-sm flex items-center justify-center hover:bg-canvas disabled:opacity-30 disabled:cursor-not-allowed">
+          <iconify-icon icon="lucide:arrow-left" width="20"></iconify-icon>
+        </button>
+
+        <div id="featured-products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+
+        <button id="featured-next" type="button" aria-label="Berikutnya"
+                class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-surface border border-ink/10 shadow-sm flex items-center justify-center hover:bg-canvas disabled:opacity-30 disabled:cursor-not-allowed">
+          <iconify-icon icon="lucide:arrow-right" width="20"></iconify-icon>
+        </button>
+      </div>
+    </section>
+
+    <!-- Mount point for the legacy promo partial; only fetched when FEATURE_FLAGS.showPromoSection is true -->
+    <div id="promo-section-mount"></div>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/partials.js"></script>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .env
 .pytest_cache/
+
+# Tailwind standalone CLI binary — large, OS-specific, fetched via /tools/README.md
+tools/tailwindcss
+tools/tailwindcss.exe

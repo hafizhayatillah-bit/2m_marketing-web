@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold">Produk Unggulan</h2>
+    <a href="/admin/featured-products/create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Tambah Produk Unggulan</a>
+</div>
+
+<table class="w-full text-left border-collapse">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="p-3 border">Posisi</th>
+            <th class="p-3 border">Produk</th>
+            <th class="p-3 border">Gambar</th>
+            <th class="p-3 border">Status</th>
+            <th class="p-3 border">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fp in featured_products %}
+        <tr>
+            <td class="p-3 border">{{ fp.position }}</td>
+            <td class="p-3 border">{{ fp.product.name }}</td>
+            <td class="p-3 border">{{ "Custom" if fp.image_url else "Fallback ke gambar produk" }}</td>
+            <td class="p-3 border">{{ "Aktif" if fp.is_active else "Nonaktif" }}</td>
+            <td class="p-3 border space-x-2 whitespace-nowrap">
+                <a href="/admin/featured-products/{{ fp.id }}/edit" class="text-blue-600 hover:underline">Edit</a>
+                <form action="/admin/featured-products/{{ fp.id }}/toggle-active" method="POST" class="inline">
+                    <button type="submit" class="text-amber-600 hover:underline">{{ "Nonaktifkan" if fp.is_active else "Aktifkan" }}</button>
+                </form>
+                <form action="/admin/featured-products/{{ fp.id }}/delete" method="POST" class="inline" onsubmit="return confirm('Yakin hapus produk unggulan ini?')">
+                    <button type="submit" class="text-red-600 hover:underline">Hapus</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" class="p-3 border text-center text-gray-500">Belum ada produk unggulan.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

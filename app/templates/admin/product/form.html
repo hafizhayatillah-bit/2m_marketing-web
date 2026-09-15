@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-6">{{ "Edit Produk" if product else "Tambah Produk Baru" }}</h2>
+
+<form action="{{ '/admin/products/' ~ product.id ~ '/edit' if product else '/admin/products/create' }}" method="POST" class="max-w-lg space-y-4">
+    <div>
+        <label class="block mb-1 font-medium">Nama Produk</label>
+        <input type="text" name="name" value="{{ product.name if product else '' }}" required class="w-full border p-2 rounded">
+    </div>
+    <div>
+        <label class="block mb-1 font-medium">Kategori</label>
+        <input type="text" name="category" list="category-options" value="{{ product.category if product else '' }}" required class="w-full border p-2 rounded">
+        <datalist id="category-options">
+            {% for category in categories %}
+            <option value="{{ category }}"></option>
+            {% endfor %}
+        </datalist>
+    </div>
+    <div>
+        <label class="block mb-1 font-medium">Deskripsi</label>
+        <textarea name="description" class="w-full border p-2 rounded">{{ (product.description or '') if product else '' }}</textarea>
+    </div>
+    <div>
+        <label class="block mb-1 font-medium">URL Gambar</label>
+        <input type="text" name="image_url" value="{{ (product.image_url or '') if product else '' }}" class="w-full border p-2 rounded">
+    </div>
+    <div class="flex space-x-4 pt-4">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{{ "Update" if product else "Simpan" }}</button>
+        <a href="/admin/products/" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Batal</a>
+    </div>
+</form>
+{% endblock %}

@@ -4,5 +4,6 @@ from app.models.branch import Branch
 from app.models.promo import Promo
 from app.models.product import Product
 from app.models.news import News
+from app.models.featured_product import FeaturedProduct
 
-__all__ = ["Base", "User", "Branch", "Promo", "Product", "News"]
+__all__ = ["Base", "User", "Branch", "Promo", "Product", "News", "FeaturedProduct"]

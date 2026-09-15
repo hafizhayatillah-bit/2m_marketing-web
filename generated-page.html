@@ -1,0 +1,251 @@
+<html lang="en"><head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brunish Richard D Grocery</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&amp;family=Open+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+--brand-red: #C8102E;
+--brand-black: #101820;
+}
+.font-display { font-family: 'Oswald', sans-serif; }
+.font-body { font-family: 'Open Sans', sans-serif; }
+/* Subtle texture for background elements */
+.bg-pattern {
+background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+background-size: 20px 20px;
+}
+/* Custom scrollbar hiding for horizontal scroll */
+.no-scrollbar::-webkit-scrollbar {
+display: none;
+}
+.no-scrollbar {
+-ms-overflow-style: none;
+scrollbar-width: none;
+}
+</style></head>
+<body class="bg-white text-zinc-900 font-body antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white border-b border-zinc-200 py-3 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <!-- Logo -->
+                <a href="#" class="font-display text-2xl md:text-3xl font-bold uppercase leading-none tracking-tight text-zinc-900">
+                    Brunish<br><span class="text-[#C8102E]">Grocery</span>
+                </a>
+                
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-wider text-zinc-600">
+                    <a href="#" class="hover:text-[#C8102E] transition-colors">Weekly Ad</a>
+                    <a href="#" class="hover:text-[#C8102E] transition-colors">Departments</a>
+                    <a href="#" class="hover:text-[#C8102E] transition-colors">Catering</a>
+                    <a href="#" class="hover:text-[#C8102E] transition-colors">Perks</a>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="#" class="hidden md:block text-sm font-bold uppercase tracking-wider hover:text-[#C8102E]">Sign In</a>
+                <button class="bg-[#C8102E] hover:bg-red-700 text-white px-5 py-2.5 rounded-full font-bold uppercase tracking-wide text-xs md:text-sm transition-transform hover:-translate-y-0.5 shadow-sm flex items-center gap-2">
+                    <span class="iconify" data-icon="lucide:shopping-basket" data-width="18" style="stroke-width: 2;"></span>
+                    Start Order
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section (Split Layout like Potbelly) -->
+    <header class="bg-[#F9F9F9] border-b border-zinc-200">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 min-h-[500px]">
+            <!-- Text Content -->
+            <div class="flex flex-col justify-center p-8 md:p-16 order-2 md:order-1">
+                <span class="text-[#C8102E] font-bold uppercase tracking-widest text-sm mb-4">Fresh Since 1994</span>
+                <h1 class="font-display text-5xl md:text-7xl font-bold uppercase leading-[0.9] text-zinc-900 mb-6">
+                    Quality <br>You Can <br><span class="text-zinc-400">Taste.</span>
+                </h1>
+                <p class="text-zinc-600 text-lg mb-8 max-w-md font-medium">
+                    Local produce, butcher-cut meats, and pantry essentials delivered to your door or ready for pickup.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button class="bg-zinc-900 text-white px-8 py-4 rounded-full font-bold uppercase tracking-wider hover:bg-zinc-800 transition-all text-sm md:text-base">
+                        Order Pickup
+                    </button>
+                    <button class="bg-white text-zinc-900 border-2 border-zinc-900 px-8 py-4 rounded-full font-bold uppercase tracking-wider hover:bg-zinc-50 transition-all text-sm md:text-base">
+                        Order Delivery
+                    </button>
+                </div>
+            </div>
+            <!-- Hero Image -->
+            <div class="order-1 md:order-2 relative h-64 md:h-auto overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&amp;w=2574&amp;auto=format&amp;fit=crop" alt="Grocery Store Interior" class="absolute inset-0 w-full h-full object-cover">
+                <!-- Overlay Texture -->
+                <div class="absolute inset-0 bg-zinc-900/10 mix-blend-multiply"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ordering Toggle / Quick Access -->
+    <div class="bg-white py-8 border-b border-zinc-200 sticky top-[73px] z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-center">
+                <div class="inline-flex bg-zinc-100 p-1 rounded-full border border-zinc-200">
+                    <button class="px-8 py-2 rounded-full bg-white shadow-sm text-zinc-900 font-bold uppercase tracking-wider text-sm border border-zinc-100">
+                        Pickup
+                    </button>
+                    <button class="px-8 py-2 rounded-full text-zinc-500 hover:text-zinc-900 font-bold uppercase tracking-wider text-sm transition-colors">
+                        Delivery
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departments Grid -->
+    <section class="py-16 bg-pattern">
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            <div class="flex items-end justify-between mb-10">
+                <h2 class="font-display text-4xl font-bold uppercase text-zinc-900">Shop Departments</h2>
+                <a href="#" class="text-[#C8102E] font-bold uppercase tracking-wide text-sm hover:underline underline-offset-4">View All</a>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                <!-- Card 1 -->
+                <a href="#" class="group relative aspect-[4/5] overflow-hidden rounded-xl bg-white shadow-sm border border-zinc-200 hover:shadow-md transition-all hover:-translate-y-1">
+                    <img src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&amp;w=2670&amp;auto=format&amp;fit=crop" alt="Produce" class="w-full h-2/3 object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute bottom-0 w-full h-1/3 bg-white p-6 flex flex-col justify-center border-t border-zinc-100">
+                        <h3 class="font-display text-2xl font-bold uppercase text-zinc-900">Produce</h3>
+                        <span class="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">Fresh Daily</span>
+                    </div>
+                </a>
+
+                <!-- Card 2 -->
+                <a href="#" class="group relative aspect-[4/5] overflow-hidden rounded-xl bg-white shadow-sm border border-zinc-200 hover:shadow-md transition-all hover:-translate-y-1">
+                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/917d6f93-fb36-439a-8c48-884b67b35381_1600w.jpg" alt="Bakery" class="w-full h-2/3 object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute bottom-0 w-full h-1/3 bg-white p-6 flex flex-col justify-center border-t border-zinc-100">
+                        <h3 class="font-display text-2xl font-bold uppercase text-zinc-900">Bakery</h3>
+                        <span class="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">Baked In-House</span>
+                    </div>
+                </a>
+
+                <!-- Card 3 -->
+                <a href="#" class="group relative aspect-[4/5] overflow-hidden rounded-xl bg-white shadow-sm border border-zinc-200 hover:shadow-md transition-all hover:-translate-y-1">
+                    <img src="https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?q=80&amp;w=2670&amp;auto=format&amp;fit=crop" alt="Meat &amp; Deli" class="w-full h-2/3 object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute bottom-0 w-full h-1/3 bg-white p-6 flex flex-col justify-center border-t border-zinc-100">
+                        <h3 class="font-display text-2xl font-bold uppercase text-zinc-900">Butcher</h3>
+                        <span class="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">Prime Cuts</span>
+                    </div>
+                </a>
+
+                <!-- Card 4 -->
+                <a href="#" class="group relative aspect-[4/5] overflow-hidden rounded-xl bg-white shadow-sm border border-zinc-200 hover:shadow-md transition-all hover:-translate-y-1">
+                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg" alt="Dairy" class="w-full h-2/3 object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute bottom-0 w-full h-1/3 bg-white p-6 flex flex-col justify-center border-t border-zinc-100">
+                        <h3 class="font-display text-2xl font-bold uppercase text-zinc-900">Dairy</h3>
+                        <span class="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">Local Farms</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Perks / Rewards Section -->
+    <section class="bg-[#C8102E] py-20 px-4 text-white overflow-hidden relative">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h2 class="font-display text-5xl md:text-6xl font-bold uppercase mb-6 tracking-tight">Brunish Perks</h2>
+            <p class="text-xl md:text-2xl font-medium mb-10 text-white/90">Earn points on every grocery run. Free delivery on your first order when you sign up today.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="bg-zinc-900 text-white px-8 py-4 rounded-full font-bold uppercase tracking-wider hover:bg-zinc-800 transition-all shadow-lg border-2 border-zinc-900">
+                    Join Now
+                </button>
+                <button class="bg-transparent text-white border-2 border-white px-8 py-4 rounded-full font-bold uppercase tracking-wider hover:bg-white hover:text-[#C8102E] transition-all">
+                    Learn More
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Promo (Two column) -->
+    <section class="max-w-7xl mx-auto py-16 px-4 md:px-8">
+        <div class="bg-zinc-100 rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+            <div class="p-12 md:p-16 flex flex-col justify-center">
+                <div class="flex items-center gap-2 mb-4 text-[#C8102E]">
+                    <span class="iconify" data-icon="lucide:star" data-width="20"></span>
+                    <span class="font-bold uppercase tracking-widest text-xs">Featured Item</span>
+                </div>
+                <h3 class="font-display text-4xl md:text-5xl font-bold uppercase text-zinc-900 mb-6 leading-[0.9]">
+                    Artisan<br>Sourdough
+                </h3>
+                <p class="text-zinc-600 mb-8 font-medium">Baked fresh every morning using our 30-year-old starter. Perfect for sandwiches or toast.</p>
+                <button class="self-start text-zinc-900 font-bold uppercase tracking-wider border-b-2 border-zinc-900 pb-1 hover:text-[#C8102E] hover:border-[#C8102E] transition-colors">
+                    Add to Cart
+                </button>
+            </div>
+            <div class="h-64 md:h-auto relative">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/c543a9e1-f226-4ced-80b0-feb8445a75b9_1600w.jpg" alt="Bread" class="absolute inset-0 w-full h-full object-cover">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-zinc-900 text-white pt-16 pb-8 border-t-8 border-[#C8102E] mt-auto">
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-1">
+                     <a href="#" class="font-display text-3xl font-bold uppercase leading-none tracking-tight text-white mb-6 block">
+                        Brunish<br><span class="text-[#C8102E]">Grocery</span>
+                    </a>
+                    <div class="flex gap-4">
+                        <a href="#" class="bg-zinc-800 p-2 rounded-full hover:bg-[#C8102E] transition-colors"><span class="iconify" data-icon="lucide:facebook" data-width="20"></span></a>
+                        <a href="#" class="bg-zinc-800 p-2 rounded-full hover:bg-[#C8102E] transition-colors"><span class="iconify" data-icon="lucide:instagram" data-width="20"></span></a>
+                        <a href="#" class="bg-zinc-800 p-2 rounded-full hover:bg-[#C8102E] transition-colors"><span class="iconify" data-icon="lucide:twitter" data-width="20"></span></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-display text-lg font-bold uppercase mb-6 text-zinc-400 tracking-wider">Company</h4>
+                    <ul class="space-y-3 text-sm font-medium text-zinc-300">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Investors</a></li>
+                        <li><a href="#" class="hover:text-white">Locations</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-display text-lg font-bold uppercase mb-6 text-zinc-400 tracking-wider">Support</h4>
+                    <ul class="space-y-3 text-sm font-medium text-zinc-300">
+                        <li><a href="#" class="hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white">FAQs</a></li>
+                        <li><a href="#" class="hover:text-white">Gift Cards</a></li>
+                        <li><a href="#" class="hover:text-white">Feedback</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-display text-lg font-bold uppercase mb-6 text-zinc-400 tracking-wider">Legal</h4>
+                    <ul class="space-y-3 text-sm font-medium text-zinc-300">
+                        <li><a href="#" class="hover:text-white">Terms of Use</a></li>
+                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white">Accessibility</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-zinc-500 uppercase font-bold tracking-widest">
+                <p>© 2024 Brunish Richard D Grocery. All rights reserved.</p>
+                <div class="flex items-center gap-2">
+                    <span class="iconify" data-icon="lucide:map-pin" data-width="14"></span>
+                    <span>Pottstown, PA</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+</body></html>
