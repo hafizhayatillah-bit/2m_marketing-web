@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-brands/css/uicons-brands.css">
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
   <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 </head>
 <body data-page="news" class="bg-canvas text-ink font-body flex flex-col min-h-screen">
   <div id="site-header"></div>
@@ -33,6 +34,24 @@
   </main>
 
   <div id="site-footer"></div>
+
+  <!-- Article detail modal: hidden by default, populated on-demand when a card is clicked -->
+  <div id="news-modal" class="hidden fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/50 p-4 md:p-8">
+    <div class="bg-surface rounded-2xl max-w-2xl w-full my-8 shadow-xl">
+      <div class="flex justify-end p-3">
+        <button id="news-modal-close" type="button" class="text-ink-muted hover:text-ink" aria-label="Tutup">
+          <iconify-icon icon="lucide:x" width="24"></iconify-icon>
+        </button>
+      </div>
+      <div class="px-6 pb-8">
+        <img id="news-modal-image" src="" alt="" class="hidden w-full max-h-[400px] object-cover mx-auto block rounded-xl mb-6">
+        <span id="news-modal-date" class="font-body text-sm text-ink-muted"></span>
+        <h2 id="news-modal-title" class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink mt-1 mb-4"></h2>
+        <div id="news-modal-content" class="prose prose-sm md:prose-base max-w-none"></div>
+      </div>
+    </div>
+  </div>
+
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/partials.js"></script>
   <script src="/assets/js/news.js"></script>
