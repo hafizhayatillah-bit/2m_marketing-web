@@ -17,15 +17,20 @@ function formatEventDate(eventDate) {
 
 function newsCardMarkup(item) {
   const image = item.image_url
-    ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy" class="w-full h-48 object-cover">`
-    : `<div class="w-full h-48 flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
+    ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">`
+    : `<div class="w-full h-full flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
 
   return `
-    <article data-news-id="${item.id}" class="cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all">
-      <div class="bg-canvas overflow-hidden">${image}</div>
+    <article data-news-id="${item.id}" class="group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30">
+      <div class="relative aspect-video bg-canvas overflow-hidden">
+        ${image}
+        <span class="absolute bottom-3 left-3 bg-surface/95 backdrop-blur text-ink-muted text-xs font-bold px-3 py-1 rounded-full shadow-sm">${formatEventDate(item.event_date)}</span>
+      </div>
       <div class="p-4">
-        <span class="font-body text-sm text-ink-muted">${formatEventDate(item.event_date)}</span>
-        <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink mt-1">${escapeHtml(item.title)}</h3>
+        <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink transition-colors duration-300 group-hover:text-primary">${escapeHtml(item.title)}</h3>
+        <span class="inline-flex items-center gap-1 mt-3 text-sm font-bold text-primary opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+          Baca Selengkapnya <iconify-icon icon="lucide:arrow-right" width="16"></iconify-icon>
+        </span>
       </div>
     </article>
   `;
@@ -38,16 +43,20 @@ function showNewsState(state) {
   document.getElementById("news-grid").classList.toggle("hidden", state !== "grid");
 }
 
+const NEWS_MODAL_TRANSITION_MS = 300; // keep in sync with the duration-300 classes on the modal/panel
+
 function openNewsModal(item) {
   const modal = document.getElementById("news-modal");
+  const panel = document.getElementById("news-modal-panel");
+  const imageWrap = document.getElementById("news-modal-image-wrap");
   const image = document.getElementById("news-modal-image");
 
   if (item.image_url) {
     image.src = item.image_url;
     image.alt = item.title;
-    image.classList.remove("hidden");
+    imageWrap.classList.remove("hidden");
   } else {
-    image.classList.add("hidden");
+    imageWrap.classList.add("hidden");
   }
 
   document.getElementById("news-modal-date").textContent = formatEventDate(item.event_date);
@@ -57,11 +66,23 @@ function openNewsModal(item) {
 
   modal.classList.remove("hidden");
   document.body.classList.add("overflow-hidden");
+
+  // wait a frame after un-hiding so the fade/scale-in transition actually plays
+  requestAnimationFrame(() => {
+    modal.classList.remove("opacity-0");
+    panel.classList.remove("opacity-0", "scale-95", "translate-y-4");
+  });
 }
 
 function closeNewsModal() {
-  document.getElementById("news-modal").classList.add("hidden");
+  const modal = document.getElementById("news-modal");
+  const panel = document.getElementById("news-modal-panel");
+
+  modal.classList.add("opacity-0");
+  panel.classList.add("opacity-0", "scale-95", "translate-y-4");
   document.body.classList.remove("overflow-hidden");
+
+  setTimeout(() => modal.classList.add("hidden"), NEWS_MODAL_TRANSITION_MS);
 }
 
 async function openNewsDetail(newsId) {

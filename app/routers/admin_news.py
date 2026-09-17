@@ -1,12 +1,13 @@
 from typing import Optional
 from datetime import date
 
-from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from fastapi import APIRouter, Depends, Request, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.auth import verify_admin
+from app.cloudinary_utils import upload_image
 from app.database import get_db
 from app.models import News
 
@@ -46,8 +47,11 @@ def create_news(
     content: str = Form(...),
     event_date: date = Form(...),
     image_url: Optional[str] = Form(None),
+    image_file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
+    if image_file and image_file.filename:
+        image_url = upload_image(image_file, folder="news")
     new_news = News(title=title, content=content, event_date=event_date, image_url=image_url)
     db.add(new_news)
     db.commit()
@@ -71,9 +75,12 @@ def edit_news(
     content: str = Form(...),
     event_date: date = Form(...),
     image_url: Optional[str] = Form(None),
+    image_file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
     news = _get_news_or_404(news_id, db)
+    if image_file and image_file.filename:
+        image_url = upload_image(image_file, folder="news")
     news.title = title
     news.content = content
     news.event_date = event_date

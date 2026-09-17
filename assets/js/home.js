@@ -105,12 +105,26 @@ let featuredProductsItems = [];
 let featuredProductsPage = 0;
 
 function featuredProductCardMarkup(item, indexInFullList) {
-  const isLazy = indexInFullList >= FEATURED_LAZY_LOAD_START_INDEX;
+  const isLazy = indexInFullList >= FEATURED_LAZY_LOAD_START_INDEX; 
   return `
     <a href="/product?id=${encodeURIComponent(item.product_id)}"
-       class="featured-product-card block rounded-2xl overflow-hidden border border-ink/10 shadow-sm hover:shadow-md transition-all opacity-0 -translate-y-1">
-      <img src="${escapeHtml(item.image_url || "")}" alt="${escapeHtml(item.name)}" width="300" height="300"
-           loading="${isLazy ? "lazy" : "eager"}" decoding="async" class="w-full aspect-square object-cover bg-canvas">
+       class="group featured-product-card flex flex-col bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-100/60 hover:border-emerald-200 cursor-pointer opacity-0 -translate-y-1 h-full">
+      
+      <!-- 1. Kontainer Gambar (Edge-to-edge, tanpa padding) -->
+      <div class="w-full h-48 md:h-56 shrink-0 bg-gray-50 overflow-hidden">
+        <img src="${escapeHtml(item.image_url || "")}" alt="${escapeHtml(item.name)}" 
+             loading="${isLazy ? "lazy" : "eager"}" decoding="async" 
+             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+             onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
+      </div>
+      
+      <!-- 2. Kontainer Teks (Punya padding sendiri, background putih) -->
+      <div class="p-5 md:p-6 flex flex-col grow">
+        <h3 class="font-display font-bold text-slate-900 text-left text-base md:text-lg line-clamp-2 mt-auto transition-colors duration-300 group-hover:text-emerald-600">
+          ${escapeHtml(item.name)}
+        </h3>
+      </div>
+      
     </a>
   `;
 }

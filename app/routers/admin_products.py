@@ -1,12 +1,13 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from fastapi import APIRouter, Depends, Request, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import distinct, select
 from sqlalchemy.orm import Session
 
 from app.auth import verify_admin
+from app.cloudinary_utils import upload_image
 from app.database import get_db
 from app.models import Product
 
@@ -51,8 +52,11 @@ def create_product(
     category: str = Form(...),
     description: Optional[str] = Form(None),
     image_url: Optional[str] = Form(None),
+    image_file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
+    if image_file and image_file.filename:
+        image_url = upload_image(image_file, folder="products")
     new_product = Product(name=name, category=category, description=description, image_url=image_url)
     db.add(new_product)
     db.commit()
@@ -76,9 +80,12 @@ def edit_product(
     category: str = Form(...),
     description: Optional[str] = Form(None),
     image_url: Optional[str] = Form(None),
+    image_file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
     product = _get_product_or_404(product_id, db)
+    if image_file and image_file.filename:
+        image_url = upload_image(image_file, folder="products")
     product.name = name
     product.category = category
     product.description = description

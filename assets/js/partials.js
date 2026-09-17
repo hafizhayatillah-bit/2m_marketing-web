@@ -7,7 +7,11 @@ async function injectPartial(targetSelector, url) {
   const target = document.querySelector(targetSelector);
   if (!target) return;
   const response = await fetch(url);
-  target.innerHTML = await response.text();
+  // Unwrap the placeholder div: a sticky <header> stuck inside a same-height
+  // wrapper div never gets room to actually stick, since its containing block
+  // (the wrapper) scrolls out in lockstep with it. Replacing the wrapper itself
+  // makes <header> a direct child of <body>, so `sticky top-0` works properly.
+  target.outerHTML = await response.text();
 }
 
 function highlightActiveNavLink() {

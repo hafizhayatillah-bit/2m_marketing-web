@@ -16,6 +16,7 @@ from app.routers import (
     featured_products,
 )
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.database import engine, Base, get_db
 from app.routers import pages
 
@@ -40,6 +41,11 @@ app.include_router(pages.router)
 # Frontend publik (HTML + Tailwind build + partials) disajikan sebagai static files.
 app.mount("/assets", StaticFiles(directory=PROJECT_ROOT / "assets"), name="assets")
 app.mount("/partials", StaticFiles(directory=PROJECT_ROOT / "partials"), name="partials")
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    # Browsers request this path by default even though we only ship an SVG icon.
+    return FileResponse(PROJECT_ROOT / "assets" / "favicon.svg", media_type="image/svg+xml")
 
 @app.get("/health")
 def health():

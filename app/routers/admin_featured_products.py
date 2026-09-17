@@ -1,12 +1,13 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth import verify_admin
+from app.cloudinary_utils import upload_image
 from app.database import get_db
 from app.models import FeaturedProduct, Product
 from app.routers.featured_products import invalidate_featured_products_cache
@@ -53,9 +54,12 @@ def create_featured_product_form(request: Request, db: Session = Depends(get_db)
 def create_featured_product(
     product_id: int = Form(...),
     image_url: Optional[str] = Form(None),
+    image_file: Optional[UploadFile] = File(None),
     position: int = Form(...),
     db: Session = Depends(get_db),
 ):
+    if image_file and image_file.filename:
+        image_url = upload_image(image_file, folder="featured_products")
     new_featured_product = FeaturedProduct(product_id=product_id, image_url=image_url or None, position=position)
     db.add(new_featured_product)
     db.commit()
@@ -78,10 +82,13 @@ def edit_featured_product(
     featured_product_id: int,
     product_id: int = Form(...),
     image_url: Optional[str] = Form(None),
+    image_file: Optional[UploadFile] = File(None),
     position: int = Form(...),
     db: Session = Depends(get_db),
 ):
     featured_product = _get_featured_product_or_404(featured_product_id, db)
+    if image_file and image_file.filename:
+        image_url = upload_image(image_file, folder="featured_products")
     featured_product.product_id = product_id
     featured_product.image_url = image_url or None
     featured_product.position = position

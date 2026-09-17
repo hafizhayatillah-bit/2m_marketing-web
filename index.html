@@ -4,12 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2M Sembako — Home</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn-uicons.flaticon.com">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://code.iconify.design">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/output.css">
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-brands/css/uicons-brands.css">
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
-  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js" defer></script>
 </head>
 <body data-page="home" class="bg-canvas text-ink font-body flex flex-col min-h-screen">
   <div id="site-header"></div>
@@ -23,7 +29,7 @@
             Grosir Sembako Harga <span class="text-primary">Bersahabat</span>
           </h1>
           <p class="font-body text-ink-muted mt-4 text-lg max-w-md">
-            Kebutuhan sehari-hari lengkap, tersedia di 11 cabang 2M Sembako terdekat dari Anda.
+            Kebutuhan sehari-hari lengkap, tersedia di 6 cabang 2M Sembako terdekat dari Anda.
           </p>
           <a href="https://wa.me/" data-wa-link
              class="mt-8 inline-flex bg-primary hover:bg-secondary text-white rounded-full px-6 py-3 items-center gap-2 font-bold uppercase tracking-wide text-sm shadow-sm hover:-translate-y-0.5 transition-all">
@@ -32,7 +38,7 @@
         </div>
         <div class="order-1 md:order-2">
           <div class="rounded-2xl bg-canvas aspect-square md:aspect-[4/3] overflow-hidden border border-ink/10">
-            <img id="hero-image" src="/assets/img/hero-produk.jpg" alt="Produk sembako 2M Sembako"
+            <img id="hero-image" src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Produk sembako 2M Sembako"
                  class="w-full h-full object-cover">
           </div>
         </div>
@@ -41,20 +47,206 @@
 
     <!-- Produk Unggulan (replaces the legacy Promo Aktif section; see partials/promo-section.html) -->
     <section id="featured-products-section" class="hidden max-w-7xl mx-auto px-4 py-12 md:py-16">
-      <h2 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink text-center">Produk Unggulan</h2>
+      <!-- Wrapper utama bergaya block putih (menyesuaikan UI referensi) -->
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
+        
+        <div class="flex items-center justify-center gap-4">
+          <span class="h-px w-10 md:w-12 bg-primary"></span>
+          <h2 class="font-display font-bold uppercase tracking-wide text-xl md:text-2xl text-slate-800 text-center">
+            Produk <span class="text-primary">Unggulan</span>
+          </h2>
+          <span class="h-px w-10 md:w-12 bg-primary"></span>
+        </div>
 
-      <div class="relative mt-8">
-        <button id="featured-prev" type="button" aria-label="Sebelumnya"
-                class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-surface border border-ink/10 shadow-sm flex items-center justify-center hover:bg-canvas disabled:opacity-30 disabled:cursor-not-allowed">
-          <iconify-icon icon="lucide:arrow-left" width="20"></iconify-icon>
-        </button>
+        <div class="relative mt-12">
+          <!-- Tombol Prev -->
+          <button id="featured-prev" type="button" aria-label="Sebelumnya"
+                  class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 z-10 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 hover:scale-105 transition-all shadow-md disabled:opacity-30 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-angle-left"></i>
+          </button>
 
-        <div id="featured-products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+          <!-- Grid kosong, item akan disuntikkan via renderFeaturedProductsPage() -->
+          <div id="featured-products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
 
-        <button id="featured-next" type="button" aria-label="Berikutnya"
-                class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-surface border border-ink/10 shadow-sm flex items-center justify-center hover:bg-canvas disabled:opacity-30 disabled:cursor-not-allowed">
-          <iconify-icon icon="lucide:arrow-right" width="20"></iconify-icon>
-        </button>
+          <!-- Tombol Next -->
+          <button id="featured-next" type="button" aria-label="Berikutnya"
+                  class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 z-10 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 hover:scale-105 transition-all shadow-md disabled:opacity-30 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-angle-right"></i>
+          </button>
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- Model Bisnis -->
+    <!-- UBAH: py-16 jadi py-24 md:py-32 (Lebih tinggi) -->
+    <section class="bg-gray-50 py-24 md:py-32">
+      <!-- UBAH: max-w-6xl jadi max-w-7xl (Lebih lebar) -->
+      <div class="max-w-7xl mx-auto px-6 md:px-8">
+        <div class="text-center">
+          <span class="text-sm font-bold uppercase tracking-widest text-emerald-600">Model Bisnis Kami</span>
+          <!-- UBAH: text-4xl jadi text-4xl md:text-5xl (Font lebih raksasa) -->
+          <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mt-4">Ekonomi Closed-Open Loop</h2>
+          <p class="text-gray-500 font-normal mt-6 max-w-3xl mx-auto md:text-lg">
+            Kami tidak hanya menjual produk; kami mengintegrasikan seluruh rantai pasok. Model kami memastikan keberlanjutan dan efisiensi dari peternakan hingga dapur Anda.
+          </p>
+        </div>
+
+        <!-- UBAH: gap-6 jadi gap-8 md:gap-10 (Jarak antar kartu lebih jauh) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 mt-16 items-stretch">
+          <!-- UBAH: p-8 jadi p-10 md:p-14 (Bantalan dalam kartu jauh lebih luas) -->
+          <div class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
+            <!-- UBAH: w-14 h-14 jadi w-16 h-16 (Icon lebih besar) -->
+            <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
+              <i class="fa-solid fa-leaf text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 text-xl mb-3">Rantai Pasok Terintegrasi</h3>
+            <p class="text-gray-500 text-base leading-relaxed">Koneksi mulus dari produsen hulu ke konsumen hilir.</p>
+          </div>
+          
+          <div class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
+            <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
+              <i class="fa-solid fa-user-check text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 text-xl mb-3">Jaminan Kualitas</h3>
+            <p class="text-gray-500 text-base leading-relaxed">Mekanisme kontrol ketat untuk memastikan standar Halalan Thoyyiban.</p>
+          </div>
+          
+          <div class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
+            <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
+              <i class="fa-solid fa-cube text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 text-xl mb-3">Portofolio Beragam</h3>
+            <p class="text-gray-500 text-base leading-relaxed">Dari bahan mentah hingga kemasan, kami memenuhi semua kebutuhan F&amp;B.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Katalog Kami -->
+    <!-- UBAH: py-16 jadi py-24 md:py-32 (Lebih tinggi) -->
+    <section class="bg-slate-900 py-24 md:py-32">
+      <div class="max-w-7xl mx-auto px-6 md:px-8">
+        <div class="mb-12">
+          <span class="text-sm font-bold uppercase tracking-widest text-emerald-400">Katalog Kami</span>
+          <!-- UBAH: text-4xl jadi text-4xl md:text-5xl (Font lebih raksasa) -->
+          <h2 class="text-4xl md:text-5xl font-bold text-white mt-4">Kategori Produk Kami</h2>
+        </div>
+
+        <!-- UBAH: gap-4 jadi gap-6 md:gap-8 -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 mt-12">
+          <!-- UBAH: p-6 jadi p-8 md:p-10 (Bantalan kartu gelap lebih luas) -->
+          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
+              <i class="fa-solid fa-bottle-water text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+            </div>
+            <h3 class="font-bold text-white text-lg mb-2">Minuman &amp; Susu</h3>
+            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Air mineral, teh, kopi, hingga susu kemasan.</p>
+          </div>
+          
+          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
+              <i class="fa-solid fa-snowflake text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+            </div>
+            <h3 class="font-bold text-white text-lg mb-2">Frozen Food</h3>
+            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Nugget, sosis, hingga bakso beku siap masak.</p>
+          </div>
+          
+          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
+              <i class="fa-solid fa-cart-shopping text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+            </div>
+            <h3 class="font-bold text-white text-lg mb-2">Sembako</h3>
+            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Beras, minyak, gula, hingga tepung kebutuhan pokok.</p>
+          </div>
+          
+          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
+              <i class="fa-solid fa-pepper-hot text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+            </div>
+            <h3 class="font-bold text-white text-lg mb-2">Bumbu Dapur</h3>
+            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Rempah, saus, hingga bumbu instan lengkap.</p>
+          </div>
+          
+          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
+              <i class="fa-solid fa-drumstick-bite text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+            </div>
+            <h3 class="font-bold text-white text-lg mb-2">Snack</h3>
+            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Camilan ringan hingga makanan kemasan favorit.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hubungi Kami -->
+    <!-- UBAH: Background jadi gray-50 agar kartu putih timbul, padding jadi py-24 md:py-32 -->
+    <section class="bg-gray-50 py-24 md:py-32">
+      <!-- UBAH: max-w-6xl jadi max-w-7xl agar sejajar dengan section sebelumnya -->
+      <div class="max-w-7xl mx-auto px-6 md:px-8">
+        
+        <!-- UBAH: Tambah bg-white, rounded-3xl, dan shadow-xl yang lebih soft -->
+        <div class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/50 border border-gray-100 grid grid-cols-1 md:grid-cols-2 items-stretch">
+          
+          <!-- UBAH: Padding dalam card diperbesar ekstrim (p-16/p-20) untuk whitespace -->
+          <div class="p-10 md:p-16 lg:p-20 flex flex-col justify-center">
+            <!-- UBAH: Judul jadi text-5xl -->
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-900">Hubungi Kami</h2>
+            <p class="text-gray-500 mt-4 md:mt-6 md:text-lg">Siap untuk menyederhanakan rantai pasok Anda? Hubungi 2M Sembako hari ini.</p>
+
+            <!-- UBAH: Jarak antar list direnggangkan jadi space-y-8 -->
+            <div class="mt-10 md:mt-12 space-y-8">
+              
+              <div class="flex items-start gap-5">
+                <!-- UBAH: Ikon dibesarkan jadi w-12 h-12 -->
+                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+                  <i class="fa-solid fa-clock text-xl" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-lg">Jam Operasional</h3>
+                  <p class="text-gray-700 text-base mt-1">07.00 - 19.00 WIB</p>
+                  <p class="text-emerald-600 text-sm mt-0.5">Senin - Minggu</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-5">
+                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+                  <i class="fa-solid fa-phone text-xl" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-lg">WhatsApp / Telepon</h3>
+                  <a href="https://wa.me/" data-wa-link class="block text-gray-700 text-base mt-1 hover:text-emerald-600 transition">Chat langsung via WhatsApp</a>
+                  <p class="text-emerald-600 text-sm mt-0.5">Respon cepat selama jam kerja</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-5">
+                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+                  <i class="fa-solid fa-location-dot text-xl" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-lg">Kantor Pusat</h3>
+                  <p class="text-gray-700 text-base mt-1 leading-relaxed">2M Sembako - Jatibening, Jl Paus Raya Blok E No 38 Komplek TNI AL, Jatibening Indah, Jatikramat</p>
+                  <p class="text-emerald-600 text-sm mt-1">Bekasi, Indonesia</p>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+
+          <!-- Sisi Gambar -->
+          <div class="relative min-h-[400px] md:min-h-0">
+            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3JvY2VyeXxlbnwwfHwwfHx8MA%3D%3D" alt="Rak sayuran segar 2M Sembako" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/20"></div>
+            
+            <!-- UBAH: Tombol dibesarkan (px-8 py-4 text-base) + efek hover scale -->
+            <a href="https://wa.me/" data-wa-link target="_blank" rel="noopener noreferrer"
+              class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center gap-3 bg-white rounded-full px-8 py-4 shadow-lg font-bold text-emerald-700 text-base hover:scale-105 transition-transform whitespace-nowrap">
+              <i class="fa-brands fa-whatsapp text-emerald-600 text-2xl" aria-hidden="true"></i> Chat dengan Kami
+            </a>
+          </div>
+          
+        </div>
       </div>
     </section>
 
