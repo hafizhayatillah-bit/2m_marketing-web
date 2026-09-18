@@ -133,4 +133,33 @@
   .header--transparent [data-nav-link].border-primary {
     border-color: #C5E898;
   }
+
+  /* Scroll-triggered reveal: element starts hidden, assets/js/scrollObserver.js
+     adds .is-visible via IntersectionObserver (once) when it enters the viewport.
+     Pair with a Tailwind `delay-*` utility on the element to stagger a grid of cards. */
+  [data-animate] {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition-property: opacity, transform;
+    transition-duration: 700ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  /* Opacity-only variant for elements that shouldn't shift position (e.g. wide banners). */
+  [data-animate="fade-in"] {
+    transform: none;
+  }
+
+  [data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-animate] {
+      transition-duration: 1ms;
+      transform: none;
+    }
+  }
 }

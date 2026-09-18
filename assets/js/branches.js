@@ -15,6 +15,10 @@ const CLOCK_ICON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 let branchMap = null;
 const markerByBranchId = new Map();
 
+// Literal class names (so Tailwind's content scanner can find them) used to stagger
+// card entrances; cycles for grids larger than the list.
+const STAGGER_DELAYS = ["", "delay-100", "delay-200", "delay-300", "delay-400"];
+
 function escapeHtml(value) {
   const div = document.createElement("div");
   div.textContent = value ?? "";
@@ -62,7 +66,7 @@ function assignMarkerNumbers(branches) {
   return numbers;
 }
 
-function branchCardMarkup(branch, markerNumber, defaultHours) {
+function branchCardMarkup(branch, markerNumber, defaultHours, index) {
   const hoursLine = branch.operating_hours !== defaultHours
     ? `<p class="font-body text-sm text-ink-muted mt-2">${escapeHtml(branch.operating_hours)}</p>`
     : "";
@@ -76,9 +80,10 @@ function branchCardMarkup(branch, markerNumber, defaultHours) {
     ? ` data-branch-id="${branch.id}" tabindex="0" role="button" aria-label="Lihat lokasi cabang ini di peta"`
     : "";
   const interactiveClasses = markerNumber ? " cursor-pointer" : "";
+  const delayClass = STAGGER_DELAYS[index % STAGGER_DELAYS.length];
 
   return `
-    <article class="group relative flex flex-col h-full bg-surface rounded-2xl border border-ink/10 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-primary/30${interactiveClasses}"${interactiveAttrs}>
+    <article data-animate="fade-in-up" class="${delayClass} group relative flex flex-col h-full bg-surface rounded-2xl border border-ink/10 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-primary/30${interactiveClasses}"${interactiveAttrs}>
       <div class="flex items-center gap-2.5">
         <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary shrink-0 transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
           ${PIN_ICON_SVG}
@@ -203,9 +208,11 @@ async function loadBranches() {
     renderDefaultHoursNote(defaultHours);
 
     const markerNumbers = assignMarkerNumbers(branches);
-    document.getElementById("branch-grid").innerHTML = branches
-      .map((branch) => branchCardMarkup(branch, markerNumbers.get(branch.id), defaultHours))
+    const grid = document.getElementById("branch-grid");
+    grid.innerHTML = branches
+      .map((branch, index) => branchCardMarkup(branch, markerNumbers.get(branch.id), defaultHours, index))
       .join("");
+    window.ScrollObserver?.observeAll(grid);
     showBranchState("grid");
 
     initBranchMap(branches);

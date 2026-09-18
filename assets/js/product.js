@@ -3,9 +3,28 @@
 const PRODUCTS_ENDPOINT = "/api/v1/public/products";
 const ALL_CATEGORY = "Semua";
 
+// Best-effort visual pairing; unmatched categories fall back to a generic tag icon.
+const CATEGORY_ICONS = {
+  [ALL_CATEGORY]: "fa-solid fa-layer-group",
+  "Sembako": "fa-solid fa-bowl-rice",
+  "Minuman & Susu": "fa-solid fa-mug-hot",
+  "Snack": "fa-solid fa-cookie-bite",
+  "Bumbu Dapur": "fa-solid fa-pepper-hot",
+  "Gas & Air Galon": "fa-solid fa-fire-flame-simple",
+  "Perlengkapan Mandi & Perawatan Pribadi": "fa-solid fa-pump-soap",
+  "Perlengkapan Rumah Tangga": "fa-solid fa-house",
+  "Frozen Food": "fa-solid fa-snowflake",
+  "Roti & Kue": "fa-solid fa-bread-slice",
+  "Lainnya": "fa-solid fa-box",
+};
+
 let allProducts = [];
 let categoryOrder = [];
 let activeCategory = ALL_CATEGORY;
+
+// Literal class names (so Tailwind's content scanner can find them) used to stagger
+// card entrances; cycles for grids larger than the list.
+const STAGGER_DELAYS = ["", "delay-100", "delay-200", "delay-300", "delay-400"];
 
 function escapeHtml(value) {
   const div = document.createElement("div");
@@ -34,7 +53,7 @@ function groupByCategory(products) {
   return groups;
 }
 
-function productCardMarkup(product) {
+function productCardMarkup(product, index) {
   const image = product.image_url
     ? `<img src="${escapeHtml(product.image_url)}" alt="${escapeHtml(product.name)}" loading="lazy" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110">`
     : `<div class="w-full h-full flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
@@ -46,9 +65,10 @@ function productCardMarkup(product) {
         <iconify-icon icon="lucide:zoom-in" width="14"></iconify-icon> Lihat Gambar
       </span>`
     : "";
+  const delayClass = STAGGER_DELAYS[index % STAGGER_DELAYS.length];
 
   return `
-    <article data-product-id="${product.id}" class="group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30">
+    <article data-product-id="${product.id}" data-animate="fade-in-up" class="${delayClass} group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30">
       <div class="relative h-48 p-4 bg-surface overflow-hidden">
         ${image}
         ${viewImageBadge}
@@ -66,35 +86,42 @@ function categorySectionMarkup(category, products) {
     <div>
       <h2 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink mb-6">${escapeHtml(category)}</h2>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-        ${products.map(productCardMarkup).join("")}
+        ${products.map((product, index) => productCardMarkup(product, index)).join("")}
       </div>
     </div>
   `;
 }
 
-function categoryTabMarkup(category) {
-  const isActive = category === activeCategory;
-  const stateClasses = isActive
-    ? "bg-primary text-white"
-    : "bg-surface text-ink-muted border border-canvas hover:text-primary";
-  return `<button type="button" class="category-tab shrink-0 rounded-full px-5 py-2 font-display font-bold uppercase tracking-wide text-sm transition-colors ${stateClasses}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>`;
+function categoryOptionMarkup(category, isFirst) {
+  const icon = CATEGORY_ICONS[category] || "fa-solid fa-tag";
+  const borderClass = isFirst ? "" : "border-t border-ink/5";
+  return `<button type="button" data-category="${escapeHtml(category)}" class="category-option w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-body text-ink hover:bg-primary/10 hover:text-primary transition-colors duration-200 ${borderClass}">
+      <span class="flex items-center gap-2"><i class="${icon} text-xs" aria-hidden="true"></i> ${escapeHtml(category)}</span>
+      <i class="fa-solid fa-check text-xs category-option-check opacity-0 transition-opacity duration-200" aria-hidden="true"></i>
+    </button>`;
 }
 
-function renderFilterTabs() {
-  const tabs = [ALL_CATEGORY, ...categoryOrder];
-  document.getElementById("product-filter").innerHTML = tabs.map(categoryTabMarkup).join("");
+function renderFilterMenu() {
+  const categories = [ALL_CATEGORY, ...categoryOrder];
+  document.getElementById("product-filter-menu").innerHTML = categories
+    .map((category, index) => categoryOptionMarkup(category, index === 0))
+    .join("");
 }
 
-function updateTabStyles() {
-  document.querySelectorAll(".category-tab").forEach((btn) => {
-    const isActive = btn.dataset.category === activeCategory;
-    btn.classList.toggle("bg-primary", isActive);
-    btn.classList.toggle("text-white", isActive);
-    btn.classList.toggle("bg-surface", !isActive);
-    btn.classList.toggle("text-ink-muted", !isActive);
-    btn.classList.toggle("border", !isActive);
-    btn.classList.toggle("border-canvas", !isActive);
-    btn.classList.toggle("hover:text-primary", !isActive);
+function updateActiveFilterBadge(category) {
+  const icon = CATEGORY_ICONS[category] || "fa-solid fa-tag";
+  document.getElementById("product-active-filter-icon").className = `${icon} text-[11px]`;
+  document.getElementById("product-active-filter-label").textContent = category;
+}
+
+function updateFilterMenuActiveState(category) {
+  document.querySelectorAll(".category-option").forEach((btn) => {
+    const isActive = btn.dataset.category === category;
+    btn.classList.toggle("text-primary", isActive);
+    btn.classList.toggle("bg-primary/5", isActive);
+    btn.classList.toggle("font-bold", isActive);
+    btn.querySelector(".category-option-check").classList.toggle("opacity-100", isActive);
+    btn.querySelector(".category-option-check").classList.toggle("opacity-0", !isActive);
   });
 }
 
@@ -107,12 +134,15 @@ function renderProductView() {
     const filtered = allProducts.filter((product) => product.category === activeCategory);
     sections = [categorySectionMarkup(activeCategory, filtered)];
   }
-  document.getElementById("product-categories").innerHTML = sections.join("");
+  const container = document.getElementById("product-categories");
+  container.innerHTML = sections.join("");
+  window.ScrollObserver?.observeAll(container);
 }
 
 function setActiveCategory(category) {
   activeCategory = category;
-  updateTabStyles();
+  updateActiveFilterBadge(category);
+  updateFilterMenuActiveState(category);
   renderProductView();
 }
 
@@ -124,11 +154,38 @@ function showProductState(state) {
   document.getElementById("product-categories").classList.toggle("hidden", state !== "categories");
 }
 
-function setupFilterTabClicks() {
-  document.getElementById("product-filter").addEventListener("click", (event) => {
-    const btn = event.target.closest(".category-tab");
+function openFilterMenu() {
+  const menu = document.getElementById("product-filter-menu");
+  document.getElementById("product-filter-chevron").classList.add("rotate-180");
+  menu.classList.remove("hidden");
+  requestAnimationFrame(() => menu.classList.remove("opacity-0", "scale-95"));
+}
+
+function closeFilterMenu() {
+  const menu = document.getElementById("product-filter-menu");
+  document.getElementById("product-filter-chevron").classList.remove("rotate-180");
+  menu.classList.add("opacity-0", "scale-95");
+  setTimeout(() => menu.classList.add("hidden"), 150);
+}
+
+function setupProductFilter() {
+  const toggle = document.getElementById("product-filter-toggle");
+  const menu = document.getElementById("product-filter-menu");
+
+  toggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    menu.classList.contains("hidden") ? openFilterMenu() : closeFilterMenu();
+  });
+
+  menu.addEventListener("click", (event) => {
+    const btn = event.target.closest(".category-option");
     if (!btn) return;
     setActiveCategory(btn.dataset.category);
+    closeFilterMenu();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!menu.classList.contains("hidden") && !event.target.closest("#product-filter-dropdown")) closeFilterMenu();
   });
 }
 
@@ -198,7 +255,9 @@ async function loadProducts() {
     categoryOrder = extractCategoryOrder(products);
     activeCategory = ALL_CATEGORY;
 
-    renderFilterTabs();
+    renderFilterMenu();
+    updateActiveFilterBadge(activeCategory);
+    updateFilterMenuActiveState(activeCategory);
     renderProductView();
     showProductState("categories");
   } catch (error) {
@@ -207,7 +266,7 @@ async function loadProducts() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupFilterTabClicks();
+  setupProductFilter();
   setupProductImageModal();
   loadProducts();
 });

@@ -24,54 +24,22 @@
 
   <main class="flex-grow">
     <div class="bg-gradient-to-b from-primary/10 to-surface border-b border-ink/10 pt-16 md:pt-20">
-      <section class="max-w-7xl mx-auto px-4 py-16 md:py-20">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center">
-          <div>
-            <span class="inline-block font-display font-bold uppercase tracking-widest text-xs text-primary mb-3">Update Terbaru</span>
-            <h1 class="font-display font-bold uppercase tracking-tight text-4xl text-ink">Info &amp; Event</h1>
-            <p class="font-body text-ink-muted mt-4 max-w-xl">Promo, event, dan kabar terbaru dari seluruh cabang 2M Sembako — biar kamu selalu update.</p>
+      <section class="max-w-7xl mx-auto px-4 py-16 md:py-20" data-animate>
+        <div>
+          <span class="inline-block font-display font-bold uppercase tracking-widest text-xs text-primary mb-3">Update Terbaru</span>
+          <h1 class="font-display font-bold uppercase tracking-tight text-4xl text-ink">Info &amp; Event</h1>
+          <p class="font-body text-ink-muted mt-4 max-w-xl">Promo, event, dan kabar terbaru dari seluruh cabang 2M Sembako — biar kamu selalu update.</p>
 
-            <div class="mt-6 flex flex-wrap gap-3">
-              <span class="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
-                <i class="fa-solid fa-tags" aria-hidden="true"></i> Promo Mingguan
-              </span>
-              <span class="inline-flex items-center gap-2 bg-secondary/10 text-secondary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
-                <i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Event Cabang
-              </span>
-              <span class="inline-flex items-center gap-2 bg-accent/30 text-ink text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
-                <i class="fa-solid fa-store" aria-hidden="true"></i> Cabang Baru
-              </span>
-            </div>
-          </div>
-
-          <div class="relative">
-            <div class="absolute -inset-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/20 rounded-[2.5rem] -z-10 blur-2xl"></div>
-            <div class="relative bg-surface rounded-3xl shadow-xl border border-ink/10 p-8 grid grid-cols-2 gap-6">
-              <div class="group text-center">
-                <div class="w-12 h-12 mx-auto rounded-2xl bg-primary/10 text-primary flex items-center justify-center transition-all duration-300 group-hover:bg-primary group-hover:text-white group-hover:-rotate-6 group-hover:scale-110">
-                  <i class="fa-solid fa-bullhorn text-lg"></i>
-                </div>
-                <p class="font-display font-bold text-xs uppercase tracking-wide text-ink mt-3">Promo</p>
-              </div>
-              <div class="group text-center">
-                <div class="w-12 h-12 mx-auto rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center transition-all duration-300 group-hover:bg-secondary group-hover:text-white group-hover:rotate-6 group-hover:scale-110">
-                  <i class="fa-solid fa-calendar-check text-lg"></i>
-                </div>
-                <p class="font-display font-bold text-xs uppercase tracking-wide text-ink mt-3">Event</p>
-              </div>
-              <div class="group text-center">
-                <div class="w-12 h-12 mx-auto rounded-2xl bg-accent/30 text-ink flex items-center justify-center transition-all duration-300 group-hover:bg-accent group-hover:scale-110">
-                  <i class="fa-solid fa-store text-lg"></i>
-                </div>
-                <p class="font-display font-bold text-xs uppercase tracking-wide text-ink mt-3">Cabang Baru</p>
-              </div>
-              <div class="group text-center">
-                <div class="w-12 h-12 mx-auto rounded-2xl bg-primary/10 text-primary flex items-center justify-center transition-all duration-300 group-hover:bg-primary group-hover:text-white group-hover:-rotate-6 group-hover:scale-110">
-                  <i class="fa-solid fa-gift text-lg"></i>
-                </div>
-                <p class="font-display font-bold text-xs uppercase tracking-wide text-ink mt-3">Diskon</p>
-              </div>
-            </div>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <span class="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+              <i class="fa-solid fa-tags" aria-hidden="true"></i> Promo
+            </span>
+            <span class="inline-flex items-center gap-2 bg-secondary/10 text-secondary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+              <i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Event
+            </span>
+            <span class="inline-flex items-center gap-2 bg-accent/30 text-ink text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+              <i class="fa-solid fa-newspaper" aria-hidden="true"></i> News
+            </span>
           </div>
         </div>
       </section>
@@ -82,6 +50,42 @@
       <div class="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" aria-hidden="true"></div>
 
       <section class="relative max-w-7xl mx-auto px-4 py-12 md:py-16">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-body text-sm text-ink-muted">Menampilkan:</span>
+            <span class="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+              <i id="news-active-filter-icon" class="fa-solid fa-arrow-down-wide-short text-[11px]" aria-hidden="true"></i>
+              <span id="news-active-filter-label">Terbaru</span>
+            </span>
+          </div>
+
+          <div class="relative" id="news-filter-dropdown">
+            <button id="news-filter-toggle" type="button"
+              class="inline-flex items-center gap-2 bg-surface border border-ink/10 rounded-full px-4 py-2 text-sm font-display font-bold uppercase tracking-wide text-ink shadow-sm hover:border-primary/40 hover:shadow-md transition-all duration-300">
+              <i class="fa-solid fa-sliders text-xs" aria-hidden="true"></i> Filter
+              <i id="news-filter-chevron" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" aria-hidden="true"></i>
+            </button>
+
+            <div id="news-filter-menu" class="hidden opacity-0 scale-95 origin-top-right transition-all duration-150 absolute right-0 mt-2 w-48 bg-surface rounded-2xl border border-ink/10 shadow-xl overflow-hidden z-20">
+              <button type="button" data-filter="newest"
+                class="news-filter-option w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-body text-ink hover:bg-primary/10 hover:text-primary transition-colors duration-200">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-down-wide-short text-xs" aria-hidden="true"></i> Terbaru</span>
+                <i class="fa-solid fa-check text-xs news-filter-check opacity-0 transition-opacity duration-200" aria-hidden="true"></i>
+              </button>
+              <button type="button" data-filter="all"
+                class="news-filter-option w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-body text-ink hover:bg-primary/10 hover:text-primary transition-colors duration-200 border-t border-ink/5">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-layer-group text-xs" aria-hidden="true"></i> Semua</span>
+                <i class="fa-solid fa-check text-xs news-filter-check opacity-0 transition-opacity duration-200" aria-hidden="true"></i>
+              </button>
+              <button type="button" data-filter="oldest"
+                class="news-filter-option w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-body text-ink hover:bg-primary/10 hover:text-primary transition-colors duration-200 border-t border-ink/5">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-up-short-wide text-xs" aria-hidden="true"></i> Terlama</span>
+                <i class="fa-solid fa-check text-xs news-filter-check opacity-0 transition-opacity duration-200" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <p id="news-loading" class="font-body text-ink-muted">Memuat berita...</p>
         <p id="news-empty" class="hidden font-body text-ink-muted">Belum ada event/berita terbaru saat ini.</p>
         <p id="news-error" class="hidden font-body text-ink-muted">Berita belum bisa dimuat, coba lagi nanti.</p>
@@ -118,6 +122,7 @@
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/page-loader.js"></script>
   <script src="/assets/js/partials.js"></script>
+  <script src="/assets/js/scrollObserver.js"></script>
   <!-- <script src="/assets/js/cursor.js"></script> --> <!-- custom cursor on hold -->
   <script src="/assets/js/news.js"></script>
 </body>

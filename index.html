@@ -83,11 +83,32 @@
       </div>
     </section>
 
+    <!-- Stats Section -->
+    <section class="relative overflow-hidden bg-surface border-b border-ink/10">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+      <div class="max-w-7xl mx-auto px-4 py-16 md:py-24">
+        <div class="grid grid-cols-3 gap-8 text-center">
+          <div data-animate>
+            <p class="font-display font-bold text-4xl md:text-5xl text-primary" data-count-target="1000" data-count-suffix="+">0</p>
+            <p class="font-body text-sm text-ink-muted mt-2">Mitra &amp; Pelanggan</p>
+          </div>
+          <div data-animate class="delay-100">
+            <p class="font-display font-bold text-4xl md:text-5xl text-primary" data-count-target="50" data-count-suffix="+">0</p>
+            <p class="font-body text-sm text-ink-muted mt-2">Produk Berkualitas</p>
+          </div>
+          <div data-animate class="delay-200">
+            <p class="font-display font-bold text-4xl md:text-5xl text-primary" data-count-target="6" data-count-suffix="">0</p>
+            <p class="font-body text-sm text-ink-muted mt-2">Wilayah Operasional</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
 
     <!-- Produk Unggulan (replaces the legacy Promo Aktif section; see partials/promo-section.html) -->
     <section id="featured-products-section" class="hidden max-w-7xl mx-auto px-4 py-12 md:py-16">
       <!-- Wrapper utama bergaya block putih (menyesuaikan UI referensi) -->
-      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10" data-animate>
         
         <div class="flex items-center justify-center gap-4">
           <span class="h-px w-10 md:w-12 bg-primary"></span>
@@ -122,7 +143,7 @@
     <section class="bg-gray-50 py-24 md:py-32">
       <!-- UBAH: max-w-6xl jadi max-w-7xl (Lebih lebar) -->
       <div class="max-w-7xl mx-auto px-6 md:px-8">
-        <div class="text-center">
+        <div class="text-center" data-animate>
           <span class="text-sm font-bold uppercase tracking-widest text-emerald-600">Model Bisnis Kami</span>
           <!-- UBAH: text-4xl jadi text-4xl md:text-5xl (Font lebih raksasa) -->
           <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mt-4">Ekonomi Closed-Open Loop</h2>
@@ -132,9 +153,10 @@
         </div>
 
         <!-- UBAH: gap-6 jadi gap-8 md:gap-10 (Jarak antar kartu lebih jauh) -->
+        <!-- Stagger: each card animates in ~100ms after the previous one (delay-100/200/300) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 mt-16 items-stretch">
           <!-- UBAH: p-8 jadi p-10 md:p-14 (Bantalan dalam kartu jauh lebih luas) -->
-          <div class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
+          <div data-animate class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
             <!-- UBAH: w-14 h-14 jadi w-16 h-16 (Icon lebih besar) -->
             <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
               <i class="fa-solid fa-leaf text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
@@ -143,7 +165,7 @@
             <p class="text-gray-500 text-base leading-relaxed">Koneksi mulus dari produsen hulu ke konsumen hilir.</p>
           </div>
           
-          <div class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
+          <div data-animate class="delay-100 group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
             <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
               <i class="fa-solid fa-user-check text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
             </div>
@@ -151,7 +173,7 @@
             <p class="text-gray-500 text-base leading-relaxed">Mekanisme kontrol ketat untuk memastikan standar Halalan Thoyyiban.</p>
           </div>
           
-          <div class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
+          <div data-animate class="delay-200 group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
             <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
               <i class="fa-solid fa-cube text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
             </div>
@@ -166,16 +188,17 @@
     <!-- UBAH: py-16 jadi py-24 md:py-32 (Lebih tinggi) -->
     <section class="bg-slate-900 py-24 md:py-32">
       <div class="max-w-7xl mx-auto px-6 md:px-8">
-        <div class="mb-12">
+        <div class="mb-12" data-animate>
           <span class="text-sm font-bold uppercase tracking-widest text-emerald-400">Katalog Kami</span>
           <!-- UBAH: text-4xl jadi text-4xl md:text-5xl (Font lebih raksasa) -->
           <h2 class="text-4xl md:text-5xl font-bold text-white mt-4">Kategori Produk Kami</h2>
         </div>
 
         <!-- UBAH: gap-4 jadi gap-6 md:gap-8 -->
+        <!-- Stagger: delay-100 through delay-400 fan the 5 cards in left-to-right -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 mt-12">
           <!-- UBAH: p-6 jadi p-8 md:p-10 (Bantalan kartu gelap lebih luas) -->
-          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+          <div data-animate class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
             <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
               <i class="fa-solid fa-bottle-water text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
@@ -183,7 +206,7 @@
             <p class="text-slate-400 text-sm md:text-base leading-relaxed">Air mineral, teh, kopi, hingga susu kemasan.</p>
           </div>
           
-          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+          <div data-animate class="delay-100 group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
             <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
               <i class="fa-solid fa-snowflake text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
@@ -191,7 +214,7 @@
             <p class="text-slate-400 text-sm md:text-base leading-relaxed">Nugget, sosis, hingga bakso beku siap masak.</p>
           </div>
           
-          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+          <div data-animate class="delay-200 group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
             <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
               <i class="fa-solid fa-cart-shopping text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
@@ -199,7 +222,7 @@
             <p class="text-slate-400 text-sm md:text-base leading-relaxed">Beras, minyak, gula, hingga tepung kebutuhan pokok.</p>
           </div>
           
-          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+          <div data-animate class="delay-300 group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
             <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
               <i class="fa-solid fa-pepper-hot text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
@@ -207,7 +230,7 @@
             <p class="text-slate-400 text-sm md:text-base leading-relaxed">Rempah, saus, hingga bumbu instan lengkap.</p>
           </div>
           
-          <div class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
+          <div data-animate class="delay-400 group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
             <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
               <i class="fa-solid fa-drumstick-bite text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
@@ -221,7 +244,7 @@
     <!-- Artikel Terbaru -->
     <section id="latest-news-section" class="hidden bg-white py-24 md:py-32">
       <div class="max-w-7xl mx-auto px-6 md:px-8">
-        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12 md:mb-16">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12 md:mb-16" data-animate>
           <div>
             <span class="inline-block bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">Berita</span>
             <h2 class="text-4xl md:text-5xl font-bold text-slate-900">Artikel Terbaru</h2>
@@ -243,7 +266,7 @@
       <div class="max-w-7xl mx-auto px-6 md:px-8">
         
         <!-- UBAH: Tambah bg-white, rounded-3xl, dan shadow-xl yang lebih soft -->
-        <div class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/50 border border-gray-100 grid grid-cols-1 md:grid-cols-2 items-stretch">
+        <div data-animate class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/50 border border-gray-100 grid grid-cols-1 md:grid-cols-2 items-stretch">
           
           <!-- UBAH: Padding dalam card diperbesar ekstrim (p-16/p-20) untuk whitespace -->
           <div class="p-10 md:p-16 lg:p-20 flex flex-col justify-center">
@@ -337,6 +360,7 @@
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/page-loader.js"></script>
   <script src="/assets/js/partials.js"></script>
+  <script src="/assets/js/scrollObserver.js"></script>
   <!-- <script src="/assets/js/cursor.js"></script> --> <!-- custom cursor on hold -->
   <script src="/assets/js/home.js"></script>
 </body>

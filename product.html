@@ -22,11 +22,20 @@
   <div id="site-header"></div>
 
   <main class="flex-grow">
-    <div class="bg-surface border-b border-ink/10 pt-16 md:pt-20">
-      <section class="max-w-7xl mx-auto px-4 py-16">
-        <span class="block w-12 h-1 bg-primary rounded-full mb-4"></span>
+    <div class="bg-gradient-to-b from-primary/10 to-surface border-b border-ink/10 pt-16 md:pt-20">
+      <section class="max-w-7xl mx-auto px-4 py-16" data-animate>
+        <span class="inline-block font-display font-bold uppercase tracking-widest text-xs text-primary mb-3">Belanja Kebutuhan Harian</span>
         <h1 class="font-display font-bold uppercase tracking-tight text-4xl text-ink">Katalog Produk</h1>
         <p class="font-body text-ink-muted mt-4 max-w-xl">Produk kami, dikelompokkan per kategori.</p>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <span class="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i> Beragam Kategori
+          </span>
+          <span class="inline-flex items-center gap-2 bg-accent/30 text-ink text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+            <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i> Stok Rutin Diperbarui
+          </span>
+        </div>
       </section>
     </div>
 
@@ -35,7 +44,25 @@
       <p id="product-empty" class="hidden font-body text-ink-muted">Belum ada produk tersedia saat ini.</p>
       <p id="product-error" class="hidden font-body text-ink-muted">Produk belum bisa dimuat, coba lagi nanti.</p>
 
-      <div id="product-filter" class="hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 mb-8"></div>
+      <div id="product-filter" class="hidden flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-body text-sm text-ink-muted">Menampilkan:</span>
+          <span class="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+            <i id="product-active-filter-icon" class="fa-solid fa-layer-group text-[11px]" aria-hidden="true"></i>
+            <span id="product-active-filter-label">Semua</span>
+          </span>
+        </div>
+
+        <div class="relative" id="product-filter-dropdown">
+          <button id="product-filter-toggle" type="button"
+            class="inline-flex items-center gap-2 bg-surface border border-ink/10 rounded-full px-4 py-2 text-sm font-display font-bold uppercase tracking-wide text-ink shadow-sm hover:border-primary/40 hover:shadow-md transition-all duration-300">
+            <i class="fa-solid fa-sliders text-xs" aria-hidden="true"></i> Filter
+            <i id="product-filter-chevron" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" aria-hidden="true"></i>
+          </button>
+
+          <div id="product-filter-menu" class="hidden opacity-0 scale-95 origin-top-right transition-all duration-150 absolute right-0 mt-2 w-56 max-h-80 overflow-y-auto bg-surface rounded-2xl border border-ink/10 shadow-xl z-20"></div>
+        </div>
+      </div>
 
       <div id="product-categories" class="hidden space-y-12 md:space-y-16"></div>
     </section>
@@ -58,6 +85,7 @@
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/page-loader.js"></script>
   <script src="/assets/js/partials.js"></script>
+  <script src="/assets/js/scrollObserver.js"></script>
   <!-- <script src="/assets/js/cursor.js"></script> --> <!-- custom cursor on hold -->
   <script src="/assets/js/product.js"></script>
 </body>

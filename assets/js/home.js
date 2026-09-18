@@ -2,6 +2,10 @@
 
 const PROMOS_ENDPOINT = "/api/v1/public/promos";
 
+// Literal class names (so Tailwind's content scanner can find them) used to stagger
+// card entrances; cycles for grids larger than the list.
+const LATEST_NEWS_STAGGER_DELAYS = ["", "delay-100", "delay-200"];
+
 function escapeHtml(value) {
   const div = document.createElement("div");
   div.textContent = value ?? "";
@@ -147,6 +151,8 @@ const FEATURED_LAZY_LOAD_START_INDEX = 5; // items before this position load eag
 
 let featuredProductsItems = [];
 let featuredProductsPage = 0;
+let featuredPageTransitionPending = false;
+const FEATURED_PAGE_TRANSITION_MS = 250; // how long the outgoing cards get to fade out before the new page mounts
 
 function featuredProductCardMarkup(item, indexInFullList) {
   const isLazy = indexInFullList >= FEATURED_LAZY_LOAD_START_INDEX; 
@@ -177,7 +183,7 @@ function totalFeaturedPages() {
   return Math.ceil(featuredProductsItems.length / FEATURED_PRODUCTS_PAGE_SIZE);
 }
 
-function renderFeaturedProductsPage() {
+function mountFeaturedProductsPage() {
   const grid = document.getElementById("featured-products-grid");
   const start = featuredProductsPage * FEATURED_PRODUCTS_PAGE_SIZE;
   const pageItems = featuredProductsItems.slice(start, start + FEATURED_PRODUCTS_PAGE_SIZE);
@@ -186,26 +192,52 @@ function renderFeaturedProductsPage() {
   grid.innerHTML = pageItems.map((item, i) => featuredProductCardMarkup(item, start + i)).join("");
 
   // staggered per-card entrance (delay increases per slot) instead of a container-wide transform
-  grid.querySelectorAll(".featured-product-card").forEach((card, i) => {
+  const cards = grid.querySelectorAll(".featured-product-card");
+  cards.forEach((card, i) => {
     card.style.transitionDelay = `${i * 80}ms`;
-    requestAnimationFrame(() => {
-      card.classList.add("transition-all", "duration-300");
-      card.classList.remove("opacity-0", "-translate-y-1");
-    });
+  });
+  // Force a reflow so the opacity-0/-translate-y-1 starting state above is actually
+  // committed before we remove it below — otherwise the browser can collapse both
+  // states into a single frame and the transition never plays (see hero slider's
+  // restartAnimation() for the same trick).
+  void grid.offsetWidth;
+  requestAnimationFrame(() => {
+    cards.forEach((card) => card.classList.remove("opacity-0", "-translate-y-1"));
   });
 
   document.getElementById("featured-prev").disabled = featuredProductsPage === 0;
   document.getElementById("featured-next").disabled = featuredProductsPage >= totalFeaturedPages() - 1;
+  featuredPageTransitionPending = false;
+}
+
+function renderFeaturedProductsPage() {
+  const grid = document.getElementById("featured-products-grid");
+  const outgoingCards = grid.querySelectorAll(".featured-product-card");
+
+  // First render (or nothing to fade out yet): mount immediately, no crossfade needed.
+  if (outgoingCards.length === 0) {
+    mountFeaturedProductsPage();
+    return;
+  }
+
+  // Fade the current page out first, then swap — an instant innerHTML replace made
+  // page changes look like the cards just snapped to the next set with no transition.
+  featuredPageTransitionPending = true;
+  outgoingCards.forEach((card) => {
+    card.style.transitionDelay = "0ms";
+    card.classList.add("opacity-0", "-translate-y-1");
+  });
+  setTimeout(mountFeaturedProductsPage, FEATURED_PAGE_TRANSITION_MS);
 }
 
 function setupFeaturedProductsNav() {
   document.getElementById("featured-prev").addEventListener("click", () => {
-    if (featuredProductsPage === 0) return;
+    if (featuredPageTransitionPending || featuredProductsPage === 0) return;
     featuredProductsPage -= 1; // moves a full page (4 items) at a time, not one-by-one
     renderFeaturedProductsPage();
   });
   document.getElementById("featured-next").addEventListener("click", () => {
-    if (featuredProductsPage >= totalFeaturedPages() - 1) return;
+    if (featuredPageTransitionPending || featuredProductsPage >= totalFeaturedPages() - 1) return;
     featuredProductsPage += 1;
     renderFeaturedProductsPage();
   });
@@ -244,7 +276,7 @@ function formatNewsEventDate(eventDate) {
     .format(new Date(`${eventDate}T00:00:00`));
 }
 
-function latestNewsCardMarkup(item) {
+function latestNewsCardMarkup(item, index) {
   const image = item.image_url
     ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">`
     : `<div class="w-full h-full flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
@@ -255,9 +287,10 @@ function latestNewsCardMarkup(item) {
   const excerpt = item.excerpt
     ? `<p class="text-sm text-ink-muted mt-2 line-clamp-3">${escapeHtml(item.excerpt)}</p>`
     : "";
+  const delayClass = LATEST_NEWS_STAGGER_DELAYS[index % LATEST_NEWS_STAGGER_DELAYS.length];
 
   return `
-    <article data-news-id="${item.id}" class="group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 h-full flex flex-col">
+    <article data-news-id="${item.id}" data-animate="fade-in-up" class="${delayClass} group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 h-full flex flex-col">
       <div class="relative aspect-video bg-canvas overflow-hidden">
         ${image}
         <span class="absolute top-3 right-3 bg-surface/95 backdrop-blur text-ink-muted text-xs font-bold px-3 py-1 rounded-full shadow-sm">${formatNewsEventDate(item.event_date)}</span>
@@ -368,11 +401,45 @@ async function loadLatestNews() {
       return;
     }
 
-    document.getElementById("latest-news-grid").innerHTML = latest.map(latestNewsCardMarkup).join("");
+    document.getElementById("latest-news-grid").innerHTML = latest.map((item, index) => latestNewsCardMarkup(item, index)).join("");
+    window.ScrollObserver?.observeAll(section);
     section.classList.remove("hidden");
   } catch (error) {
     section.classList.add("hidden");
   }
+}
+
+// --- Stats counter (animates 0 -> target once the section scrolls into view) ---
+function animateStatCount(el) {
+  const target = Number(el.dataset.countTarget);
+  const suffix = el.dataset.countSuffix || "";
+  const duration = 1500;
+  const start = performance.now();
+
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    el.textContent = `${Math.round(target * eased).toLocaleString("id-ID")}${suffix}`;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+function initStatsCounter() {
+  const statEls = document.querySelectorAll("[data-count-target]");
+  if (statEls.length === 0) return;
+
+  // Fires once per element — re-scrolling past the section shouldn't replay the count-up.
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      animateStatCount(entry.target);
+      obs.unobserve(entry.target);
+    });
+  }, { threshold: 0.4 });
+
+  statEls.forEach((el) => observer.observe(el));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -381,5 +448,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (FEATURE_FLAGS.showFeaturedProducts) loadFeaturedProducts();
   setupLatestNewsModal();
   loadLatestNews();
+  initStatsCounter();
 });
 
