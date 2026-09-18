@@ -11,4 +11,40 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Custom cursor: class is only added by assets/js/cursor.js on fine-pointer devices */
+  .custom-cursor-active,
+  .custom-cursor-active a,
+  .custom-cursor-active button,
+  .custom-cursor-active [role="button"] {
+    cursor: none;
+  }
+
+  .cursor-dot,
+  .cursor-outline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 9999px;
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  .cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #0766AD;
+  }
+
+  .cursor-outline {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(7, 102, 173, 0.5);
+    transition: left 0.05s ease-out, top 0.05s ease-out, transform 0.05s ease-out;
+  }
+
+  .cursor-outline--active {
+    transform: translate(-50%, -50%) scale(0.8);
+  }
 }
