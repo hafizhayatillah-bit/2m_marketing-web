@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 </head>
 <body data-page="news" class="bg-canvas text-ink font-body flex flex-col min-h-screen">
-  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">2M<span>Sembako</span></div><div class="page-loader__bar"></div></div></div>
+  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">Loading</div><div class="page-loader__bar"></div></div></div>
   <div id="site-header"></div>
 
   <main class="flex-grow">
@@ -34,10 +34,10 @@
             <span class="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
               <i class="fa-solid fa-tags" aria-hidden="true"></i> Promo
             </span>
-            <span class="inline-flex items-center gap-2 bg-secondary/10 text-secondary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+            <span class="inline-flex items-center gap-2 bg-secondary/10 text-slate-950 text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
               <i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Event
             </span>
-            <span class="inline-flex items-center gap-2 bg-accent/30 text-ink text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+            <span class="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
               <i class="fa-solid fa-newspaper" aria-hidden="true"></i> News
             </span>
           </div>
@@ -98,13 +98,13 @@
   <div id="site-footer"></div>
 
   <!-- Article detail modal: hidden by default, populated on-demand when a card is clicked -->
-  <div id="news-modal" class="hidden fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/60 backdrop-blur-sm p-4 md:p-8 opacity-0 transition-opacity duration-300">
+  <div id="news-modal" class="hidden fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-md p-4 md:p-8 opacity-0 transition-opacity duration-300">
     <div id="news-modal-panel" class="relative bg-surface rounded-2xl max-w-2xl w-full my-8 shadow-2xl overflow-hidden opacity-0 scale-95 translate-y-4 transition-all duration-300">
       <div class="p-6 md:p-8">
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center gap-2">
             <span id="news-modal-date" class="inline-block font-body text-xs font-bold uppercase tracking-wide text-primary bg-primary/10 px-3 py-1 rounded-full"></span>
-            <span id="news-modal-tag" class="hidden font-body text-xs font-bold uppercase tracking-wide text-secondary"></span>
+            <span id="news-modal-tag" class="hidden font-body text-xs font-bold uppercase tracking-wide text-ink-muted"></span>
           </div>
           <button id="news-modal-close" type="button" class="w-9 h-9 flex items-center justify-center bg-canvas text-ink shadow-sm rounded-full hover:bg-primary hover:text-white hover:rotate-90 transition-all duration-300" aria-label="Tutup">
             <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>

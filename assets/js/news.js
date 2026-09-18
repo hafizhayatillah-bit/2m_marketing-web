@@ -25,7 +25,7 @@ function newsCardMarkup(item, index) {
     : `<div class="w-full h-full flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
 
   const tag = item.tag
-    ? `<span class="inline-block text-xs font-bold text-primary uppercase tracking-wide bg-primary/10 px-2.5 py-1 rounded-full">${escapeHtml(item.tag)}</span>`
+    ? `<span class="inline-block text-xs font-bold text-ink-muted ${index % 2 === 1 ? "bg-secondary/10" : "bg-primary/10"} uppercase tracking-wide px-2.5 py-1 rounded-full">${escapeHtml(item.tag)}</span>`
     : "";
   const excerpt = item.excerpt
     ? `<p class="text-sm text-ink-muted mt-2 line-clamp-3">${escapeHtml(item.excerpt)}</p>`

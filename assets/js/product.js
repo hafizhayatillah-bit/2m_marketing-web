@@ -61,7 +61,7 @@ function productCardMarkup(product, index) {
     ? `<p class="font-body text-sm text-ink-muted mt-1">${escapeHtml(product.description)}</p>`
     : "";
   const viewImageBadge = product.image_url
-    ? `<span class="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-surface/95 backdrop-blur text-primary text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+    ? `<span class="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-ink/80 backdrop-blur text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <iconify-icon icon="lucide:zoom-in" width="14"></iconify-icon> Lihat Gambar
       </span>`
     : "";
@@ -81,10 +81,19 @@ function productCardMarkup(product, index) {
   `;
 }
 
-function categorySectionMarkup(category, products) {
+function categorySectionMarkup(category, products, colorIndex = 0) {
+  const icon = CATEGORY_ICONS[category] || "fa-solid fa-tag";
+  const isSecondary = colorIndex % 2 === 1;
+  const badgeClasses = isSecondary ? "bg-secondary/10 text-slate-950" : "bg-primary/10 text-primary";
   return `
     <div>
-      <h2 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink mb-6">${escapeHtml(category)}</h2>
+      <div class="flex items-center gap-3 mb-6">
+        <span class="w-10 h-10 rounded-full ${badgeClasses} flex items-center justify-center shrink-0">
+          <i class="${icon} text-sm" aria-hidden="true"></i>
+        </span>
+        <h2 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink">${escapeHtml(category)}</h2>
+        <span class="flex-1 h-px bg-ink/10"></span>
+      </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         ${products.map((product, index) => productCardMarkup(product, index)).join("")}
       </div>
@@ -129,7 +138,7 @@ function renderProductView() {
   let sections;
   if (activeCategory === ALL_CATEGORY) {
     sections = Array.from(groupByCategory(allProducts).entries())
-      .map(([category, items]) => categorySectionMarkup(category, items));
+      .map(([category, items], colorIndex) => categorySectionMarkup(category, items, colorIndex));
   } else {
     const filtered = allProducts.filter((product) => product.category === activeCategory);
     sections = [categorySectionMarkup(activeCategory, filtered)];

@@ -28,7 +28,7 @@ function computeDiscountPercent(normalPrice, promoPrice) {
 function promoCardMarkup(promo) {
   const discountPct = computeDiscountPercent(promo.normal_price, promo.promo_price);
   const badge = discountPct !== null
-    ? `<span class="absolute top-3 left-3 bg-accent text-ink text-xs font-display font-bold px-3 py-1 rounded-full">-${discountPct}%</span>`
+    ? `<span class="absolute top-3 left-3 bg-accent text-white text-xs font-display font-bold px-3 py-1 rounded-full">-${discountPct}%</span>`
     : "";
   const image = promo.image_url
     ? `<img src="${escapeHtml(promo.image_url)}" alt="${escapeHtml(promo.title)}" loading="lazy" class="w-full h-full object-cover">`
@@ -158,7 +158,7 @@ function featuredProductCardMarkup(item, indexInFullList) {
   const isLazy = indexInFullList >= FEATURED_LAZY_LOAD_START_INDEX; 
   return `
     <a href="/product?id=${encodeURIComponent(item.product_id)}"
-       class="group featured-product-card flex flex-col bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-100/60 hover:border-emerald-200 cursor-pointer opacity-0 -translate-y-1 h-full">
+       class="group featured-product-card flex flex-col bg-white rounded-3xl overflow-hidden border border-ink/10 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-pointer opacity-0 -translate-y-1 h-full">
       
       <!-- 1. Kontainer Gambar (padded, contain agar tidak terpotong) -->
       <div class="w-full h-48 md:h-56 shrink-0 p-4 bg-white overflow-hidden">
@@ -170,7 +170,7 @@ function featuredProductCardMarkup(item, indexInFullList) {
       
       <!-- 2. Kontainer Teks (Punya padding sendiri, background putih) -->
       <div class="p-5 md:p-6 flex flex-col grow">
-        <h3 class="font-display font-bold text-slate-900 text-left text-base md:text-lg line-clamp-2 mt-auto transition-colors duration-300 group-hover:text-emerald-600">
+        <h3 class="font-display font-bold text-ink text-left text-base md:text-lg line-clamp-2 mt-auto transition-colors duration-300 group-hover:text-primary">
           ${escapeHtml(item.name)}
         </h3>
       </div>
@@ -282,7 +282,7 @@ function latestNewsCardMarkup(item, index) {
     : `<div class="w-full h-full flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
 
   const tag = item.tag
-    ? `<span class="text-xs font-bold text-primary uppercase tracking-wide">${escapeHtml(item.tag)}</span>`
+    ? `<span class="text-xs font-bold text-ink-muted uppercase tracking-wide">${escapeHtml(item.tag)}</span>`
     : "";
   const excerpt = item.excerpt
     ? `<p class="text-sm text-ink-muted mt-2 line-clamp-3">${escapeHtml(item.excerpt)}</p>`

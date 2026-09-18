@@ -57,7 +57,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0766AD, #29ADB2);
+    background: linear-gradient(135deg, #002d80 0%, #0f5fc7 45%, #4cc9f0 100%);
     opacity: 1;
     visibility: visible;
     transition: opacity 0.35s ease, visibility 0.35s ease;
@@ -76,10 +76,6 @@
     letter-spacing: 0.02em;
     text-transform: uppercase;
     color: #fff;
-  }
-
-  .page-loader__brand span {
-    color: rgba(255, 255, 255, 0.65);
   }
 
   .page-loader__bar {
@@ -111,27 +107,7 @@
     background-color: transparent;
     border-color: transparent;
     box-shadow: none;
-  }
-
-  .header--transparent .header-brand,
-  .header--transparent #mobile-menu-toggle {
-    color: #fff;
-  }
-
-  .header--transparent .header-brand-accent {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .header--transparent [data-nav-link] {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .header--transparent [data-nav-link].text-primary {
-    color: #C5E898;
-  }
-
-  .header--transparent [data-nav-link].border-primary {
-    border-color: #C5E898;
+    backdrop-filter: none;
   }
 
   /* Scroll-triggered reveal: element starts hidden, assets/js/scrollObserver.js

@@ -1,7 +1,7 @@
 // Fetch-injects the shared header/footer partials and wires up nav behaviour.
 // Every page must set <body data-page="home|product|about|contact|news">.
 
-const ACTIVE_CLASSES = ["text-primary", "border-b-2", "border-primary"];
+const ACTIVE_CLASSES = ["text-accent", "border-b-2", "border-accent"];
 
 async function injectPartial(targetSelector, url) {
   const target = document.querySelector(targetSelector);
@@ -30,10 +30,10 @@ function highlightActiveNavLink() {
   const currentPage = document.body.dataset.page;
   document.querySelectorAll("[data-nav-link]").forEach((link) => {
     const isActive = link.dataset.navLink === currentPage;
-    link.classList.toggle("text-primary", isActive);
+    link.classList.toggle("text-accent", isActive);
     link.classList.toggle("border-b-2", isActive);
-    link.classList.toggle("border-primary", isActive);
-    if (!isActive) link.classList.add("text-ink");
+    link.classList.toggle("border-accent", isActive);
+    if (!isActive) link.classList.add("text-white/80");
   });
 }
 

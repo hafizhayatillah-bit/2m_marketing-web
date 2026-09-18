@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body data-page="about" class="bg-canvas text-ink font-body flex flex-col min-h-screen">
-  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">2M<span>Sembako</span></div><div class="page-loader__bar"></div></div></div>
+  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">Loading</div><div class="page-loader__bar"></div></div></div>
   <div id="site-header"></div>
 
   <main class="flex-grow">
@@ -45,15 +45,15 @@
               loading="lazy"
             >
           </div>
-          <div class="absolute -bottom-6 -right-4 md:-right-8 bg-surface rounded-2xl shadow-xl border border-ink/10 px-5 py-4 flex items-center gap-3">
-            <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <a href="#cabang-kami" class="group/badge absolute -bottom-6 -right-4 md:-right-8 bg-surface rounded-2xl shadow-xl border border-ink/10 px-5 py-4 flex items-center gap-3 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/40 cursor-pointer">
+            <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 transition-all duration-300 group-hover/badge:bg-primary group-hover/badge:text-white group-hover/badge:scale-110 group-hover/badge:rotate-6">
               <i class="fa-solid fa-store text-lg"></i>
             </div>
             <div>
               <p class="font-display font-bold text-xl text-ink leading-none">6</p>
               <p class="font-body text-xs text-ink-muted mt-1">Cabang Aktif</p>
             </div>
-          </div>
+          </a>
         </div>
         <div>
           <span class="inline-block font-display font-bold uppercase tracking-widest text-xs text-primary mb-3">Kenapa Memilih Kami</span>
@@ -71,7 +71,7 @@
               </div>
             </div>
             <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-xl bg-secondary/10 text-slate-950 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-boxes-stacked text-sm"></i>
               </div>
               <div>
@@ -80,7 +80,7 @@
               </div>
             </div>
             <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-xl bg-accent/30 text-ink flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-map-location-dot text-sm"></i>
               </div>
               <div>
@@ -89,7 +89,7 @@
               </div>
             </div>
             <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-xl bg-secondary/10 text-slate-950 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-heart text-sm"></i>
               </div>
               <div>
@@ -113,22 +113,22 @@
         </div>
         <div class="group relative overflow-hidden bg-surface rounded-2xl border border-ink/10 shadow-sm p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-secondary/40">
           <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-secondary/5 transition-transform duration-500 ease-out group-hover:scale-150"></div>
-          <div class="relative w-14 h-14 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center transition-all duration-300 group-hover:bg-secondary group-hover:text-white group-hover:rotate-6 group-hover:scale-110">
+          <div class="relative w-14 h-14 rounded-2xl bg-secondary/10 text-slate-950 flex items-center justify-center transition-all duration-300 group-hover:bg-secondary group-hover:text-white group-hover:rotate-6 group-hover:scale-110">
             <i class="fa-solid fa-flag text-xl"></i>
           </div>
-          <span class="relative block font-display font-bold uppercase tracking-widest text-[11px] text-secondary/70 mt-6">Langkah Nyata Kami</span>
+          <span class="relative block font-display font-bold uppercase tracking-widest text-[11px] text-slate-950/70 mt-6">Langkah Nyata Kami</span>
           <h3 class="relative font-display font-bold uppercase tracking-tight text-xl text-ink mt-1">Misi</h3>
           <ul class="relative font-body text-sm text-ink-muted mt-3 space-y-2">
             <li class="flex items-start gap-2">
-              <i class="fa-solid fa-check text-secondary text-xs mt-1 shrink-0"></i>
+              <i class="fa-solid fa-check text-slate-950 text-xs mt-1 shrink-0"></i>
               <span>Menyediakan produk sembako lengkap dengan harga yang bersahabat</span>
             </li>
             <li class="flex items-start gap-2">
-              <i class="fa-solid fa-check text-secondary text-xs mt-1 shrink-0"></i>
+              <i class="fa-solid fa-check text-slate-950 text-xs mt-1 shrink-0"></i>
               <span>Menjaga kualitas dan kesegaran produk di setiap cabang</span>
             </li>
             <li class="flex items-start gap-2">
-              <i class="fa-solid fa-check text-secondary text-xs mt-1 shrink-0"></i>
+              <i class="fa-solid fa-check text-slate-950 text-xs mt-1 shrink-0"></i>
               <span>Melayani pelanggan dengan cepat, ramah, dan sepenuh hati</span>
             </li>
           </ul>
@@ -136,7 +136,7 @@
       </div>
     </section>
 
-    <section class="max-w-7xl mx-auto px-4 py-12 md:py-16">
+    <section id="cabang-kami" class="max-w-7xl mx-auto px-4 py-12 md:py-16 scroll-mt-24">
       <div class="text-center mb-10">
         <span class="block w-12 h-1 bg-primary rounded-full mb-4 mx-auto"></span>
         <h2 class="font-display font-bold uppercase tracking-tight text-3xl text-ink">Cabang Kami</h2>

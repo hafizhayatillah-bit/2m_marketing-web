@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 </head>
 <body data-page="home" class="bg-canvas text-ink font-body flex flex-col min-h-screen">
-  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">2M<span>Sembako</span></div><div class="page-loader__bar"></div></div></div>
+  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">Loading</div><div class="page-loader__bar"></div></div></div>
   <div id="site-header"></div>
 
   <main class="flex-grow">
@@ -35,21 +35,21 @@
            alt="Produk segar 2M Sembako" onerror="this.style.display='none'"
            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0">
 
-      <div class="absolute inset-0 bg-gradient-to-br from-primary/80 via-ink/60 to-ink/85"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-black/75 via-slate-900/55 to-black/70"></div>
 
       <div class="relative z-10 h-full max-w-7xl mx-auto px-4 flex flex-col justify-center">
         <span class="inline-flex w-fit bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider mb-4">
           Selamat Datang di 2M Sembako
         </span>
         <h1 class="font-display font-bold uppercase text-4xl md:text-6xl leading-[0.95] tracking-tight text-white max-w-2xl">
-          Grosir Sembako Harga <span class="text-accent">Bersahabat</span>
+          Grosir Sembako Harga <span class="text-white">Bersahabat</span>
         </h1>
         <p class="font-body text-white/80 mt-4 text-lg max-w-md">
           Kebutuhan sehari-hari lengkap, tersedia di 6 cabang 2M Sembako terdekat dari Anda.
         </p>
         <div class="mt-8 flex flex-wrap items-center gap-4">
           <a href="/product"
-             class="inline-flex w-fit bg-primary hover:bg-secondary text-white rounded-full px-6 py-3 items-center gap-2 font-bold uppercase tracking-wide text-sm shadow-sm hover:-translate-y-0.5 transition-all">
+             class="inline-flex w-fit bg-accent hover:bg-secondary text-white rounded-full px-6 py-3 items-center gap-2 font-bold uppercase tracking-wide text-sm shadow-sm hover:-translate-y-0.5 transition-all">
             Jelajahi Produk <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </a>
           <a href="/about"
@@ -85,7 +85,7 @@
 
     <!-- Stats Section -->
     <section class="relative overflow-hidden bg-surface border-b border-ink/10">
-      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
       <div class="max-w-7xl mx-auto px-4 py-16 md:py-24">
         <div class="grid grid-cols-3 gap-8 text-center">
           <div data-animate>
@@ -140,14 +140,14 @@
 
     <!-- Model Bisnis -->
     <!-- UBAH: py-16 jadi py-24 md:py-32 (Lebih tinggi) -->
-    <section class="bg-gray-50 py-24 md:py-32">
+    <section class="bg-canvas py-24 md:py-32">
       <!-- UBAH: max-w-6xl jadi max-w-7xl (Lebih lebar) -->
       <div class="max-w-7xl mx-auto px-6 md:px-8">
         <div class="text-center" data-animate>
-          <span class="text-sm font-bold uppercase tracking-widest text-emerald-600">Model Bisnis Kami</span>
+          <span class="text-sm font-bold uppercase tracking-widest text-slate-950">Model Bisnis Kami</span>
           <!-- UBAH: text-4xl jadi text-4xl md:text-5xl (Font lebih raksasa) -->
-          <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mt-4">Ekonomi Closed-Open Loop</h2>
-          <p class="text-gray-500 font-normal mt-6 max-w-3xl mx-auto md:text-lg">
+          <h2 class="text-4xl md:text-5xl font-bold text-ink mt-4">Ekonomi Closed-Open Loop</h2>
+          <p class="text-ink-muted font-normal mt-6 max-w-3xl mx-auto md:text-lg">
             Kami tidak hanya menjual produk; kami mengintegrasikan seluruh rantai pasok. Model kami memastikan keberlanjutan dan efisiensi dari peternakan hingga dapur Anda.
           </p>
         </div>
@@ -156,29 +156,29 @@
         <!-- Stagger: each card animates in ~100ms after the previous one (delay-100/200/300) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 mt-16 items-stretch">
           <!-- UBAH: p-8 jadi p-10 md:p-14 (Bantalan dalam kartu jauh lebih luas) -->
-          <div data-animate class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
+          <div data-animate class="group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-secondary/20 hover:shadow-xl hover:shadow-secondary/10">
             <!-- UBAH: w-14 h-14 jadi w-16 h-16 (Icon lebih besar) -->
-            <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
-              <i class="fa-solid fa-leaf text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
+            <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-secondary">
+              <i class="fa-solid fa-leaf text-slate-950 text-3xl transition-colors duration-300 group-hover:text-white"></i>
             </div>
-            <h3 class="font-bold text-gray-900 text-xl mb-3">Rantai Pasok Terintegrasi</h3>
-            <p class="text-gray-500 text-base leading-relaxed">Koneksi mulus dari produsen hulu ke konsumen hilir.</p>
+            <h3 class="font-bold text-ink text-xl mb-3">Rantai Pasok Terintegrasi</h3>
+            <p class="text-ink-muted text-base leading-relaxed">Koneksi mulus dari produsen hulu ke konsumen hilir.</p>
           </div>
           
-          <div data-animate class="delay-100 group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
-            <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
-              <i class="fa-solid fa-user-check text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
+          <div data-animate class="delay-100 group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-secondary/20 hover:shadow-xl hover:shadow-secondary/10">
+            <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-secondary">
+              <i class="fa-solid fa-user-check text-slate-950 text-3xl transition-colors duration-300 group-hover:text-white"></i>
             </div>
-            <h3 class="font-bold text-gray-900 text-xl mb-3">Jaminan Kualitas</h3>
-            <p class="text-gray-500 text-base leading-relaxed">Mekanisme kontrol ketat untuk memastikan standar Halalan Thoyyiban.</p>
+            <h3 class="font-bold text-ink text-xl mb-3">Jaminan Kualitas</h3>
+            <p class="text-ink-muted text-base leading-relaxed">Mekanisme kontrol ketat untuk memastikan standar Halalan Thoyyiban.</p>
           </div>
           
-          <div data-animate class="delay-200 group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/60">
-            <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-600">
-              <i class="fa-solid fa-cube text-emerald-600 text-3xl transition-colors duration-300 group-hover:text-white"></i>
+          <div data-animate class="delay-200 group bg-white rounded-3xl shadow-sm p-10 md:p-14 flex flex-col items-center text-center border border-transparent transition-all duration-300 hover:-translate-y-2 hover:border-secondary/20 hover:shadow-xl hover:shadow-secondary/10">
+            <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-secondary">
+              <i class="fa-solid fa-cube text-slate-950 text-3xl transition-colors duration-300 group-hover:text-white"></i>
             </div>
-            <h3 class="font-bold text-gray-900 text-xl mb-3">Portofolio Beragam</h3>
-            <p class="text-gray-500 text-base leading-relaxed">Dari bahan mentah hingga kemasan, kami memenuhi semua kebutuhan F&amp;B.</p>
+            <h3 class="font-bold text-ink text-xl mb-3">Portofolio Beragam</h3>
+            <p class="text-ink-muted text-base leading-relaxed">Dari bahan mentah hingga kemasan, kami memenuhi semua kebutuhan F&amp;B.</p>
           </div>
         </div>
       </div>
@@ -186,10 +186,12 @@
 
     <!-- Katalog Kami -->
     <!-- UBAH: py-16 jadi py-24 md:py-32 (Lebih tinggi) -->
-    <section class="bg-slate-900 py-24 md:py-32">
-      <div class="max-w-7xl mx-auto px-6 md:px-8">
+    <!-- Neutral near-black base (not a full-bleed saturated blue) + soft brand-tinted glow so it reads as "dark" without vibrating -->
+    <section class="relative overflow-hidden bg-slate-950 py-24 md:py-32">
+      <div class="absolute inset-0 bg-gradient-to-br from-primary/30 via-slate-950 to-secondary/10"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
         <div class="mb-12" data-animate>
-          <span class="text-sm font-bold uppercase tracking-widest text-emerald-400">Katalog Kami</span>
+          <span class="text-sm font-bold uppercase tracking-widest text-white/60">Katalog Kami</span>
           <!-- UBAH: text-4xl jadi text-4xl md:text-5xl (Font lebih raksasa) -->
           <h2 class="text-4xl md:text-5xl font-bold text-white mt-4">Kategori Produk Kami</h2>
         </div>
@@ -198,44 +200,44 @@
         <!-- Stagger: delay-100 through delay-400 fan the 5 cards in left-to-right -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 mt-12">
           <!-- UBAH: p-6 jadi p-8 md:p-10 (Bantalan kartu gelap lebih luas) -->
-          <div data-animate class="group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
-            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
-              <i class="fa-solid fa-bottle-water text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+          <div data-animate class="group bg-white/[0.06] border border-white/10 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:border-secondary/50 hover:shadow-xl hover:shadow-black/40">
+            <div class="w-14 h-14 rounded-xl bg-secondary/20 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-secondary">
+              <i class="fa-solid fa-bottle-water text-white text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
             <h3 class="font-bold text-white text-lg mb-2">Minuman &amp; Susu</h3>
-            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Air mineral, teh, kopi, hingga susu kemasan.</p>
+            <p class="text-white/60 text-sm md:text-base leading-relaxed">Air mineral, teh, kopi, hingga susu kemasan.</p>
           </div>
           
-          <div data-animate class="delay-100 group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
-            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
-              <i class="fa-solid fa-snowflake text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+          <div data-animate class="delay-100 group bg-white/[0.06] border border-white/10 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:border-secondary/50 hover:shadow-xl hover:shadow-black/40">
+            <div class="w-14 h-14 rounded-xl bg-secondary/20 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-secondary">
+              <i class="fa-solid fa-snowflake text-white text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
             <h3 class="font-bold text-white text-lg mb-2">Frozen Food</h3>
-            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Nugget, sosis, hingga bakso beku siap masak.</p>
+            <p class="text-white/60 text-sm md:text-base leading-relaxed">Nugget, sosis, hingga bakso beku siap masak.</p>
           </div>
           
-          <div data-animate class="delay-200 group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
-            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
-              <i class="fa-solid fa-cart-shopping text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+          <div data-animate class="delay-200 group bg-white/[0.06] border border-white/10 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:border-secondary/50 hover:shadow-xl hover:shadow-black/40">
+            <div class="w-14 h-14 rounded-xl bg-secondary/20 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-secondary">
+              <i class="fa-solid fa-cart-shopping text-white text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
             <h3 class="font-bold text-white text-lg mb-2">Sembako</h3>
-            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Beras, minyak, gula, hingga tepung kebutuhan pokok.</p>
+            <p class="text-white/60 text-sm md:text-base leading-relaxed">Beras, minyak, gula, hingga tepung kebutuhan pokok.</p>
           </div>
           
-          <div data-animate class="delay-300 group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
-            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
-              <i class="fa-solid fa-pepper-hot text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+          <div data-animate class="delay-300 group bg-white/[0.06] border border-white/10 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:border-secondary/50 hover:shadow-xl hover:shadow-black/40">
+            <div class="w-14 h-14 rounded-xl bg-secondary/20 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-secondary">
+              <i class="fa-solid fa-pepper-hot text-white text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
             <h3 class="font-bold text-white text-lg mb-2">Bumbu Dapur</h3>
-            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Rempah, saus, hingga bumbu instan lengkap.</p>
+            <p class="text-white/60 text-sm md:text-base leading-relaxed">Rempah, saus, hingga bumbu instan lengkap.</p>
           </div>
           
-          <div data-animate class="delay-400 group bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-slate-800 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-900/40">
-            <div class="w-14 h-14 rounded-xl bg-slate-700/50 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/20">
-              <i class="fa-solid fa-drumstick-bite text-emerald-400 text-2xl transition-transform duration-300 group-hover:scale-110"></i>
+          <div data-animate class="delay-400 group bg-white/[0.06] border border-white/10 rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:border-secondary/50 hover:shadow-xl hover:shadow-black/40">
+            <div class="w-14 h-14 rounded-xl bg-secondary/20 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-secondary">
+              <i class="fa-solid fa-drumstick-bite text-white text-2xl transition-transform duration-300 group-hover:scale-110"></i>
             </div>
             <h3 class="font-bold text-white text-lg mb-2">Snack</h3>
-            <p class="text-slate-400 text-sm md:text-base leading-relaxed">Camilan ringan hingga makanan kemasan favorit.</p>
+            <p class="text-white/60 text-sm md:text-base leading-relaxed">Camilan ringan hingga makanan kemasan favorit.</p>
           </div>
         </div>
       </div>
@@ -261,53 +263,53 @@
 
     <!-- Hubungi Kami -->
     <!-- UBAH: Background jadi gray-50 agar kartu putih timbul, padding jadi py-24 md:py-32 -->
-    <section class="bg-gray-50 py-24 md:py-32">
+    <section class="bg-canvas py-24 md:py-32">
       <!-- UBAH: max-w-6xl jadi max-w-7xl agar sejajar dengan section sebelumnya -->
       <div class="max-w-7xl mx-auto px-6 md:px-8">
         
         <!-- UBAH: Tambah bg-white, rounded-3xl, dan shadow-xl yang lebih soft -->
-        <div data-animate class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/50 border border-gray-100 grid grid-cols-1 md:grid-cols-2 items-stretch">
+        <div data-animate class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-ink/10 border border-ink/10 grid grid-cols-1 md:grid-cols-2 items-stretch">
           
           <!-- UBAH: Padding dalam card diperbesar ekstrim (p-16/p-20) untuk whitespace -->
           <div class="p-10 md:p-16 lg:p-20 flex flex-col justify-center">
             <!-- UBAH: Judul jadi text-5xl -->
-            <h2 class="text-4xl md:text-5xl font-bold text-slate-900">Hubungi Kami</h2>
-            <p class="text-gray-500 mt-4 md:mt-6 md:text-lg">Siap untuk menyederhanakan rantai pasok Anda? Hubungi 2M Sembako hari ini.</p>
+            <h2 class="text-4xl md:text-5xl font-bold text-ink">Hubungi Kami</h2>
+            <p class="text-ink-muted mt-4 md:mt-6 md:text-lg">Siap untuk menyederhanakan rantai pasok Anda? Hubungi 2M Sembako hari ini.</p>
 
             <!-- UBAH: Jarak antar list direnggangkan jadi space-y-8 -->
             <div class="mt-10 md:mt-12 space-y-8">
               
-              <div class="flex items-start gap-5">
+              <div class="group flex items-start gap-5">
                 <!-- UBAH: Ikon dibesarkan jadi w-12 h-12 -->
-                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white group-hover:scale-110">
                   <i class="fa-solid fa-clock text-xl" aria-hidden="true"></i>
                 </div>
                 <div>
-                  <h3 class="font-bold text-slate-900 text-lg">Jam Operasional</h3>
-                  <p class="text-gray-700 text-base mt-1">07.00 - 19.00 WIB</p>
-                  <p class="text-emerald-600 text-sm mt-0.5">Senin - Minggu</p>
+                  <h3 class="font-bold text-ink text-lg">Jam Operasional</h3>
+                  <p class="text-ink-muted text-base mt-1">07.00 - 19.00 WIB</p>
+                  <p class="text-ink-muted text-sm mt-0.5">Senin - Minggu</p>
                 </div>
               </div>
               
-              <div class="flex items-start gap-5">
-                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+              <div class="group flex items-start gap-5">
+                <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center shrink-0 text-slate-950 transition-all duration-300 group-hover:bg-secondary group-hover:text-white group-hover:scale-110">
                   <i class="fa-solid fa-phone text-xl" aria-hidden="true"></i>
                 </div>
                 <div>
-                  <h3 class="font-bold text-slate-900 text-lg">WhatsApp / Telepon</h3>
-                  <a href="https://wa.me/" data-wa-link class="block text-gray-700 text-base mt-1 hover:text-emerald-600 transition">Chat langsung via WhatsApp</a>
-                  <p class="text-emerald-600 text-sm mt-0.5">Respon cepat selama jam kerja</p>
+                  <h3 class="font-bold text-ink text-lg">WhatsApp / Telepon</h3>
+                  <a href="https://wa.me/" data-wa-link class="block text-ink-muted text-base mt-1 hover:text-slate-950 transition">Chat langsung via WhatsApp</a>
+                  <p class="text-ink-muted text-sm mt-0.5">Respon cepat selama jam kerja</p>
                 </div>
               </div>
               
-              <div class="flex items-start gap-5">
-                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+              <div class="group flex items-start gap-5">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white group-hover:scale-110">
                   <i class="fa-solid fa-location-dot text-xl" aria-hidden="true"></i>
                 </div>
                 <div>
-                  <h3 class="font-bold text-slate-900 text-lg">Kantor Pusat</h3>
-                  <p class="text-gray-700 text-base mt-1 leading-relaxed">2M Sembako - Jatibening, Jl Paus Raya Blok E No 38 Komplek TNI AL, Jatibening Indah, Jatikramat</p>
-                  <p class="text-emerald-600 text-sm mt-1">Bekasi, Indonesia</p>
+                  <h3 class="font-bold text-ink text-lg">Kantor Pusat</h3>
+                  <p class="text-ink-muted text-base mt-1 leading-relaxed">2M Sembako - Jatibening, Jl Paus Raya Blok E No 38 Komplek TNI AL, Jatibening Indah, Jatikramat</p>
+                  <p class="text-ink-muted text-sm mt-1">Bekasi, Indonesia</p>
                 </div>
               </div>
               
@@ -321,8 +323,8 @@
             
             <!-- UBAH: Tombol dibesarkan (px-8 py-4 text-base) + efek hover scale -->
             <a href="https://wa.me/" data-wa-link target="_blank" rel="noopener noreferrer"
-              class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center gap-3 bg-white rounded-full px-8 py-4 shadow-lg font-bold text-emerald-700 text-base hover:scale-105 transition-transform whitespace-nowrap">
-              <i class="fa-brands fa-whatsapp text-emerald-600 text-2xl" aria-hidden="true"></i> Chat dengan Kami
+              class="group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center gap-3 bg-slate-950 rounded-full px-8 py-4 shadow-lg font-bold text-white text-base transition-all duration-300 hover:scale-105 hover:bg-accent hover:shadow-2xl whitespace-nowrap">
+              <i class="fa-brands fa-whatsapp text-white text-2xl" aria-hidden="true"></i> Chat dengan Kami
             </a>
           </div>
           
@@ -335,13 +337,13 @@
   </main>
 
   <!-- Article detail modal for the Artikel Terbaru section: same behavior as the /news page modal -->
-  <div id="home-news-modal" class="hidden fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/60 backdrop-blur-sm p-4 md:p-8 opacity-0 transition-opacity duration-300">
+  <div id="home-news-modal" class="hidden fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-md p-4 md:p-8 opacity-0 transition-opacity duration-300">
     <div id="home-news-modal-panel" class="relative bg-surface rounded-2xl max-w-2xl w-full my-8 shadow-2xl overflow-hidden opacity-0 scale-95 translate-y-4 transition-all duration-300">
       <div class="p-6 md:p-8">
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center gap-2">
             <span id="home-news-modal-date" class="inline-block font-body text-xs font-bold uppercase tracking-wide text-primary bg-primary/10 px-3 py-1 rounded-full"></span>
-            <span id="home-news-modal-tag" class="hidden font-body text-xs font-bold uppercase tracking-wide text-secondary"></span>
+            <span id="home-news-modal-tag" class="hidden font-body text-xs font-bold uppercase tracking-wide text-ink-muted"></span>
           </div>
           <button id="home-news-modal-close" type="button" class="w-9 h-9 flex items-center justify-center bg-canvas text-ink shadow-sm rounded-full hover:bg-primary hover:text-white hover:rotate-90 transition-all duration-300" aria-label="Tutup">
             <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>

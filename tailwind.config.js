@@ -8,13 +8,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#0766AD',
-        secondary: '#29ADB2',
-        accent: '#C5E898',
-        surface: '#FFFDF8',
-        canvas: '#F5F0E8',
-        ink: '#1A1A1A',
-        'ink-muted': '#6B6B6B',
+        primary: '#0038A8',
+        secondary: '#1E40AF',
+        accent: '#E50000',
+        surface: '#FFFFFF',
+        canvas: '#F8FAFC',
+        ink: '#0038A8',
+        'ink-muted': '#475569',
       },
       fontFamily: {
         display: ['Poppins', 'sans-serif'],

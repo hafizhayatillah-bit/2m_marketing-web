@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,21 +18,21 @@
   <script src="https://code.iconify.design/3/3.1.0/iconify.min.js" defer></script>
 </head>
 <body data-page="product" class="bg-canvas text-ink font-body flex flex-col min-h-screen">
-  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">2M<span>Sembako</span></div><div class="page-loader__bar"></div></div></div>
+  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">Loading</div><div class="page-loader__bar"></div></div></div>
   <div id="site-header"></div>
 
   <main class="flex-grow">
     <div class="bg-gradient-to-b from-primary/10 to-surface border-b border-ink/10 pt-16 md:pt-20">
       <section class="max-w-7xl mx-auto px-4 py-16" data-animate>
         <span class="inline-block font-display font-bold uppercase tracking-widest text-xs text-primary mb-3">Belanja Kebutuhan Harian</span>
-        <h1 class="font-display font-bold uppercase tracking-tight text-4xl text-ink">Katalog Produk</h1>
+        <h1 class="font-display font-bold uppercase tracking-tight text-4xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Katalog Produk</h1>
         <p class="font-body text-ink-muted mt-4 max-w-xl">Produk kami, dikelompokkan per kategori.</p>
 
         <div class="mt-6 flex flex-wrap gap-3">
           <span class="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
             <i class="fa-solid fa-layer-group" aria-hidden="true"></i> Beragam Kategori
           </span>
-          <span class="inline-flex items-center gap-2 bg-accent/30 text-ink text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
+          <span class="inline-flex items-center gap-2 bg-secondary/10 text-slate-950 text-xs font-display font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
             <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i> Stok Rutin Diperbarui
           </span>
         </div>
@@ -69,9 +69,9 @@
   </main>
 
   <!-- Product image lightbox: hidden by default, populated on-demand when a card is clicked -->
-  <div id="product-image-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/60 backdrop-blur-sm p-4 md:p-8 opacity-0 transition-opacity duration-300">
+  <div id="product-image-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 md:p-8 opacity-0 transition-opacity duration-300">
     <div id="product-image-modal-panel" class="relative bg-surface rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden opacity-0 scale-95 translate-y-4 transition-all duration-300">
-      <button id="product-image-modal-close" type="button" class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center bg-surface text-ink shadow-sm rounded-full hover:bg-primary hover:text-white hover:rotate-90 transition-all duration-300 z-10" aria-label="Tutup">
+      <button id="product-image-modal-close" type="button" class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center bg-surface text-ink shadow-lg shadow-black/30 rounded-full hover:bg-primary hover:text-white hover:rotate-90 transition-all duration-300 z-10" aria-label="Tutup">
         <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
       </button>
       <div class="p-6 md:p-10 flex flex-col items-center">
