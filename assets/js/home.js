@@ -75,15 +75,59 @@ async function loadPromos() {
   }
 }
 
-function setupHeroImageFallback() {
-  const heroImage = document.getElementById("hero-image");
-  if (!heroImage) return;
-  heroImage.addEventListener("error", () => heroImage.classList.add("hidden"), { once: true });
-  // image may have already failed to load before this listener attached
-  if (heroImage.complete && heroImage.naturalWidth === 0) {
-    heroImage.classList.add("hidden");
+// --- Hero slider (full-screen, auto-advancing, zoom-out + progress bar) ---
+// Wrapped in an IIFE so slide/timer state stays private; only initHeroSlider is exposed.
+const initHeroSlider = (() => {
+  const SLIDE_INTERVAL_MS = 5000;
+
+  // Removing then re-adding a class doesn't restart a CSS animation unless the
+  // browser is forced to reflow in between, hence the `void el.offsetWidth` reads.
+  function restartAnimation(el, animationClass) {
+    el.classList.remove(animationClass);
+    void el.offsetWidth;
+    el.classList.add(animationClass);
   }
-}
+
+  return function initHeroSlider() {
+    const slider = document.getElementById("hero-slider");
+    if (!slider) return;
+
+    const slides = Array.from(slider.querySelectorAll("[data-hero-slide]"));
+    const dots = Array.from(slider.querySelectorAll("[data-hero-dot]"));
+    if (slides.length === 0) return;
+
+    let activeIndex = 0;
+
+    function setDotActive(dot, isActive) {
+      const label = dot.querySelector(".hero-dot__label");
+      const fill = dot.querySelector(".hero-dot__fill");
+      label.classList.toggle("text-white", isActive);
+      label.classList.toggle("text-white/50", !isActive);
+      if (isActive) {
+        restartAnimation(fill, "animate-hero-progress-fill");
+      } else {
+        // no active class = animation stops applying, width snaps back to the base w-0
+        fill.classList.remove("animate-hero-progress-fill");
+      }
+    }
+
+    function goToSlide(index) {
+      slides[activeIndex].classList.replace("opacity-100", "opacity-0");
+      if (dots[activeIndex]) setDotActive(dots[activeIndex], false);
+
+      activeIndex = index;
+      const next = slides[activeIndex];
+      next.classList.replace("opacity-0", "opacity-100");
+      restartAnimation(next, "animate-hero-zoom-out");
+      if (dots[activeIndex]) setDotActive(dots[activeIndex], true);
+    }
+
+    restartAnimation(slides[activeIndex], "animate-hero-zoom-out");
+    if (dots[activeIndex]) setDotActive(dots[activeIndex], true);
+
+    setInterval(() => goToSlide((activeIndex + 1) % slides.length), SLIDE_INTERVAL_MS);
+  };
+})();
 
 // Legacy promo section: not deleted, just unmounted unless the feature flag is re-enabled.
 async function mountPromoSectionIfEnabled() {
@@ -190,7 +234,7 @@ async function loadFeaturedProducts() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupHeroImageFallback();
+  initHeroSlider();
   mountPromoSectionIfEnabled();
   if (FEATURE_FLAGS.showFeaturedProducts) loadFeaturedProducts();
 });

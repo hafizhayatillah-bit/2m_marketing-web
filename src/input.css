@@ -104,4 +104,33 @@
     0% { transform: translateX(-100%); }
     100% { transform: translateX(250%); }
   }
+
+  /* Transparent header state: only applied on the home page while the hero
+     slider fills the viewport (assets/js/partials.js toggles this on scroll). */
+  .header--transparent {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .header--transparent .header-brand,
+  .header--transparent #mobile-menu-toggle {
+    color: #fff;
+  }
+
+  .header--transparent .header-brand-accent {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .header--transparent [data-nav-link] {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .header--transparent [data-nav-link].text-primary {
+    color: #C5E898;
+  }
+
+  .header--transparent [data-nav-link].border-primary {
+    border-color: #C5E898;
+  }
 }

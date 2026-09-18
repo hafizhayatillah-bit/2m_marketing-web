@@ -7,11 +7,23 @@ async function injectPartial(targetSelector, url) {
   const target = document.querySelector(targetSelector);
   if (!target) return;
   const response = await fetch(url);
-  // Unwrap the placeholder div: a sticky <header> stuck inside a same-height
-  // wrapper div never gets room to actually stick, since its containing block
-  // (the wrapper) scrolls out in lockstep with it. Replacing the wrapper itself
-  // makes <header> a direct child of <body>, so `sticky top-0` works properly.
+  // Unwrap the placeholder div: a fixed <header> stuck inside a wrapper div
+  // still renders fine visually, but replacing the wrapper itself keeps
+  // <header> a direct child of <body>, matching how the rest of the DOM expects it.
   target.outerHTML = await response.text();
+}
+
+function setupTransparentHeader() {
+  const header = document.querySelector("header");
+  const hero = document.getElementById("hero-slider");
+  if (!header || !hero || document.body.dataset.page !== "home") return;
+
+  const SCROLL_THRESHOLD = 40; // px scrolled before the header switches to its solid state
+  const updateHeaderState = () => {
+    header.classList.toggle("header--transparent", window.scrollY < SCROLL_THRESHOLD);
+  };
+  updateHeaderState();
+  window.addEventListener("scroll", updateHeaderState, { passive: true });
 }
 
 function highlightActiveNavLink() {
@@ -53,4 +65,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   highlightActiveNavLink();
   setupMobileMenu();
   applyWaLinks();
+  setupTransparentHeader();
 });

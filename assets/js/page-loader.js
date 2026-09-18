@@ -4,8 +4,20 @@
 // hard from one page to the next.
 const PAGE_LOADER_NAV_DELAY = 250;
 const PAGE_LOADER_MAX_WAIT = 4000;
+const PAGE_LOADER_MIN_DISPLAY = 1000;
+
+// Timestamp the loader became visible so every page shows it for at least
+// PAGE_LOADER_MIN_DISPLAY, regardless of how fast/slow that page loads.
+const pageLoaderShownAt = Date.now();
 
 function hidePageLoader() {
+  const loader = document.getElementById("page-loader");
+  if (!loader) return;
+  const remaining = PAGE_LOADER_MIN_DISPLAY - (Date.now() - pageLoaderShownAt);
+  setTimeout(() => loader.classList.add("page-loader--hidden"), Math.max(0, remaining));
+}
+
+function hidePageLoaderNow() {
   const loader = document.getElementById("page-loader");
   if (loader) loader.classList.add("page-loader--hidden");
 }
@@ -45,9 +57,10 @@ function setupPageTransitions() {
     }, PAGE_LOADER_NAV_DELAY);
   });
 
-  // bfcache restores the page instantly without firing "load" again.
+  // bfcache restores the page instantly without firing "load" again; skip
+  // the minimum-display wait since the page was already fully rendered before.
   window.addEventListener("pageshow", (event) => {
-    if (event.persisted) hidePageLoader();
+    if (event.persisted) hidePageLoaderNow();
   });
 }
 
