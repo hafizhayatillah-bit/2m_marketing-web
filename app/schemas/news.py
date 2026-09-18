@@ -11,6 +11,8 @@ class NewsSummaryOut(BaseModel):
 
     id: int
     title: str
+    tag: Optional[str] = None
+    excerpt: Optional[str] = None
     image_url: Optional[str] = None
     event_date: date
 

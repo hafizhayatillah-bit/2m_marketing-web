@@ -233,9 +233,153 @@ async function loadFeaturedProducts() {
   }
 }
 
+// --- Artikel Terbaru (latest news preview + shared detail modal, same UX as /news) ---
+
+const LATEST_NEWS_ENDPOINT = "/api/v1/public/news";
+const LATEST_NEWS_COUNT = 3;
+const LATEST_NEWS_MODAL_TRANSITION_MS = 300; // keep in sync with the duration-300 classes on the modal/panel
+
+function formatNewsEventDate(eventDate) {
+  return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" })
+    .format(new Date(`${eventDate}T00:00:00`));
+}
+
+function latestNewsCardMarkup(item) {
+  const image = item.image_url
+    ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">`
+    : `<div class="w-full h-full flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
+
+  const tag = item.tag
+    ? `<span class="text-xs font-bold text-primary uppercase tracking-wide">${escapeHtml(item.tag)}</span>`
+    : "";
+  const excerpt = item.excerpt
+    ? `<p class="text-sm text-ink-muted mt-2 line-clamp-3">${escapeHtml(item.excerpt)}</p>`
+    : "";
+
+  return `
+    <article data-news-id="${item.id}" class="group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 h-full flex flex-col">
+      <div class="relative aspect-video bg-canvas overflow-hidden">
+        ${image}
+        <span class="absolute top-3 right-3 bg-surface/95 backdrop-blur text-ink-muted text-xs font-bold px-3 py-1 rounded-full shadow-sm">${formatNewsEventDate(item.event_date)}</span>
+      </div>
+      <div class="p-4 flex flex-col flex-grow">
+        <div class="flex-grow">
+          ${tag}
+          <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink mt-1 line-clamp-2 min-h-14 transition-colors duration-300 group-hover:text-primary">${escapeHtml(item.title)}</h3>
+          ${excerpt}
+        </div>
+        <span class="inline-flex items-center gap-2 mt-4 self-start text-sm font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-full opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+          Baca Selengkapnya <i class="fa-solid fa-arrow-right text-xs"></i>
+        </span>
+      </div>
+    </article>
+  `;
+}
+
+function openLatestNewsModal(item) {
+  const modal = document.getElementById("home-news-modal");
+  const panel = document.getElementById("home-news-modal-panel");
+  const imageWrap = document.getElementById("home-news-modal-image-wrap");
+  const image = document.getElementById("home-news-modal-image");
+
+  if (item.image_url) {
+    image.src = item.image_url;
+    image.alt = item.title;
+    imageWrap.classList.remove("hidden");
+  } else {
+    imageWrap.classList.add("hidden");
+  }
+
+  document.getElementById("home-news-modal-date").textContent = formatNewsEventDate(item.event_date);
+  const tagEl = document.getElementById("home-news-modal-tag");
+  if (item.tag) {
+    tagEl.textContent = item.tag;
+    tagEl.classList.remove("hidden");
+  } else {
+    tagEl.classList.add("hidden");
+  }
+  document.getElementById("home-news-modal-title").textContent = item.title;
+  // Sanitize CMS-authored HTML before injecting to guard against stored XSS.
+  document.getElementById("home-news-modal-content").innerHTML = DOMPurify.sanitize(item.content);
+
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+
+  requestAnimationFrame(() => {
+    modal.classList.remove("opacity-0");
+    panel.classList.remove("opacity-0", "scale-95", "translate-y-4");
+  });
+}
+
+function closeLatestNewsModal() {
+  const modal = document.getElementById("home-news-modal");
+  const panel = document.getElementById("home-news-modal-panel");
+
+  modal.classList.add("opacity-0");
+  panel.classList.add("opacity-0", "scale-95", "translate-y-4");
+  document.body.classList.remove("overflow-hidden");
+
+  setTimeout(() => modal.classList.add("hidden"), LATEST_NEWS_MODAL_TRANSITION_MS);
+}
+
+async function openLatestNewsDetail(newsId) {
+  try {
+    const response = await fetch(`${LATEST_NEWS_ENDPOINT}/${newsId}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    openLatestNewsModal(await response.json());
+  } catch (error) {
+    // Detail fetch failing shouldn't break the section — just skip opening the modal.
+  }
+}
+
+function setupLatestNewsModal() {
+  const modal = document.getElementById("home-news-modal");
+  if (!modal) return;
+  document.getElementById("home-news-modal-close").addEventListener("click", closeLatestNewsModal);
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeLatestNewsModal();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeLatestNewsModal();
+  });
+
+  document.getElementById("latest-news-grid").addEventListener("click", (event) => {
+    const card = event.target.closest("[data-news-id]");
+    if (card) openLatestNewsDetail(card.dataset.newsId);
+  });
+}
+
+async function loadLatestNews() {
+  const section = document.getElementById("latest-news-section");
+  if (!section) return;
+  try {
+    const response = await fetch(LATEST_NEWS_ENDPOINT);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const items = Array.isArray(data) ? data : [];
+    // "Terbaru" = most recent event_date first, capped to a small preview count.
+    const latest = items
+      .slice()
+      .sort((a, b) => b.event_date.localeCompare(a.event_date))
+      .slice(0, LATEST_NEWS_COUNT);
+
+    if (latest.length === 0) {
+      section.classList.add("hidden");
+      return;
+    }
+
+    document.getElementById("latest-news-grid").innerHTML = latest.map(latestNewsCardMarkup).join("");
+    section.classList.remove("hidden");
+  } catch (error) {
+    section.classList.add("hidden");
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initHeroSlider();
   mountPromoSectionIfEnabled();
   if (FEATURE_FLAGS.showFeaturedProducts) loadFeaturedProducts();
+  setupLatestNewsModal();
+  loadLatestNews();
 });
 

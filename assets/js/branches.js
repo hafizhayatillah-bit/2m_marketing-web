@@ -3,7 +3,7 @@
 
 const BRANCHES_ENDPOINT = "/api/v1/public/branches";
 
-const CTA_BASE = "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-display font-bold uppercase tracking-wide transition-colors";
+const CTA_BASE = "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-display font-bold uppercase tracking-wide transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md";
 const CTA_WA_CLASS = `${CTA_BASE} bg-primary text-white hover:bg-secondary`;
 const CTA_MAPS_CLASS = `${CTA_BASE} bg-canvas text-ink hover:bg-ink/10 border border-ink/10`;
 
@@ -71,24 +71,25 @@ function branchCardMarkup(branch, markerNumber, defaultHours) {
     ? `<a href="${escapeHtml(branch.google_maps_url)}" target="_blank" rel="noopener" class="${CTA_MAPS_CLASS}">${PIN_ICON_SVG} Lihat di Google Maps</a>`
     : "";
 
-  const badge = markerNumber
-    ? `<span class="absolute top-3 right-3 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-display font-bold">${markerNumber}</span>`
-    : "";
-
   // Only branches with a marker on the map are clickable/focusable for the card <-> pin sync.
   const interactiveAttrs = markerNumber
     ? ` data-branch-id="${branch.id}" tabindex="0" role="button" aria-label="Lihat lokasi cabang ini di peta"`
     : "";
-  const interactiveClasses = markerNumber ? " cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all" : "";
+  const interactiveClasses = markerNumber ? " cursor-pointer" : "";
 
   return `
-    <article class="relative bg-surface rounded-2xl border border-ink/10 shadow-sm p-5${interactiveClasses}"${interactiveAttrs}>
-      ${badge}
-      <span class="inline-block bg-canvas text-ink-muted text-xs font-body px-2 py-1 rounded-full">${escapeHtml(branch.city)}</span>
-      <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink mt-2">${escapeHtml(branch.name)}</h3>
-      <p class="font-body text-sm text-ink-muted mt-1">${escapeHtml(branch.address)}</p>
+    <article class="group relative flex flex-col h-full bg-surface rounded-2xl border border-ink/10 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-primary/30${interactiveClasses}"${interactiveAttrs}>
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary shrink-0 transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
+          ${PIN_ICON_SVG}
+        </span>
+        <span class="inline-block bg-canvas text-ink-muted text-xs font-body px-2.5 py-1 rounded-full">${escapeHtml(branch.city)}</span>
+      </div>
+      <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink mt-3">${escapeHtml(branch.name)}</h3>
+      <p class="font-body text-sm text-ink-muted mt-1.5 leading-relaxed">${escapeHtml(branch.address)}</p>
       ${hoursLine}
-      <div class="flex flex-wrap gap-2 mt-3">
+      <div class="flex-grow"></div>
+      <div class="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-ink/10">
         <a href="${waLink(branch.whatsapp_number)}" target="_blank" rel="noopener" class="${CTA_WA_CLASS}">${CHAT_ICON_SVG} Chat via WhatsApp</a>
         ${mapsLink}
       </div>

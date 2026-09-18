@@ -10,6 +10,7 @@
     <thead>
         <tr class="bg-gray-200">
             <th class="p-3 border">Judul</th>
+            <th class="p-3 border">Tag</th>
             <th class="p-3 border">Tanggal Event</th>
             <th class="p-3 border">Status</th>
             <th class="p-3 border">Aksi</th>
@@ -19,6 +20,7 @@
         {% for news in news_items %}
         <tr>
             <td class="p-3 border">{{ news.title }}</td>
+            <td class="p-3 border">{{ news.tag or "-" }}</td>
             <td class="p-3 border">{{ news.event_date }}</td>
             <td class="p-3 border">{{ "Aktif" if news.is_active else "Nonaktif" }}</td>
             <td class="p-3 border space-x-2 whitespace-nowrap">
@@ -33,7 +35,7 @@
         </tr>
         {% else %}
         <tr>
-            <td colspan="4" class="p-3 border text-center text-gray-500">Belum ada data berita.</td>
+            <td colspan="5" class="p-3 border text-center text-gray-500">Belum ada data berita.</td>
         </tr>
         {% endfor %}
     </tbody>

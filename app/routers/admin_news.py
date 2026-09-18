@@ -44,6 +44,8 @@ def create_news_form(request: Request):
 @router.post("/create")
 def create_news(
     title: str = Form(...),
+    tag: Optional[str] = Form(None),
+    excerpt: Optional[str] = Form(None),
     content: str = Form(...),
     event_date: date = Form(...),
     image_url: Optional[str] = Form(None),
@@ -52,7 +54,7 @@ def create_news(
 ):
     if image_file and image_file.filename:
         image_url = upload_image(image_file, folder="news")
-    new_news = News(title=title, content=content, event_date=event_date, image_url=image_url)
+    new_news = News(title=title, tag=tag, excerpt=excerpt, content=content, event_date=event_date, image_url=image_url)
     db.add(new_news)
     db.commit()
     return RedirectResponse(url="/admin/news/", status_code=303)
@@ -72,6 +74,8 @@ def edit_news_form(news_id: int, request: Request, db: Session = Depends(get_db)
 def edit_news(
     news_id: int,
     title: str = Form(...),
+    tag: Optional[str] = Form(None),
+    excerpt: Optional[str] = Form(None),
     content: str = Form(...),
     event_date: date = Form(...),
     image_url: Optional[str] = Form(None),
@@ -82,6 +86,8 @@ def edit_news(
     if image_file and image_file.filename:
         image_url = upload_image(image_file, folder="news")
     news.title = title
+    news.tag = tag
+    news.excerpt = excerpt
     news.content = content
     news.event_date = event_date
     news.image_url = image_url

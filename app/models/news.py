@@ -8,6 +8,8 @@ class News(Base):
 
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
+    tag = Column(String, nullable=True)
+    excerpt = Column(Text, nullable=True)
     content = Column(Text, nullable=False)
     image_url = Column(String, nullable=True)
     event_date = Column(Date, nullable=False)

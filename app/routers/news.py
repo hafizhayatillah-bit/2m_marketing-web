@@ -17,10 +17,11 @@ def list_news(db: Session = Depends(get_db)):
     # lama yang masih aktif, dia muncul paling atas, bukan yang upcoming. Keputusan filter
     # tanggal masih pending, tergantung apakah News ini juga nampung artikel lama yang
     # sengaja mau tetap kelihatan.
-    # Only id/title/image_url/event_date columns are selected so the card-list payload
-    # stays small — the (potentially large) `content` column is fetched only on-demand below.
+    # Only id/title/tag/excerpt/image_url/event_date columns are selected so the
+    # card-list payload stays small — the (potentially large) `content` column is
+    # fetched only on-demand below.
     stmt = (
-        select(News.id, News.title, News.image_url, News.event_date)
+        select(News.id, News.title, News.tag, News.excerpt, News.image_url, News.event_date)
         .where(News.is_active == True)
         .order_by(News.event_date.asc())
     )

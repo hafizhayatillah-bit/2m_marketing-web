@@ -20,16 +20,27 @@ function newsCardMarkup(item) {
     ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">`
     : `<div class="w-full h-full flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
 
+  const tag = item.tag
+    ? `<span class="inline-block text-xs font-bold text-primary uppercase tracking-wide bg-primary/10 px-2.5 py-1 rounded-full">${escapeHtml(item.tag)}</span>`
+    : "";
+  const excerpt = item.excerpt
+    ? `<p class="text-sm text-ink-muted mt-2 line-clamp-3">${escapeHtml(item.excerpt)}</p>`
+    : "";
+
   return `
-    <article data-news-id="${item.id}" class="group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30">
+    <article data-news-id="${item.id}" class="group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 h-full flex flex-col">
       <div class="relative aspect-video bg-canvas overflow-hidden">
         ${image}
-        <span class="absolute bottom-3 left-3 bg-surface/95 backdrop-blur text-ink-muted text-xs font-bold px-3 py-1 rounded-full shadow-sm">${formatEventDate(item.event_date)}</span>
+        <span class="absolute top-3 right-3 bg-surface/95 backdrop-blur text-ink-muted text-xs font-bold px-3 py-1 rounded-full shadow-sm">${formatEventDate(item.event_date)}</span>
       </div>
-      <div class="p-4">
-        <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink transition-colors duration-300 group-hover:text-primary">${escapeHtml(item.title)}</h3>
-        <span class="inline-flex items-center gap-1 mt-3 text-sm font-bold text-primary opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-          Baca Selengkapnya <iconify-icon icon="lucide:arrow-right" width="16"></iconify-icon>
+      <div class="p-4 flex flex-col flex-grow">
+        <div class="flex-grow">
+          ${tag}
+          <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink mt-1 line-clamp-2 min-h-14 transition-colors duration-300 group-hover:text-primary">${escapeHtml(item.title)}</h3>
+          ${excerpt}
+        </div>
+        <span class="inline-flex items-center gap-2 mt-4 self-start text-sm font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-full opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+          Baca Selengkapnya <i class="fa-solid fa-arrow-right text-xs"></i>
         </span>
       </div>
     </article>
@@ -60,6 +71,13 @@ function openNewsModal(item) {
   }
 
   document.getElementById("news-modal-date").textContent = formatEventDate(item.event_date);
+  const tagEl = document.getElementById("news-modal-tag");
+  if (item.tag) {
+    tagEl.textContent = item.tag;
+    tagEl.classList.remove("hidden");
+  } else {
+    tagEl.classList.add("hidden");
+  }
   document.getElementById("news-modal-title").textContent = item.title;
   // Sanitize CMS-authored HTML before injecting to guard against stored XSS.
   document.getElementById("news-modal-content").innerHTML = DOMPurify.sanitize(item.content);

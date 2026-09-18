@@ -15,6 +15,15 @@
         <input type="date" name="event_date" value="{{ news.event_date if news else '' }}" required class="w-full border p-2 rounded">
     </div>
     <div>
+        <label class="block mb-1 font-medium">Tag / Kategori</label>
+        <input type="text" name="tag" value="{{ (news.tag or '') if news else '' }}" placeholder="Mis. Perusahaan, Kegiatan Sosial, Kemitraan (bebas/manual)" class="w-full border p-2 rounded">
+    </div>
+    <div>
+        <label class="block mb-1 font-medium">Abstrak / Ringkasan</label>
+        <textarea name="excerpt" rows="3" maxlength="220" class="w-full border p-2 rounded">{{ (news.excerpt or '') if news else '' }}</textarea>
+        <p class="text-xs text-gray-500 mt-1">Tampil di card, maksimal 3 baris / 1 paragraf singkat.</p>
+    </div>
+    <div>
         <label class="block mb-1 font-medium">Konten</label>
         <div id="content-editor" class="bg-white" style="height: 220px;">{{ (news.content | safe) if news else '' }}</div>
         <textarea name="content" id="content-input" class="hidden">{{ news.content if news else '' }}</textarea>
