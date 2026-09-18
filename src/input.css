@@ -47,4 +47,61 @@
   .cursor-outline--active {
     transform: translate(-50%, -50%) scale(0.8);
   }
+
+  /* Full-page loading screen shown on load and between page navigations
+     (assets/js/page-loader.js toggles the --hidden state). */
+  #page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0766AD, #29ADB2);
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+  }
+
+  #page-loader.page-loader--hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .page-loader__brand {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .page-loader__brand span {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .page-loader__bar {
+    margin: 0.75rem auto 0;
+    width: 4rem;
+    height: 3px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+  }
+
+  .page-loader__bar::after {
+    content: "";
+    display: block;
+    width: 50%;
+    height: 100%;
+    background: #fff;
+    animation: page-loader-bar 1s ease-in-out infinite;
+  }
+
+  @keyframes page-loader-bar {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+  }
 }
