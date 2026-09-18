@@ -154,11 +154,11 @@ function featuredProductCardMarkup(item, indexInFullList) {
     <a href="/product?id=${encodeURIComponent(item.product_id)}"
        class="group featured-product-card flex flex-col bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-100/60 hover:border-emerald-200 cursor-pointer opacity-0 -translate-y-1 h-full">
       
-      <!-- 1. Kontainer Gambar (Edge-to-edge, tanpa padding) -->
-      <div class="w-full h-48 md:h-56 shrink-0 bg-gray-50 overflow-hidden">
+      <!-- 1. Kontainer Gambar (padded, contain agar tidak terpotong) -->
+      <div class="w-full h-48 md:h-56 shrink-0 p-4 bg-white overflow-hidden">
         <img src="${escapeHtml(item.image_url || "")}" alt="${escapeHtml(item.name)}" 
              loading="${isLazy ? "lazy" : "eager"}" decoding="async" 
-             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+             class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
              onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
       </div>
       

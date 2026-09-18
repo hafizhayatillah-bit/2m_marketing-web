@@ -41,6 +41,19 @@
     </section>
   </main>
 
+  <!-- Product image lightbox: hidden by default, populated on-demand when a card is clicked -->
+  <div id="product-image-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/60 backdrop-blur-sm p-4 md:p-8 opacity-0 transition-opacity duration-300">
+    <div id="product-image-modal-panel" class="relative bg-surface rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden opacity-0 scale-95 translate-y-4 transition-all duration-300">
+      <button id="product-image-modal-close" type="button" class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center bg-surface text-ink shadow-sm rounded-full hover:bg-primary hover:text-white hover:rotate-90 transition-all duration-300 z-10" aria-label="Tutup">
+        <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
+      </button>
+      <div class="p-6 md:p-10 flex flex-col items-center">
+        <img id="product-image-modal-image" src="" alt="" class="max-w-full max-h-[65vh] object-contain">
+        <h3 id="product-image-modal-title" class="font-display font-bold uppercase tracking-tight text-lg text-ink mt-4 text-center"></h3>
+      </div>
+    </div>
+  </div>
+
   <div id="site-footer"></div>
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/page-loader.js"></script>
