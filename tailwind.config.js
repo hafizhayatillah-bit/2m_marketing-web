@@ -8,12 +8,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#0038A8',
-        secondary: '#1E40AF',
+        primary: '#04328d',
+        secondary: '#0a2ea5',
         accent: '#E50000',
+        ocean: '#004E8A',
         surface: '#FFFFFF',
         canvas: '#F8FAFC',
-        ink: '#0038A8',
+        ink: '#042E5B',
         'ink-muted': '#475569',
       },
       fontFamily: {
@@ -42,7 +43,7 @@ module.exports = {
         },
       },
       animation: {
-        'hero-zoom-out': 'hero-zoom-out 5000ms ease-out forwards',
+        'hero-zoom-out': 'hero-zoom-out 9000ms ease-out forwards',
         'hero-progress-fill': 'hero-progress-fill 5000ms linear forwards',
         'fade-in-up': 'fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'fade-in': 'fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',

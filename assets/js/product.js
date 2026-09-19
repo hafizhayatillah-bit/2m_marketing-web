@@ -68,7 +68,7 @@ function productCardMarkup(product, index) {
   const delayClass = STAGGER_DELAYS[index % STAGGER_DELAYS.length];
 
   return `
-    <article data-product-id="${product.id}" data-animate="fade-in-up" class="${delayClass} group cursor-pointer bg-surface rounded-2xl border border-ink/10 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30">
+    <article data-product-id="${product.id}" data-animate="fade-in-up" class="${delayClass} group cursor-pointer bg-surface rounded-2xl border-[3px] border-ocean/15 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-ocean/20 hover:border-ocean/60">
       <div class="relative h-48 p-4 bg-surface overflow-hidden">
         ${image}
         ${viewImageBadge}

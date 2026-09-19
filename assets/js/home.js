@@ -158,7 +158,7 @@ function featuredProductCardMarkup(item, indexInFullList) {
   const isLazy = indexInFullList >= FEATURED_LAZY_LOAD_START_INDEX; 
   return `
     <a href="/product?id=${encodeURIComponent(item.product_id)}"
-       class="group featured-product-card flex flex-col bg-white rounded-3xl overflow-hidden border border-ink/10 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-pointer opacity-0 -translate-y-1 h-full">
+       class="group featured-product-card flex flex-col bg-white rounded-3xl overflow-hidden border-2 border-ink/10 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-pointer opacity-0 -translate-y-1 h-full">
       
       <!-- 1. Kontainer Gambar (padded, contain agar tidak terpotong) -->
       <div class="w-full h-48 md:h-56 shrink-0 p-4 bg-white overflow-hidden">

@@ -167,6 +167,7 @@ function initBranchMap(branches) {
 function focusBranchOnMap(branchId) {
   const marker = markerByBranchId.get(branchId);
   if (!branchMap || !marker) return;
+  document.getElementById("branch-map").scrollIntoView({ behavior: "smooth", block: "center" });
   // animate:false — Leaflet's zoom-animation path can silently skip the zoom change
   // right after fitBounds(); disabling it keeps the pan+zoom deterministic.
   branchMap.setView(marker.getLatLng(), 15, { animate: false });

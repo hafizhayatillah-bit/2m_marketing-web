@@ -57,7 +57,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #002d80 0%, #0f5fc7 45%, #4cc9f0 100%);
+    background: linear-gradient(180deg, #042E5B 0%, #004E8A 100%);
     opacity: 1;
     visibility: visible;
     transition: opacity 0.35s ease, visibility 0.35s ease;
