@@ -61,4 +61,19 @@ def health_db(db: Session = Depends(get_db)):
         raise HTTPException(status_code=503, detail=f"database unreachable: {exc}")
     return {"status": "ok", "db": "connected"}
 
+@app.get("/health/admin-env", include_in_schema=False)
+def health_admin_env():
+    """Sementara: cek ADMIN_USERNAME/PASSWORD ke-set & bebas whitespace, tanpa membocorkan nilainya. Hapus setelah dipakai."""
+    import os
+    user = os.getenv("ADMIN_USERNAME", "")
+    pwd = os.getenv("ADMIN_PASSWORD", "")
+    return {
+        "username_set": bool(user),
+        "password_set": bool(pwd),
+        "username_len": len(user),
+        "password_len": len(pwd),
+        "username_has_whitespace": user != user.strip(),
+        "password_has_whitespace": pwd != pwd.strip(),
+    }
+
 # app.mount("/static", StaticFiles(directory="app/static"), name="static")
