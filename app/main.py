@@ -65,8 +65,12 @@ def health_db(db: Session = Depends(get_db)):
 def health_admin_env():
     """Sementara: cek ADMIN_USERNAME/PASSWORD ke-set & bebas whitespace, tanpa membocorkan nilainya. Hapus setelah dipakai."""
     import os
+    import hashlib
     user = os.getenv("ADMIN_USERNAME", "")
     pwd = os.getenv("ADMIN_PASSWORD", "")
+    # Hash dikenal dari nilai lokal .env, cuma buat cocokin tanpa expose nilai asli.
+    known_user_hash = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+    known_pwd_hash = "c3634a6fd5bc1bf1bcd878b8bdd716560896af739d375953a59efd61e849e403"
     return {
         "username_set": bool(user),
         "password_set": bool(pwd),
@@ -74,6 +78,8 @@ def health_admin_env():
         "password_len": len(pwd),
         "username_has_whitespace": user != user.strip(),
         "password_has_whitespace": pwd != pwd.strip(),
+        "username_matches_local_env": hashlib.sha256(user.encode()).hexdigest() == known_user_hash,
+        "password_matches_local_env": hashlib.sha256(pwd.encode()).hexdigest() == known_pwd_hash,
     }
 
 # app.mount("/static", StaticFiles(directory="app/static"), name="static")
