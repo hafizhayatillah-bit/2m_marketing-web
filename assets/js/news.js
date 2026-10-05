@@ -58,8 +58,8 @@ function showNewsState(state) {
   document.getElementById("news-grid").classList.toggle("hidden", state !== "grid");
 }
 
-// Filter state lives client-side: "newest"/"oldest" sort by event_date, "all" also
-// drops the upcoming-only restriction so past events become visible.
+// Filter state lives client-side: "newest" shows upcoming events (latest first), "all"
+// shows everything (latest first), "oldest" shows everything (earliest first).
 let allNewsItems = [];
 let activeNewsFilter = "newest";
 
@@ -69,8 +69,11 @@ const NEWS_FILTER_META = {
   oldest: { label: "Terlama", icon: "fa-solid fa-arrow-up-short-wide" },
 };
 
-function renderNewsGrid(items) {
+function renderNewsGrid(items, filter) {
   if (items.length === 0) {
+    document.getElementById("news-empty").textContent = filter === "newest"
+      ? "Belum ada event/berita terbaru saat ini."
+      : "Belum ada event/berita.";
     showNewsState("empty");
     return;
   }
@@ -101,18 +104,18 @@ function applyNewsFilter(filter) {
   activeNewsFilter = filter;
 
   // TODO-REWRITE-PENDING-STAKEHOLDER: backend sorts event_date ascending without a date
-  // floor, so a past-but-active event would surface first. Drop this filter once the
-  // stakeholder decides whether past events should still be shown (e.g. as an archive).
+  // floor, so a past-but-active event would surface first. "newest" keeps only upcoming
+  // events until the stakeholder decides whether past events belong there too.
   const today = new Date().toISOString().split("T")[0];
-  const items = filter === "all"
-    ? [...allNewsItems]
-    : allNewsItems.filter((n) => n.event_date >= today);
+  const items = filter === "newest"
+    ? allNewsItems.filter((n) => n.event_date >= today)
+    : [...allNewsItems];
 
   items.sort((a, b) => filter === "oldest"
     ? a.event_date.localeCompare(b.event_date)
     : b.event_date.localeCompare(a.event_date));
 
-  renderNewsGrid(items);
+  renderNewsGrid(items, filter);
   updateActiveFilterBadge(filter);
   updateFilterMenuActiveState(filter);
 }
