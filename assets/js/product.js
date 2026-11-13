@@ -56,25 +56,25 @@ function groupByCategory(products) {
 function productCardMarkup(product, index) {
   const image = product.image_url
     ? `<img src="${escapeHtml(product.image_url)}" alt="${escapeHtml(product.name)}" loading="lazy" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110">`
-    : `<div class="w-full h-full flex items-center justify-center"><iconify-icon icon="lucide:image" width="32" class="text-ink-muted"></iconify-icon></div>`;
+    : `<div class="w-full h-full flex items-center justify-center"><i class="fa-regular fa-image text-3xl text-ink-muted/50" aria-hidden="true"></i></div>`;
   const description = product.description
-    ? `<p class="font-body text-sm text-ink-muted mt-1">${escapeHtml(product.description)}</p>`
+    ? `<p class="font-body text-xs sm:text-sm text-ink-muted mt-1">${escapeHtml(product.description)}</p>`
     : "";
   const viewImageBadge = product.image_url
-    ? `<span class="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-ink/80 backdrop-blur text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <iconify-icon icon="lucide:zoom-in" width="14"></iconify-icon> Lihat Gambar
+    ? `<span class="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 inline-flex items-center gap-1 bg-ink/80 backdrop-blur text-white text-[11px] sm:text-xs font-bold px-2.5 sm:px-3 py-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-300">
+        <i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i> Lihat Gambar
       </span>`
     : "";
   const delayClass = STAGGER_DELAYS[index % STAGGER_DELAYS.length];
 
   return `
-    <article data-product-id="${product.id}" data-animate="fade-in-up" class="${delayClass} group cursor-pointer bg-surface rounded-2xl border-[3px] border-ocean/15 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-ocean/20 hover:border-ocean/60">
-      <div class="relative h-48 p-4 bg-surface overflow-hidden">
+    <article data-product-id="${product.id}" data-animate="fade-in-up" class="${delayClass} group cursor-pointer bg-surface rounded-2xl border-2 sm:border-[3px] border-ocean/15 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-ocean/20 hover:border-ocean/60">
+      <div class="relative h-36 sm:h-48 p-3 sm:p-4 bg-surface overflow-hidden">
         ${image}
         ${viewImageBadge}
       </div>
-      <div class="p-4">
-        <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink transition-colors duration-300 group-hover:text-primary">${escapeHtml(product.name)}</h3>
+      <div class="p-3 sm:p-4">
+        <h3 class="font-display font-bold uppercase tracking-tight text-sm sm:text-lg leading-snug text-ink transition-colors duration-300 group-hover:text-primary">${escapeHtml(product.name)}</h3>
         ${description}
       </div>
     </article>
@@ -91,10 +91,10 @@ function categorySectionMarkup(category, products, colorIndex = 0) {
         <span class="w-10 h-10 rounded-full ${badgeClasses} flex items-center justify-center shrink-0">
           <i class="${icon} text-sm" aria-hidden="true"></i>
         </span>
-        <h2 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink">${escapeHtml(category)}</h2>
-        <span class="flex-1 h-px bg-ink/10"></span>
+        <h2 class="font-display font-bold uppercase tracking-tight text-xl md:text-3xl text-ink">${escapeHtml(category)}</h2>
+        <span class="hidden sm:block flex-1 h-px bg-ink/10"></span>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
         ${products.map((product, index) => productCardMarkup(product, index)).join("")}
       </div>
     </div>

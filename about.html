@@ -11,15 +11,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn-uicons.flaticon.com">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link rel="preconnect" href="https://code.iconify.design">
   <link rel="preconnect" href="https://unpkg.com">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/output.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/assets/css/output.css?v=20261114">
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-brands/css/uicons-brands.css">
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body data-page="about" class="bg-primary/5 text-ink font-body flex flex-col min-h-screen">
@@ -28,78 +26,70 @@
 
   <main class="flex-grow">
     <div class="bg-gradient-to-b from-ink to-ocean border-b border-white/10 pt-16 md:pt-20">
-      <section class="max-w-7xl mx-auto px-4 py-16 text-center" data-animate>
+      <section class="max-w-7xl mx-auto px-4 py-12 md:py-16 text-center" data-animate>
         <span class="inline-block font-display font-bold uppercase tracking-widest text-xs text-white/70 mb-3">Tentang Kami</span>
         <h1 class="font-display font-bold uppercase tracking-tight text-4xl md:text-5xl text-white">2M Sembako</h1>
         <p class="font-body text-white/70 mt-4 max-w-xl mx-auto">Belanja kebutuhan sehari-hari yang lengkap, terjangkau, dan dekat dengan rumah Anda.</p>
       </section>
     </div>
 
-    <section class="max-w-7xl mx-auto px-4 py-16 md:py-24">
+    <!-- Profil singkat -->
+    <section class="max-w-7xl mx-auto px-4 pt-12 pb-10 md:pt-24 md:pb-14">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
         <div class="relative">
-          <div class="absolute -inset-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/20 rounded-[2.5rem] -z-10 blur-2xl"></div>
-          <div class="relative rounded-3xl overflow-hidden shadow-xl group">
+          <div class="group rounded-3xl overflow-hidden shadow-xl shadow-ink/15 aspect-[4/3]">
             <img
-              src="https://images.unsplash.com/vector-1757394158174-c54b06939e1c?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="Ilustrasi 2M Sembako"
+              src="/assets/images/hero/hero-1-toko.jpg"
+              alt="Tampak depan toko 2M Sembako"
               class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
+              width="1600" height="900"
             >
           </div>
-          <a href="#cabang-kami" class="group/badge absolute -bottom-6 -right-4 md:-right-8 bg-surface rounded-2xl shadow-xl border border-ink/10 px-5 py-4 flex items-center gap-3 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/40 cursor-pointer">
-            <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 transition-all duration-300 group-hover/badge:bg-primary group-hover/badge:text-white group-hover/badge:scale-110 group-hover/badge:rotate-6">
-              <i class="fa-solid fa-store text-lg"></i>
+          <a href="#cabang-kami" class="group/badge absolute left-4 bottom-4 md:left-auto md:-right-8 md:-bottom-6 bg-surface rounded-2xl shadow-xl border border-ink/10 px-4 py-3 md:px-5 md:py-4 flex items-center gap-3 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/40">
+            <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 transition-all duration-300 group-hover/badge:bg-primary group-hover/badge:text-white">
+              <i class="fa-solid fa-store text-lg" aria-hidden="true"></i>
             </div>
             <div>
-              <p class="font-display font-bold text-xl text-ink leading-none">6</p>
-              <p class="font-body text-xs text-ink-muted mt-1">Cabang Aktif</p>
+              <p class="font-display font-bold text-xl text-ink leading-none">6 cabang</p>
+              <p class="font-body text-xs text-ink-muted mt-1">Lihat lokasinya</p>
             </div>
           </a>
         </div>
+
         <div>
-          <span class="inline-block font-display font-bold uppercase tracking-widest text-xs text-primary mb-3">Kenapa Memilih Kami</span>
           <h2 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink">Mitra Belanja Sembako Terpercaya</h2>
           <p class="font-body text-ink-muted mt-4 leading-relaxed">2M Sembako hadir di berbagai cabang untuk memenuhi kebutuhan sembako, minuman, hingga perlengkapan rumah tangga sehari-hari. Kami berkomitmen menyediakan produk berkualitas dengan harga bersahabat dan pelayanan yang ramah di setiap cabang.</p>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-8">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <i class="fa-solid fa-tags text-sm"></i>
-              </div>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 mt-8 border-t border-ink/10">
+            <div class="flex items-start gap-3 py-4 border-b border-ink/10">
+              <i class="fa-solid fa-tags text-primary mt-1 w-5 text-center shrink-0" aria-hidden="true"></i>
               <div>
-                <p class="font-display font-bold text-sm text-ink">Harga Bersahabat</p>
-                <p class="font-body text-xs text-ink-muted mt-0.5">Terjangkau untuk kebutuhan harian</p>
+                <dt class="font-display font-bold text-sm text-ink">Harga Bersahabat</dt>
+                <dd class="font-body text-sm text-ink-muted mt-0.5">Terjangkau untuk kebutuhan harian</dd>
               </div>
             </div>
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-xl bg-secondary/10 text-slate-950 flex items-center justify-center shrink-0">
-                <i class="fa-solid fa-boxes-stacked text-sm"></i>
-              </div>
+            <div class="flex items-start gap-3 py-4 border-b border-ink/10">
+              <i class="fa-solid fa-boxes-stacked text-primary mt-1 w-5 text-center shrink-0" aria-hidden="true"></i>
               <div>
-                <p class="font-display font-bold text-sm text-ink">Produk Lengkap</p>
-                <p class="font-body text-xs text-ink-muted mt-0.5">Sembako hingga kebutuhan rumah tangga</p>
+                <dt class="font-display font-bold text-sm text-ink">Produk Lengkap</dt>
+                <dd class="font-body text-sm text-ink-muted mt-0.5">Sembako hingga kebutuhan rumah tangga</dd>
               </div>
             </div>
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <i class="fa-solid fa-map-location-dot text-sm"></i>
-              </div>
+            <div class="flex items-start gap-3 py-4 border-b border-ink/10">
+              <i class="fa-solid fa-map-location-dot text-primary mt-1 w-5 text-center shrink-0" aria-hidden="true"></i>
               <div>
-                <p class="font-display font-bold text-sm text-ink">Dekat & Mudah Dijangkau</p>
-                <p class="font-body text-xs text-ink-muted mt-0.5">Tersebar di berbagai wilayah</p>
+                <dt class="font-display font-bold text-sm text-ink">Dekat &amp; Mudah Dijangkau</dt>
+                <dd class="font-body text-sm text-ink-muted mt-0.5">Tersebar di Bekasi dan Bogor</dd>
               </div>
             </div>
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-xl bg-secondary/10 text-slate-950 flex items-center justify-center shrink-0">
-                <i class="fa-solid fa-heart text-sm"></i>
-              </div>
+            <div class="flex items-start gap-3 py-4 border-b border-ink/10">
+              <i class="fa-solid fa-heart text-primary mt-1 w-5 text-center shrink-0" aria-hidden="true"></i>
               <div>
-                <p class="font-display font-bold text-sm text-ink">Pelayanan Ramah</p>
-                <p class="font-body text-xs text-ink-muted mt-0.5">Cepat tanggap setiap hari</p>
+                <dt class="font-display font-bold text-sm text-ink">Pelayanan Ramah</dt>
+                <dd class="font-body text-sm text-ink-muted mt-0.5">Cepat tanggap setiap hari</dd>
               </div>
             </div>
-          </div>
+          </dl>
         </div>
       </div>
 
@@ -138,31 +128,50 @@
       </div>
     </section>
 
-    <section id="cabang-kami" class="max-w-7xl mx-auto px-4 py-12 md:py-16 scroll-mt-24">
-      <div class="text-center mb-10">
-        <span class="block w-12 h-1 bg-primary rounded-full mb-4 mx-auto"></span>
-        <h2 class="font-display font-bold uppercase tracking-tight text-3xl text-ink">Cabang Kami</h2>
-        <p class="font-body text-ink-muted mt-3 max-w-xl mx-auto">Jam buka, alamat, dan kontak WhatsApp tiap cabang.</p>
-        <p id="branch-hours-default" class="hidden font-body text-sm text-ink-muted mt-2"></p>
+    <!-- Cabang Kami: store locator. A dark panel with the branch directory on one side
+         and a live map on the other; the two stay in sync (see assets/js/branches.js). -->
+    <section id="cabang-kami" class="max-w-7xl mx-auto px-4 pb-12 md:pb-24 scroll-mt-20 md:scroll-mt-24">
+      <div class="relative isolate overflow-hidden rounded-3xl bg-slate-950 shadow-2xl shadow-ink/25">
+        <div class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/50 via-slate-950 to-ink" aria-hidden="true"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[26rem_minmax(0,1fr)] lg:h-[42rem]">
+          <!-- On phones this wrapper dissolves (display: contents) so the map can sit
+               between the heading and the swipeable cards. -->
+          <div class="contents lg:flex lg:flex-col lg:min-h-0 lg:border-r lg:border-white/10">
+            <div class="order-1 min-w-0 px-5 pt-7 pb-5 md:px-8 md:pt-9">
+              <h2 class="font-display font-bold uppercase tracking-tight text-3xl md:text-4xl text-white">Cabang Kami</h2>
+              <p id="branch-summary" class="font-body text-white/70 mt-3 leading-relaxed">Pilih cabang untuk melihat lokasinya di peta.</p>
+
+              <div id="branch-filter" class="hidden flex gap-2 mt-5 -mx-5 px-5 md:mx-0 md:px-0 overflow-x-auto no-scrollbar" role="group" aria-label="Filter cabang per kota"></div>
+            </div>
+
+            <div class="order-3 min-w-0 lg:flex-1 lg:min-h-0 lg:flex lg:flex-col">
+              <p id="branch-loading" class="px-5 py-7 md:px-8 font-body text-white/70">Memuat data cabang...</p>
+              <p id="branch-empty" class="hidden px-5 py-7 md:px-8 font-body text-white/70">Belum ada data cabang saat ini.</p>
+              <p id="branch-error" class="hidden px-5 py-7 md:px-8 font-body text-white/70">Data cabang belum bisa dimuat. Muat ulang halaman untuk mencoba lagi.</p>
+
+              <div id="branch-list" class="branch-list hidden flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar px-5 py-5 lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto lg:snap-none lg:px-8 lg:pt-1 lg:pb-8 lg:flex-1 lg:min-h-0"></div>
+            </div>
+          </div>
+
+          <div class="order-2 relative h-[19rem] sm:h-[24rem] lg:h-auto">
+            <div id="branch-map" class="absolute inset-0" style="isolation: isolate;"></div>
+            <button id="branch-reset" type="button" class="hidden absolute z-10 top-3 right-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 font-display font-bold text-xs text-ink shadow-lg shadow-ink/20 hover:bg-ink hover:text-white transition-colors duration-200">
+              <i class="fa-solid fa-expand" aria-hidden="true"></i> Lihat semua cabang
+            </button>
+          </div>
+        </div>
       </div>
-
-      <p id="branch-loading" class="font-body text-ink-muted">Memuat data cabang...</p>
-      <p id="branch-empty" class="hidden font-body text-ink-muted">Belum ada data cabang saat ini.</p>
-      <p id="branch-error" class="hidden font-body text-ink-muted">Data cabang belum bisa dimuat, coba lagi nanti.</p>
-
-      <div id="branch-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
-      <div id="branch-map" class="w-full rounded-2xl overflow-hidden mt-8" style="height: 400px; isolation: isolate;"></div>
     </section>
   </main>
 
   <div id="site-footer"></div>
-  <script src="/assets/js/config.js"></script>
-  <script src="/assets/js/page-loader.js"></script>
-  <script src="/assets/js/utils.js"></script>
-  <script src="/assets/js/partials.js"></script>
-  <script src="/assets/js/scrollObserver.js"></script>
-  <!-- <script src="/assets/js/cursor.js"></script> --> <!-- custom cursor on hold -->
-  <script src="/assets/js/branches.js"></script>
+  <script src="/assets/js/config.js?v=20261114"></script>
+  <script src="/assets/js/page-loader.js?v=20261114"></script>
+  <script src="/assets/js/utils.js?v=20261114"></script>
+  <script src="/assets/js/partials.js?v=20261114"></script>
+  <script src="/assets/js/scrollObserver.js?v=20261114"></script>
+  <!-- <script src="/assets/js/cursor.js?v=20261114"></script> --> <!-- custom cursor on hold -->
+  <script src="/assets/js/branches.js?v=20261114"></script>
 </body>
 </html>

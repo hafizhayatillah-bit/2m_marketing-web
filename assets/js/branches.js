@@ -1,23 +1,25 @@
-// About page: fetch branch list from the public API, render a flat grid, and
-// sync each card with a numbered Leaflet marker on the map below it.
+// About page store locator: fetch the branch list from the public API, render it as a
+// directory (vertical list on desktop, swipeable cards on phones) and keep it in sync
+// with numbered Leaflet pins on the map — picking either one selects the other.
 
 const BRANCHES_ENDPOINT = "/api/v1/public/branches";
+const ALL_CITIES = "Semua";
+const BRANCH_FOCUS_ZOOM = 15;
+const DESKTOP_QUERY = window.matchMedia("(min-width: 1024px)");
+const REDUCED_MOTION_QUERY = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-const CTA_BASE = "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-display font-bold uppercase tracking-wide transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md";
-const CTA_WA_CLASS = `${CTA_BASE} bg-primary text-white hover:bg-secondary`;
-const CTA_MAPS_CLASS = `${CTA_BASE} bg-canvas text-ink hover:bg-ink/10 border border-ink/10`;
+const CHAT_ICON = `<i class="fi fi-brands-whatsapp" aria-hidden="true"></i>`;
+const PIN_ICON = `<i class="fi fi-sr-marker" aria-hidden="true"></i>`;
+const CLOCK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ADDRESS_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.5"/></svg>`;
 
-const CHAT_ICON_SVG = `<i class="fi fi-brands-whatsapp" aria-hidden="true"></i>`;
-const PIN_ICON_SVG = `<i class="fi fi-sr-marker" aria-hidden="true"></i>`;
-const CLOCK_ICON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-
-// Populated once the map is initialized, keyed by branch id for card <-> marker sync.
 let branchMap = null;
+let allBranches = [];
+let activeCity = ALL_CITIES;
+let activeBranchId = null;
+let listScrollLeft = 0; // last horizontal position seen, so programmatic resets aren't read as a swipe
 const markerByBranchId = new Map();
-
-// Literal class names (so Tailwind's content scanner can find them) used to stagger
-// card entrances; cycles for grids larger than the list.
-const STAGGER_DELAYS = ["", "delay-100", "delay-200", "delay-300", "delay-400"];
+const numberByBranchId = new Map();
 
 function escapeHtml(value) {
   const div = document.createElement("div");
@@ -30,167 +32,284 @@ function hasValidCoords(branch) {
     && branch.latitude !== 0 && branch.longitude !== 0;
 }
 
-// Most common operating_hours value, used to avoid repeating it on every card.
-function computeDefaultHours(branches) {
-  const counts = new Map();
-  branches.forEach((b) => counts.set(b.operating_hours, (counts.get(b.operating_hours) || 0) + 1));
-  let defaultHours = null;
-  let maxCount = 0;
-  counts.forEach((count, hours) => {
-    if (count > maxCount) {
-      maxCount = count;
-      defaultHours = hours;
-    }
+// "2M Sembako - Kecapi" -> "Kecapi": the brand prefix is noise inside a list of our own branches.
+function shortBranchName(name) {
+  const short = name.replace(/^\s*2M\s+Sembako\s*[-–—:]\s*/i, "").trim();
+  return short || name;
+}
+
+function visibleBranches() {
+  return activeCity === ALL_CITIES ? allBranches : allBranches.filter((b) => b.city === activeCity);
+}
+
+function listCities(branches) {
+  const cities = [];
+  branches.forEach((b) => {
+    if (!cities.includes(b.city)) cities.push(b.city);
   });
-  return defaultHours;
+  return cities;
 }
 
-function renderDefaultHoursNote(defaultHours) {
-  const el = document.getElementById("branch-hours-default");
-  if (!el || !defaultHours) return;
-  el.textContent = `Jam operasional seluruh cabang: ${defaultHours} (kecuali disebutkan lain per cabang).`;
-  el.classList.remove("hidden");
-}
-
-// Sequential marker numbers, assigned only to branches with valid coordinates,
-// so card badges stay in sync with the pins actually drawn on the map.
-function assignMarkerNumbers(branches) {
-  const numbers = new Map();
-  let next = 0;
-  branches.forEach((branch) => {
-    if (hasValidCoords(branch)) {
-      next += 1;
-      numbers.set(branch.id, next);
-    }
-  });
-  return numbers;
-}
-
-function branchCardMarkup(branch, markerNumber, defaultHours, index) {
-  const hoursLine = branch.operating_hours !== defaultHours
-    ? `<p class="font-body text-sm text-ink-muted mt-2">${escapeHtml(branch.operating_hours)}</p>`
-    : "";
-
-  const mapsLink = branch.google_maps_url
-    ? `<a href="${escapeHtml(branch.google_maps_url)}" target="_blank" rel="noopener" class="${CTA_MAPS_CLASS}">${PIN_ICON_SVG} Lihat di Google Maps</a>`
-    : "";
-
-  // Only branches with a marker on the map are clickable/focusable for the card <-> pin sync.
-  const interactiveAttrs = markerNumber
-    ? ` data-branch-id="${branch.id}" tabindex="0" role="button" aria-label="Lihat lokasi cabang ini di peta"`
-    : "";
-  const interactiveClasses = markerNumber ? " cursor-pointer" : "";
-  const delayClass = STAGGER_DELAYS[index % STAGGER_DELAYS.length];
-
-  return `
-    <article data-animate="fade-in-up" class="${delayClass} group relative flex flex-col h-full bg-surface rounded-2xl border border-ink/10 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-primary/30${interactiveClasses}"${interactiveAttrs}>
-      <div class="flex items-center gap-2.5">
-        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary shrink-0 transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
-          ${PIN_ICON_SVG}
-        </span>
-        <span class="inline-block bg-canvas text-ink-muted text-xs font-body px-2.5 py-1 rounded-full">${escapeHtml(branch.city)}</span>
-      </div>
-      <h3 class="font-display font-bold uppercase tracking-tight text-lg text-ink mt-3">${escapeHtml(branch.name)}</h3>
-      <p class="font-body text-sm text-ink-muted mt-1.5 leading-relaxed">${escapeHtml(branch.address)}</p>
-      ${hoursLine}
-      <div class="flex-grow"></div>
-      <div class="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-ink/10">
-        <a href="${waLink(branch.whatsapp_number)}" target="_blank" rel="noopener" class="${CTA_WA_CLASS}">${CHAT_ICON_SVG} Chat via WhatsApp</a>
-        ${mapsLink}
-      </div>
-    </article>
-  `;
+function joinWithDan(words) {
+  if (words.length <= 1) return words.join("");
+  return `${words.slice(0, -1).join(", ")} dan ${words[words.length - 1]}`;
 }
 
 function showBranchState(state) {
   document.getElementById("branch-loading").classList.toggle("hidden", state !== "loading");
   document.getElementById("branch-empty").classList.toggle("hidden", state !== "empty");
   document.getElementById("branch-error").classList.toggle("hidden", state !== "error");
-  document.getElementById("branch-grid").classList.toggle("hidden", state !== "grid");
+  document.getElementById("branch-list").classList.toggle("hidden", state !== "list");
 }
 
-function pinMarkerIcon() {
-  return L.divIcon({
-    className: "",
-    html: `<i class="fi fi-sr-marker text-primary drop-shadow" style="font-size: 28px;" aria-hidden="true"></i>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -26],
+function renderSummary() {
+  const cities = listCities(allBranches);
+  const hint = DESKTOP_QUERY.matches
+    ? "Pilih cabang untuk melihat lokasinya di peta."
+    : "Geser kartu atau ketuk pin untuk melihat tiap cabang.";
+  document.getElementById("branch-summary").textContent =
+    `${allBranches.length} cabang di ${joinWithDan(cities)}. ${hint}`;
+}
+
+function renderCityFilter() {
+  const filter = document.getElementById("branch-filter");
+  const cities = listCities(allBranches);
+  if (cities.length < 2) return; // nothing to filter with a single city
+
+  const chips = [ALL_CITIES, ...cities].map((city) => {
+    const count = city === ALL_CITIES ? allBranches.length : allBranches.filter((b) => b.city === city).length;
+    return `<button type="button" class="branch-chip" data-city="${escapeHtml(city)}" aria-pressed="${city === activeCity}">
+        ${escapeHtml(city)} <span class="branch-chip__count">${count}</span>
+      </button>`;
+  });
+  filter.innerHTML = chips.join("");
+  filter.classList.remove("hidden");
+
+  filter.addEventListener("click", (event) => {
+    const chip = event.target.closest("[data-city]");
+    if (!chip || chip.dataset.city === activeCity) return;
+    activeCity = chip.dataset.city;
+    filter.querySelectorAll("[data-city]").forEach((el) => {
+      el.setAttribute("aria-pressed", String(el.dataset.city === activeCity));
+    });
+    renderBranchList();
+    syncMarkersToFilter();
+    clearSelection();
   });
 }
 
-function branchPopupMarkup(branch) {
+function branchItemMarkup(branch) {
+  const number = numberByBranchId.get(branch.id);
+  const numberBadge = number
+    ? `<span class="branch-item__num">${number}</span>`
+    : `<span class="branch-item__num">${PIN_ICON}</span>`;
+  const mapsLink = branch.google_maps_url
+    ? `<a href="${escapeHtml(branch.google_maps_url)}" target="_blank" rel="noopener" class="branch-action branch-action--maps">${PIN_ICON} Buka di Google Maps</a>`
+    : "";
+  // Only branches that have a pin can be selected on the map.
+  const interactiveAttrs = number
+    ? ` tabindex="0" role="button" aria-pressed="false" aria-label="Tampilkan cabang ${escapeHtml(shortBranchName(branch.name))} di peta"`
+    : "";
+
   return `
-    <div class="min-w-[200px] max-w-[240px] font-body">
-      <h4 class="font-display font-bold uppercase tracking-tight text-sm text-ink leading-snug">${escapeHtml(branch.name)}</h4>
-      <div class="flex items-start gap-1.5 mt-1.5 text-xs text-ink-muted leading-snug">
-        ${PIN_ICON_SVG}
-        <span>${escapeHtml(branch.address)}</span>
+    <article class="branch-item" data-branch-id="${branch.id}"${interactiveAttrs}>
+      <div class="flex items-center gap-3">
+        ${numberBadge}
+        <div class="min-w-0">
+          <h3 class="branch-item__name">${escapeHtml(shortBranchName(branch.name))}</h3>
+          <p class="branch-item__city">${escapeHtml(branch.city)}</p>
+        </div>
       </div>
-      <div class="flex items-center gap-1.5 mt-1.5 text-xs text-ink-muted">
-        ${CLOCK_ICON_SVG}
-        <span>${escapeHtml(branch.operating_hours)}</span>
+      <p class="branch-item__text flex items-start gap-2 mt-3">${ADDRESS_ICON}<span>${escapeHtml(branch.address)}</span></p>
+      <p class="branch-item__text flex items-start gap-2 mt-1.5">${CLOCK_ICON}<span>${escapeHtml(branch.operating_hours)}</span></p>
+      <div class="branch-item__actions">
+        <a href="${waLink(branch.whatsapp_number)}" target="_blank" rel="noopener" class="branch-action branch-action--wa">${CHAT_ICON} Chat WhatsApp</a>
+        ${mapsLink}
       </div>
-    </div>
+    </article>
   `;
 }
 
-function initBranchMap(branches) {
-  const validBranches = branches.filter((branch) => {
+function renderBranchList() {
+  const list = document.getElementById("branch-list");
+  list.innerHTML = visibleBranches().map(branchItemMarkup).join("");
+  list.scrollTo({ left: 0, top: 0 });
+  listScrollLeft = 0;
+}
+
+function pinIcon(number) {
+  return L.divIcon({
+    className: "",
+    html: `<span class="branch-pin">${number}</span>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    tooltipAnchor: [0, -20],
+  });
+}
+
+function fitMapToVisible(animate) {
+  if (!branchMap) return;
+  const latLngs = visibleBranches().filter(hasValidCoords).map((b) => [b.latitude, b.longitude]);
+  if (latLngs.length === 0) return;
+  branchMap.fitBounds(L.latLngBounds(latLngs), {
+    padding: [48, 48],
+    maxZoom: 14,
+    animate: animate && !REDUCED_MOTION_QUERY.matches,
+  });
+}
+
+function initBranchMap() {
+  const branchesWithCoords = allBranches.filter((branch) => {
     if (hasValidCoords(branch)) return true;
     console.warn(`Skipping map marker: invalid coordinates for branch id=${branch.id} name=${branch.name}`);
     return false;
   });
+  if (branchesWithCoords.length === 0) return;
 
-  if (validBranches.length === 0) return;
-
-  branchMap = L.map("branch-map");
+  // Wheel-zoom is off so scrolling the page past the map never gets hijacked;
+  // pinch, double-tap and the +/- control still zoom.
+  branchMap = L.map("branch-map", { scrollWheelZoom: false, zoomControl: false });
+  L.control.zoom({ position: "bottomright" }).addTo(branchMap);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
   }).addTo(branchMap);
 
-  const latLngs = validBranches.map((branch) => [branch.latitude, branch.longitude]);
-
-  validBranches.forEach((branch) => {
+  branchesWithCoords.forEach((branch) => {
     const marker = L.marker([branch.latitude, branch.longitude], {
-      icon: pinMarkerIcon(),
+      icon: pinIcon(numberByBranchId.get(branch.id)),
+      title: branch.name,
+      keyboard: false, // the list items are the keyboard path to each branch
     }).addTo(branchMap);
-    marker.bindPopup(branchPopupMarkup(branch));
+    marker.bindTooltip(escapeHtml(shortBranchName(branch.name)), { direction: "top", className: "branch-tip" });
+    marker.on("click", () => selectBranch(branch.id, { scrollList: true }));
     markerByBranchId.set(branch.id, marker);
   });
 
-  // Auto-fit to whatever branches exist instead of a hardcoded center/zoom.
-  branchMap.fitBounds(L.latLngBounds(latLngs), { padding: [24, 24], maxZoom: 15 });
+  fitMapToVisible(false);
+
+  // Rotating a phone (or resizing the window) changes the map box; Leaflet needs to be
+  // told, otherwise part of the map stays blank. Re-centre on the current selection.
+  let resizeTimer = null;
+  new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      branchMap.invalidateSize();
+      const marker = markerByBranchId.get(activeBranchId);
+      if (marker) branchMap.setView(marker.getLatLng(), BRANCH_FOCUS_ZOOM, { animate: false });
+      else fitMapToVisible(false);
+    }, 150);
+  }).observe(document.getElementById("branch-map"));
 }
 
-function focusBranchOnMap(branchId) {
+function syncMarkersToFilter() {
+  if (!branchMap) return;
+  const visibleIds = new Set(visibleBranches().map((b) => b.id));
+  markerByBranchId.forEach((marker, id) => {
+    if (visibleIds.has(id)) marker.addTo(branchMap);
+    else marker.remove();
+  });
+}
+
+function setActiveStyles(branchId) {
+  document.querySelectorAll("#branch-list [data-branch-id]").forEach((item) => {
+    const isActive = Number(item.dataset.branchId) === branchId;
+    item.classList.toggle("is-active", isActive);
+    if (item.hasAttribute("aria-pressed")) item.setAttribute("aria-pressed", String(isActive));
+  });
+  markerByBranchId.forEach((marker, id) => {
+    const isActive = id === branchId;
+    marker.getElement()?.querySelector(".branch-pin")?.classList.toggle("is-active", isActive);
+    marker.setZIndexOffset(isActive ? 1000 : 0);
+    if (isActive) marker.openTooltip();
+    else marker.closeTooltip();
+  });
+  document.getElementById("branch-reset").classList.toggle("hidden", branchId === null);
+}
+
+function selectBranch(branchId, { scrollList = false } = {}) {
   const marker = markerByBranchId.get(branchId);
   if (!branchMap || !marker) return;
-  document.getElementById("branch-map").scrollIntoView({ behavior: "smooth", block: "center" });
-  // animate:false — Leaflet's zoom-animation path can silently skip the zoom change
-  // right after fitBounds(); disabling it keeps the pan+zoom deterministic.
-  branchMap.setView(marker.getLatLng(), 15, { animate: false });
-  marker.openPopup();
+
+  activeBranchId = branchId;
+  setActiveStyles(branchId);
+
+  if (REDUCED_MOTION_QUERY.matches) branchMap.setView(marker.getLatLng(), BRANCH_FOCUS_ZOOM, { animate: false });
+  else branchMap.flyTo(marker.getLatLng(), BRANCH_FOCUS_ZOOM, { duration: 0.9 });
+
+  if (scrollList) {
+    const item = document.querySelector(`#branch-list [data-branch-id="${branchId}"]`);
+    scrollListTo(item);
+  }
 }
 
-function attachCardClickHandlers() {
-  const grid = document.getElementById("branch-grid");
+// Scrolls only the list container (never the page) so the chosen branch is in view.
+function scrollListTo(item) {
+  if (!item) return;
+  const list = document.getElementById("branch-list");
+  const behavior = REDUCED_MOTION_QUERY.matches ? "auto" : "smooth";
+  const listRect = list.getBoundingClientRect();
+  const itemRect = item.getBoundingClientRect();
+  if (DESKTOP_QUERY.matches) {
+    const offset = itemRect.top - listRect.top - (listRect.height - itemRect.height) / 2;
+    list.scrollBy({ top: offset, behavior });
+  } else {
+    const offset = itemRect.left - listRect.left - (listRect.width - itemRect.width) / 2;
+    list.scrollBy({ left: offset, behavior });
+  }
+}
 
-  grid.addEventListener("click", (event) => {
+function clearSelection() {
+  activeBranchId = null;
+  setActiveStyles(null);
+  fitMapToVisible(true);
+}
+
+function attachListHandlers() {
+  const list = document.getElementById("branch-list");
+
+  list.addEventListener("click", (event) => {
     if (event.target.closest("a")) return; // let WA/Maps links behave normally
-    const card = event.target.closest("[data-branch-id]");
-    if (!card) return;
-    focusBranchOnMap(Number(card.dataset.branchId));
+    const item = event.target.closest("[data-branch-id]");
+    if (!item) return;
+    selectBranch(Number(item.dataset.branchId), { scrollList: true });
   });
 
-  grid.addEventListener("keydown", (event) => {
+  list.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
-    const card = event.target.closest("[data-branch-id]");
-    if (!card) return;
+    if (event.target.closest("a")) return;
+    const item = event.target.closest("[data-branch-id]");
+    if (!item) return;
     event.preventDefault();
-    focusBranchOnMap(Number(card.dataset.branchId));
+    selectBranch(Number(item.dataset.branchId), { scrollList: true });
   });
+
+  // Phones: swiping the cards moves the map to whichever card settles in the middle.
+  // Only reacts to a real horizontal swipe, so the page scrolling by never moves the map.
+  let settleTimer = null;
+  list.addEventListener("scroll", () => {
+    if (DESKTOP_QUERY.matches || list.scrollLeft === listScrollLeft) return;
+    listScrollLeft = list.scrollLeft;
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+      const center = list.getBoundingClientRect().left + list.clientWidth / 2;
+      let nearest = null;
+      let nearestDistance = Infinity;
+      list.querySelectorAll("[data-branch-id]").forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        const distance = Math.abs(rect.left + rect.width / 2 - center);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearest = item;
+        }
+      });
+      const nearestId = nearest ? Number(nearest.dataset.branchId) : null;
+      if (nearestId !== null && nearestId !== activeBranchId) selectBranch(nearestId);
+    }, 140);
+  }, { passive: true });
+
+  document.getElementById("branch-reset").addEventListener("click", clearSelection);
+  DESKTOP_QUERY.addEventListener("change", renderSummary);
 }
 
 async function loadBranches() {
@@ -205,19 +324,21 @@ async function loadBranches() {
       return;
     }
 
-    const defaultHours = computeDefaultHours(branches);
-    renderDefaultHoursNote(defaultHours);
+    allBranches = branches;
+    // Sequential numbers only for branches with valid coordinates, so the number
+    // on a list item always matches a pin that is actually on the map.
+    let next = 0;
+    allBranches.forEach((branch) => {
+      if (hasValidCoords(branch)) numberByBranchId.set(branch.id, (next += 1));
+    });
 
-    const markerNumbers = assignMarkerNumbers(branches);
-    const grid = document.getElementById("branch-grid");
-    grid.innerHTML = branches
-      .map((branch, index) => branchCardMarkup(branch, markerNumbers.get(branch.id), defaultHours, index))
-      .join("");
-    window.ScrollObserver?.observeAll(grid);
-    showBranchState("grid");
+    renderSummary();
+    renderCityFilter();
+    renderBranchList();
+    showBranchState("list");
 
-    initBranchMap(branches);
-    attachCardClickHandlers();
+    initBranchMap();
+    attachListHandlers();
   } catch (error) {
     showBranchState("error");
   }

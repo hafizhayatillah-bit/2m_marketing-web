@@ -30,6 +30,11 @@ async def render_about():
 async def render_news():
     return FileResponse(STATIC_PAGES_DIR / "news.html")
 
+@router.get("/news/{news_id}")
+async def render_news_detail(news_id: int):
+    # Satu file statis untuk semua artikel; isinya dimuat via JS dari /api/v1/public/news/{id}.
+    return FileResponse(STATIC_PAGES_DIR / "news-detail.html")
+
 @router.get("/contact")
 async def render_contact():
     return FileResponse(STATIC_PAGES_DIR / "contact.html")

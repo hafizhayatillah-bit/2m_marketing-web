@@ -1,7 +1,9 @@
 // Fetch-injects the shared header/footer partials and wires up nav behaviour.
 // Every page must set <body data-page="home|product|about|contact|news">.
 
-const ACTIVE_CLASSES = ["text-accent", "border-b-2", "border-accent"];
+// Bump together with the ?v= on the <link>/<script> tags whenever the partials change,
+// so returning visitors don't get a cached header/footer next to new CSS.
+const PARTIALS_VERSION = "20261114";
 
 async function injectPartial(targetSelector, url) {
   const target = document.querySelector(targetSelector);
@@ -20,16 +22,31 @@ function setupTransparentHeader() {
 
   const SCROLL_THRESHOLD = 40; // px scrolled before the header switches to its solid state
   const updateHeaderState = () => {
-    header.classList.toggle("header--transparent", window.scrollY < SCROLL_THRESHOLD);
+    // An open mobile menu always needs the solid bar above it, even at the top of the page.
+    const menuOpen = header.dataset.menuOpen === "true";
+    header.classList.toggle("header--transparent", window.scrollY < SCROLL_THRESHOLD && !menuOpen);
   };
   updateHeaderState();
   window.addEventListener("scroll", updateHeaderState, { passive: true });
+  header.addEventListener("mobile-menu-change", updateHeaderState);
 }
 
 function highlightActiveNavLink() {
   const currentPage = document.body.dataset.page;
   document.querySelectorAll("[data-nav-link]").forEach((link) => {
     const isActive = link.dataset.navLink === currentPage;
+    if (isActive) link.setAttribute("aria-current", "page");
+
+    // Mobile rows already have a divider line, so the active one is marked with
+    // colour plus a dot instead of the desktop underline.
+    if (link.hasAttribute("data-nav-mobile")) {
+      if (!isActive) return;
+      link.classList.remove("text-white/80");
+      link.classList.add("text-white");
+      link.insertAdjacentHTML("beforeend", '<span class="w-2 h-2 rounded-full bg-accent" aria-hidden="true"></span>');
+      return;
+    }
+
     link.classList.toggle("text-accent", isActive);
     link.classList.toggle("border-b-2", isActive);
     link.classList.toggle("border-accent", isActive);
@@ -44,26 +61,46 @@ function applyWaLinks() {
 }
 
 function setupMobileMenu() {
+  const header = document.querySelector("header");
   const toggleBtn = document.getElementById("mobile-menu-toggle");
   const menu = document.getElementById("mobile-menu");
-  if (!toggleBtn || !menu) return;
+  if (!header || !toggleBtn || !menu) return;
 
-  toggleBtn.addEventListener("click", () => {
-    const isOpen = menu.classList.contains("hidden");
+  const setOpen = (isOpen) => {
     menu.classList.toggle("hidden", !isOpen);
     toggleBtn.setAttribute("aria-expanded", String(isOpen));
-    const icon = toggleBtn.querySelector("iconify-icon");
-    icon.setAttribute("icon", isOpen ? "lucide:x" : "lucide:menu");
+    toggleBtn.setAttribute("aria-label", isOpen ? "Tutup menu" : "Buka menu");
+    toggleBtn.querySelector('[data-menu-icon="open"]').classList.toggle("hidden", isOpen);
+    toggleBtn.querySelector('[data-menu-icon="close"]').classList.toggle("hidden", !isOpen);
+    header.dataset.menuOpen = String(isOpen);
+    header.dispatchEvent(new Event("mobile-menu-change"));
+  };
+  const isOpen = () => !menu.classList.contains("hidden");
+
+  toggleBtn.addEventListener("click", () => setOpen(!isOpen()));
+
+  // Tapping outside the header, pressing Escape, or rotating to a desktop width closes it.
+  document.addEventListener("click", (event) => {
+    if (isOpen() && !event.target.closest("header")) setOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && isOpen()) {
+      setOpen(false);
+      toggleBtn.focus();
+    }
+  });
+  window.matchMedia("(min-width: 768px)").addEventListener("change", (event) => {
+    if (event.matches && isOpen()) setOpen(false);
   });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   await Promise.all([
-    injectPartial("#site-header", "/partials/header.html"),
-    injectPartial("#site-footer", "/partials/footer.html"),
+    injectPartial("#site-header", `/partials/header.html?v=${PARTIALS_VERSION}`),
+    injectPartial("#site-footer", `/partials/footer.html?v=${PARTIALS_VERSION}`),
   ]);
   highlightActiveNavLink();
-  setupMobileMenu();
   applyWaLinks();
   setupTransparentHeader();
+  setupMobileMenu();
 });

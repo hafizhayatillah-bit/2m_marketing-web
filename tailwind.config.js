@@ -1,5 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // Hover styles only apply on devices that can actually hover, so cards don't get
+  // stuck in their hover state after a tap on touch screens.
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   content: [
     "./*.html",
     "./partials/**/*.html",

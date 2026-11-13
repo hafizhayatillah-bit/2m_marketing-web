@@ -4,7 +4,7 @@
       <img src="https://res.cloudinary.com/bse7x4ip/image/upload/v1789752052/2_M_Gudang_Sembako.png" alt="2M Sembako" class="h-9 md:h-11 w-auto">
     </a>
 
-    <nav class="hidden md:flex items-center gap-8">
+    <nav class="hidden md:flex items-center gap-8" aria-label="Navigasi utama">
       <a href="/" data-nav-link="home" class="relative font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white transition-all duration-300 pb-1 hover:-translate-y-0.5 after:content-[''] after:absolute after:left-1/2 after:-bottom-0.5 after:h-0.5 after:w-0 after:bg-accent after:rounded-full after:transition-all after:duration-300 hover:after:w-full hover:after:left-0">Home</a>
       <a href="/product" data-nav-link="product" class="relative font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white transition-all duration-300 pb-1 hover:-translate-y-0.5 after:content-[''] after:absolute after:left-1/2 after:-bottom-0.5 after:h-0.5 after:w-0 after:bg-accent after:rounded-full after:transition-all after:duration-300 hover:after:w-full hover:after:left-0">Product</a>
       <a href="/about" data-nav-link="about" class="relative font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white transition-all duration-300 pb-1 hover:-translate-y-0.5 after:content-[''] after:absolute after:left-1/2 after:-bottom-0.5 after:h-0.5 after:w-0 after:bg-accent after:rounded-full after:transition-all after:duration-300 hover:after:w-full hover:after:left-0">About Us</a>
@@ -12,18 +12,25 @@
       <a href="/news" data-nav-link="news" class="relative font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white transition-all duration-300 pb-1 hover:-translate-y-0.5 after:content-[''] after:absolute after:left-1/2 after:-bottom-0.5 after:h-0.5 after:w-0 after:bg-accent after:rounded-full after:transition-all after:duration-300 hover:after:w-full hover:after:left-0">News</a>
     </nav>
 
-    <button id="mobile-menu-toggle" class="md:hidden text-white p-2" aria-label="Toggle menu" aria-expanded="false">
-      <iconify-icon icon="lucide:menu" width="28"></iconify-icon>
+    <button id="mobile-menu-toggle" type="button" class="md:hidden -mr-2 w-11 h-11 flex items-center justify-center rounded-full text-white active:bg-white/10" aria-label="Buka menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg data-menu-icon="open" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg data-menu-icon="close" class="hidden" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
 
-  <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-slate-950 border-t border-white/10 shadow-lg">
-    <div class="flex flex-col px-4 py-4 gap-4">
-      <a href="/" data-nav-link="home" class="font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white hover:translate-x-1.5 transition-all duration-300">Home</a>
-      <a href="/product" data-nav-link="product" class="font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white hover:translate-x-1.5 transition-all duration-300">Product</a>
-      <a href="/about" data-nav-link="about" class="font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white hover:translate-x-1.5 transition-all duration-300">About Us</a>
-      <a href="/contact" data-nav-link="contact" class="font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white hover:translate-x-1.5 transition-all duration-300">Contact</a>
-      <a href="/news" data-nav-link="news" class="font-display font-bold uppercase text-sm tracking-wider text-white/80 hover:text-white hover:translate-x-1.5 transition-all duration-300">News</a>
-    </div>
+  <!-- Mobile nav: links are full-width rows with a 48px tap height; partials.js marks the active one. -->
+  <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-slate-950 border-t border-white/10 shadow-2xl shadow-black/40">
+    <nav class="flex flex-col px-4 pt-2 pb-5" aria-label="Navigasi utama">
+      <a href="/" data-nav-link="home" data-nav-mobile class="flex items-center justify-between border-b border-white/10 py-3.5 font-display font-bold uppercase text-base tracking-wider text-white/80">Home</a>
+      <a href="/product" data-nav-link="product" data-nav-mobile class="flex items-center justify-between border-b border-white/10 py-3.5 font-display font-bold uppercase text-base tracking-wider text-white/80">Product</a>
+      <a href="/about" data-nav-link="about" data-nav-mobile class="flex items-center justify-between border-b border-white/10 py-3.5 font-display font-bold uppercase text-base tracking-wider text-white/80">About Us</a>
+      <a href="/contact" data-nav-link="contact" data-nav-mobile class="flex items-center justify-between border-b border-white/10 py-3.5 font-display font-bold uppercase text-base tracking-wider text-white/80">Contact</a>
+      <a href="/news" data-nav-link="news" data-nav-mobile class="flex items-center justify-between border-b border-white/10 py-3.5 font-display font-bold uppercase text-base tracking-wider text-white/80">News</a>
+
+      <a href="https://wa.me/" data-wa-link target="_blank" rel="noopener noreferrer"
+         class="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-accent px-6 py-3.5 font-display font-bold uppercase tracking-wide text-sm text-white">
+        <i class="fi fi-brands-whatsapp" aria-hidden="true"></i> Chat via WhatsApp
+      </a>
+    </nav>
   </div>
 </header>

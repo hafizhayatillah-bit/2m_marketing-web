@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Info &amp; Event — 2M Sembako</title>
+  <meta name="description" content="Promo, event, dan kabar terbaru dari seluruh cabang 2M Sembako.">
+  <link rel="canonical" href="https://2msembako.id/news">
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/bse7x4ip/image/upload/v1789753641/2_m_sembako.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn-uicons.flaticon.com">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/output.css?v=20261114">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-brands/css/uicons-brands.css">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+</head>
+<!-- data-page="news" keeps the News tab highlighted while an article is open -->
+<body data-page="news" class="bg-surface text-ink font-body flex flex-col min-h-screen">
+  <div id="page-loader"><div class="text-center"><div class="page-loader__brand">Loading</div><div class="page-loader__bar"></div></div></div>
+  <div id="site-header"></div>
+
+  <main class="flex-grow flex flex-col">
+    <!-- Article header band -->
+    <div class="bg-gradient-to-b from-ink to-ocean pt-16 md:pt-20">
+      <div class="max-w-3xl mx-auto px-4 pt-6 pb-10 md:pt-10 md:pb-14">
+        <a href="/news" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 pl-3 pr-4 py-2 font-display font-bold text-sm text-white hover:bg-white hover:text-ink transition-colors duration-200">
+          <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i> Kembali ke News
+        </a>
+
+        <div id="article-skeleton" class="mt-8" aria-hidden="true">
+          <div class="h-4 w-40 rounded-lg bg-white/15 animate-pulse"></div>
+          <div class="h-9 w-full rounded-lg bg-white/15 animate-pulse mt-5"></div>
+          <div class="h-9 w-2/3 rounded-lg bg-white/15 animate-pulse mt-3"></div>
+        </div>
+
+        <header id="article-header" class="hidden mt-8">
+          <div class="flex flex-wrap items-center gap-3 text-sm">
+            <time id="article-date" class="font-body font-medium text-white/70"></time>
+            <span id="article-tag" class="hidden bg-white/15 text-white text-xs font-display font-bold uppercase tracking-wide px-3 py-1 rounded-full"></span>
+          </div>
+          <h1 id="article-title" class="font-display font-bold uppercase tracking-tight text-2xl sm:text-3xl md:text-4xl leading-tight md:leading-tight text-white mt-4"></h1>
+        </header>
+      </div>
+    </div>
+
+    <!-- Cover image straddles the end of the band: the top half sits on the band colour -->
+    <div id="article-image-wrap" class="hidden relative">
+      <div class="absolute inset-x-0 top-0 h-1/2 bg-ocean" aria-hidden="true"></div>
+      <figure class="relative max-w-3xl mx-auto px-4">
+        <img id="article-image" src="" alt="" class="w-full aspect-video object-cover rounded-2xl md:rounded-3xl shadow-2xl shadow-ink/30 bg-canvas">
+      </figure>
+    </div>
+
+    <div class="max-w-3xl mx-auto px-4 w-full py-10 md:py-14">
+      <div id="article-body-skeleton" aria-hidden="true">
+        <div class="skeleton h-4 w-full"></div>
+        <div class="skeleton h-4 w-11/12 mt-3"></div>
+        <div class="skeleton h-4 w-full mt-3"></div>
+        <div class="skeleton h-4 w-3/4 mt-3"></div>
+      </div>
+
+      <article id="article-main" class="hidden">
+        <div id="article-content" class="article-body"></div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-12 pt-8 border-t border-ink/10">
+          <a href="/news" class="inline-flex items-center justify-center gap-2 rounded-full bg-primary hover:bg-secondary px-6 py-3 font-display font-bold uppercase tracking-wide text-sm text-white transition-colors duration-200">
+            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i> Kembali ke News
+          </a>
+          <a id="article-share" href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 hover:border-primary hover:text-primary px-6 py-3 font-display font-bold uppercase tracking-wide text-sm text-ink transition-colors duration-200">
+            <i class="fi fi-brands-whatsapp" aria-hidden="true"></i> Bagikan via WhatsApp
+          </a>
+        </div>
+      </article>
+
+      <div id="article-missing" class="hidden text-center py-10">
+        <h1 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink">Berita tidak ditemukan</h1>
+        <p class="font-body text-ink-muted mt-3">Berita ini sudah tidak tersedia atau tautannya salah. Lihat kabar lain di halaman News.</p>
+        <a href="/news" class="inline-flex items-center justify-center gap-2 mt-8 rounded-full bg-primary hover:bg-secondary px-6 py-3 font-display font-bold uppercase tracking-wide text-sm text-white transition-colors duration-200">
+          <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i> Kembali ke News
+        </a>
+      </div>
+
+      <div id="article-error" class="hidden text-center py-10">
+        <h1 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink">Berita belum bisa dimuat</h1>
+        <p class="font-body text-ink-muted mt-3">Periksa koneksi internet, lalu muat ulang halaman ini.</p>
+        <button type="button" onclick="window.location.reload()" class="inline-flex items-center justify-center gap-2 mt-8 rounded-full bg-primary hover:bg-secondary px-6 py-3 font-display font-bold uppercase tracking-wide text-sm text-white transition-colors duration-200">
+          <i class="fa-solid fa-rotate-right text-xs" aria-hidden="true"></i> Muat ulang
+        </button>
+      </div>
+    </div>
+
+    <section id="more-news" class="hidden flex-grow bg-primary/5 border-t border-ink/10">
+      <div class="max-w-7xl mx-auto px-4 py-12 md:py-16">
+        <div class="flex items-end justify-between gap-4 mb-8">
+          <h2 class="font-display font-bold uppercase tracking-tight text-2xl md:text-3xl text-ink">Berita lainnya</h2>
+          <a href="/news" class="shrink-0 font-display font-bold text-sm text-primary hover:text-secondary underline underline-offset-4">Lihat semua</a>
+        </div>
+        <div id="more-news-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="/assets/js/config.js?v=20261114"></script>
+  <script src="/assets/js/page-loader.js?v=20261114"></script>
+  <script src="/assets/js/utils.js?v=20261114"></script>
+  <script src="/assets/js/partials.js?v=20261114"></script>
+  <script src="/assets/js/scrollObserver.js?v=20261114"></script>
+  <script src="/assets/js/news-detail.js?v=20261114"></script>
+</body>
+</html>
