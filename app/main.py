@@ -44,8 +44,8 @@ app.mount("/partials", StaticFiles(directory=PROJECT_ROOT / "partials"), name="p
 
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon():
-    # Browsers request this path by default even though we only ship an SVG icon.
-    return FileResponse(PROJECT_ROOT / "assets" / "favicon.svg", media_type="image/svg+xml")
+    # Browsers dan Google meminta path ini secara default; pakai logo 2M Sembako (persegi).
+    return FileResponse(PROJECT_ROOT / "assets" / "images" / "icons" / "favicon.ico", media_type="image/x-icon")
 
 @app.get("/health")
 def health():
