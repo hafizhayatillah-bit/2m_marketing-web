@@ -6,4 +6,4 @@ BREAKPOINT: mobile<768px, tablet 768-1279px, desktop≥1280px
 LAYOUT: header/footer = partial via partials.js, injected ke #site-header/#site-footer
 NAV ACTIVE: <body data-page="xxx"> → partials.js set class "active"
 LARANGAN GLOBAL (semua halaman): cart, login, search bar, harga di produk, order toggle
-CTA WA: format wa.me/62XXXXXXXXXX — nomor final masih open item, pakai placeholder
+CTA WA: wa.me/6282126387532 (admin pusat) — diatur di assets/js/config.js

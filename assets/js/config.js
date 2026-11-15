@@ -1,5 +1,5 @@
 // Single source of truth for the WA contact number — update here only.
-const WA_NUMBER = "62XXXXXXXXXX";
+const WA_NUMBER = "6282126387532";
 
 // Toggle homepage sections without deleting their code, so they stay reusable later.
 const FEATURE_FLAGS = {
