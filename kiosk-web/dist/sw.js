@@ -42,6 +42,11 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
+  // Logo: jaringan dulu (kalau logo diganti langsung terpakai), cache sebagai cadangan saat offline.
+  if (url.pathname.endsWith("/logo-2m.png")) {
+    event.respondWith(fetch(req).then((res) => store(req, res)).catch(() => caches.match(req)));
+    return;
+  }
   // File ber-hash tidak pernah berubah: cache dulu.
   if (url.pathname.startsWith(ASSETS_PATH)) {
     event.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => store(req, res))));

@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, errorMessage, setSessionLostHandler } from "../../lib/api";
+import { LOGO } from "../../lib/brand";
+import { InstallButton } from "../../components/InstallButton";
 
 const ME_KEY = ["auth-me"];
 
@@ -87,9 +89,7 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (u: { username: string }) => vo
   return (
     <div className="grid min-h-dvh lg:grid-cols-2">
       <section className="hidden flex-col justify-between bg-rail p-10 text-rail-foreground lg:flex">
-        <span className="flex size-12 items-center justify-center rounded-md bg-rail-foreground text-lg font-extrabold tracking-tight text-rail">
-          2M
-        </span>
+        <img src={LOGO} alt="2M Sembako" width={64} height={64} className="size-16 rounded-xl" />
         <div className="flex flex-col gap-4">
           <h1 className="t-display">Admin toko</h1>
           <p className="max-w-md text-lg text-rail-muted">
@@ -101,9 +101,7 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (u: { username: string }) => vo
       <section className="flex items-center justify-center p-6">
         <form className="flex w-full max-w-sm flex-col gap-5 animate-rise" onSubmit={submit}>
           <div className="flex flex-col gap-2">
-            <span className="flex size-11 items-center justify-center rounded-md bg-rail text-base font-extrabold tracking-tight text-rail-foreground lg:hidden">
-              2M
-            </span>
+            <img src={LOGO} alt="2M Sembako" width={56} height={56} className="size-14 rounded-xl lg:hidden" />
             <h2 className="t-headline">Masuk</h2>
             <p className="text-muted-foreground">Pakai akun admin 2M Sembako (sama dengan admin website).</p>
           </div>
@@ -137,6 +135,7 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (u: { username: string }) => vo
           <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={login.isPending || !username.trim() || !password}>
             {login.isPending ? "Memproses…" : "Masuk"}
           </button>
+          <InstallButton className="self-center" />
         </form>
       </section>
     </div>

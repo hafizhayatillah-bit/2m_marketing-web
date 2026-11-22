@@ -11,6 +11,8 @@ import { OrdersPage } from "../features/orders/OrdersPage";
 import { ReportsPage } from "../features/reports/ReportsPage";
 import { ExpensesPage } from "../features/expenses/ExpensesPage";
 import { cn } from "../lib/utils";
+import { InstallButton } from "../components/InstallButton";
+import { LOGO } from "../lib/brand";
 
 type Page = "laporan" | "transaksi" | "produk" | "stok" | "biaya";
 
@@ -51,12 +53,13 @@ function Shell() {
         aria-label="Navigasi utama"
         className="rail fixed inset-x-3 bottom-3 z-[700] flex rounded-[1.125rem] bg-rail p-1.5 shadow-nav md:sticky md:inset-x-auto md:bottom-auto md:top-0 md:h-dvh md:w-[5.5rem] md:shrink-0 md:flex-col md:rounded-none md:p-2 md:py-4 md:shadow-none"
       >
-        <span
-          aria-hidden="true"
-          className="mx-auto mb-5 hidden size-11 items-center justify-center rounded-md bg-rail-foreground text-base font-extrabold tracking-tight text-rail md:flex"
-        >
-          2M
-        </span>
+        <img
+          src={LOGO}
+          alt="2M Sembako"
+          width={48}
+          height={48}
+          className="mx-auto mb-5 hidden size-12 shrink-0 rounded-[0.625rem] md:block"
+        />
         <div ref={rail} className="relative flex flex-1 gap-1 md:flex-none md:flex-col">
           <span
             aria-hidden="true"
@@ -87,8 +90,10 @@ function Shell() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex min-h-16 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border px-4 py-2.5 md:px-6">
+          <img src={LOGO} alt="2M Sembako" width={36} height={36} className="size-9 shrink-0 rounded-lg md:hidden" />
           <p className="hidden font-bold sm:block">Admin toko kiosk</p>
           <div className="ml-auto flex min-w-0 items-center gap-2 text-sm">
+            <InstallButton compact />
             <Select
               label="Cabang"
               icon={<IconStore />}

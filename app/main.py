@@ -92,8 +92,14 @@ ADMIN_POS_DIST = PROJECT_ROOT / "admin-pos-web" / "dist"
 def _admin_pos_file(path: str):
     target = (ADMIN_POS_DIST / path).resolve()
     if path and target.is_file() and ADMIN_POS_DIST.resolve() in target.parents:
-        cache = "public, max-age=31536000, immutable" if path.startswith("assets/") else "public, max-age=300"
-        return FileResponse(target, headers={"Cache-Control": cache})
+        if path.startswith("assets/"):
+            cache = "public, max-age=31536000, immutable"
+        elif path in ("sw.js", "manifest.webmanifest"):
+            cache = "no-cache"  # service worker & manifest PWA harus selalu dicek versi barunya
+        else:
+            cache = "public, max-age=300"
+        media_type = "application/manifest+json" if target.suffix == ".webmanifest" else None
+        return FileResponse(target, media_type=media_type, headers={"Cache-Control": cache})
     if path.startswith("assets/"):
         # Aset lama yang sudah tidak ada setelah deploy: 404, jangan kirim index.html sebagai JS/CSS.
         raise HTTPException(status_code=404, detail="Not found")

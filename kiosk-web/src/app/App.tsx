@@ -46,9 +46,17 @@ function Logo({ onLongPress }: { onLongPress: () => void }) {
       onPointerLeave={stop}
       onPointerCancel={stop}
       aria-hidden="true"
-      className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-rail text-lg font-extrabold tracking-tight text-rail-foreground"
+      className="flex size-14 shrink-0 select-none items-center justify-center"
     >
-      2M
+      {/* pointer-events-none: sentuhan tetap ditangkap span (pemicu PIN staf), gambar tidak bisa di-drag/disimpan. */}
+      <img
+        src={`${import.meta.env.BASE_URL}logo-2m.png`}
+        alt=""
+        width={56}
+        height={56}
+        draggable={false}
+        className="pointer-events-none size-14 rounded-lg"
+      />
     </span>
   );
 }
