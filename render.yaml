@@ -2,7 +2,7 @@ services:
   - type: web
     name: 2m-sembako-api
     runtime: python
-    plan: free
+    plan: starter
     buildCommand: pip install -r requirements.txt && alembic upgrade head
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
@@ -18,3 +18,17 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      # --- Kiosk self-service (lihat kiosk-web/README.md) ---
+      - key: KIOSK_DEVICE_TOKEN
+        sync: false
+      - key: KIOSK_STAFF_PIN
+        sync: false
+      - key: PAYMENT_PROVIDER
+        value: manual
+      - key: KIOSK_DEFAULT_BRANCH
+        value: jatibening
+      - key: KIOSK_QRIS_IMAGE_URL
+        sync: false
+      # --- Admin toko kiosk /admin-pos (lihat admin-pos-web/README.md); login pakai ADMIN_USERNAME/PASSWORD ---
+      - key: ADMIN_SESSION_SECRET
+        generateValue: true

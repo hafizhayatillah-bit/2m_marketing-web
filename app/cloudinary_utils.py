@@ -5,7 +5,7 @@ import cloudinary.uploader
 from dotenv import load_dotenv
 from fastapi import UploadFile
 
-load_dotenv(override=True)
+load_dotenv(os.getenv("ENV_FILE", ".env"), override=True)
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),

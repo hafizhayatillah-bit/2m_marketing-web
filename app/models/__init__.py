@@ -5,5 +5,21 @@ from app.models.promo import Promo
 from app.models.product import Product
 from app.models.news import News
 from app.models.featured_product import FeaturedProduct
+from app.models.kiosk import BranchStock, StockMovement, Order, OrderItem, Payment
+from app.models.expense import Expense
 
-__all__ = ["Base", "User", "Branch", "Promo", "Product", "News", "FeaturedProduct"]
+__all__ = [
+    "Base",
+    "User",
+    "Branch",
+    "Promo",
+    "Product",
+    "News",
+    "FeaturedProduct",
+    "BranchStock",
+    "StockMovement",
+    "Order",
+    "OrderItem",
+    "Payment",
+    "Expense",
+]

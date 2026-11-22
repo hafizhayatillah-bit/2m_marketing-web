@@ -9,7 +9,7 @@ from app.models import Base
 import app.models
 
 # Load environment variables (override=True supaya .env selalu menang atas env var shell yang basi)
-load_dotenv(override=True)
+load_dotenv(os.getenv("ENV_FILE", ".env"), override=True)
 
 config = context.config
 

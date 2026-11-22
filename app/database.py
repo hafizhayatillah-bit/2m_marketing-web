@@ -3,7 +3,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
-load_dotenv(override=True)
+# ENV_FILE memungkinkan pakai file env lain (mis. .env.local untuk Postgres lokal) tanpa menyentuh .env.
+load_dotenv(os.getenv("ENV_FILE", ".env"), override=True)
 
 # Gunakan env var DATABASE_URL (Supabase Session Pooler di production)
 # Ganti 'postgres://' ke 'postgresql://' jika diperlukan oleh SQLAlchemy
@@ -17,7 +18,8 @@ engine = create_engine(
     pool_size=5,
     max_overflow=2,
     pool_pre_ping=True,
-    connect_args={"sslmode": "require"},
+    # Supabase butuh SSL; Postgres lokal (docker) biasanya tidak. Set DB_SSLMODE=disable untuk lokal.
+    connect_args={"sslmode": os.getenv("DB_SSLMODE", "require")},
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
