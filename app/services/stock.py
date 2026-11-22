@@ -182,6 +182,9 @@ def adjust(
 class OpnameLine:
     product_id: int
     counted: int
+    # Stok sistem yang dilihat petugas saat barang ini dihitung. Kalau diisi, selisih = counted - system_qty dan
+    # diterapkan ke stok SAAT DISIMPAN, jadi penjualan kiosk di antara hitung dan simpan tidak tertimpa.
+    system_qty: Optional[int] = None
 
 
 @dataclass
@@ -202,28 +205,35 @@ def opname(
     note: Optional[str],
     created_by: str,
 ) -> list[OpnameResult]:
-    """Stock opname: qty hasil hitung fisik menggantikan qty sistem; selisihnya dicatat sebagai movement adjust.
+    """Stock opname: selisih hitung fisik dicatat sebagai movement adjust.
 
-    Qty sistem dibaca SETELAH baris dikunci, jadi penjualan yang masuk di tengah opname tidak hilang.
+    Tanpa system_qty: qty sistem (dibaca setelah baris dikunci) diganti hasil hitung. Ini salah kalau ada penjualan
+    antara barang dihitung dan opname disimpan (barang itu sudah keluar dari rak tapi masih terhitung).
+    Dengan system_qty (stok sistem saat dihitung): selisih = counted - system_qty, diterapkan ke stok terkini.
     """
     if not lines:
         raise StockError(422, "EMPTY", "Belum ada hasil hitung yang diisi.")
     counted: dict[int, int] = {}
+    seen: dict[int, Optional[int]] = {}
     for line in lines:
         if line.counted < 0:
             raise StockError(422, "INVALID_QTY", "Hasil hitung tidak boleh negatif.")
         counted[line.product_id] = line.counted
+        seen[line.product_id] = line.system_qty
     try:
         _check_products(db, counted.keys())
         stocks = lock_stock_rows(db, branch_id, counted.keys())
         results = []
         for pid in sorted(counted):
             stock = stocks[pid]
-            system_qty = stock.qty or 0
+            current = stock.qty or 0
+            system_qty = seen[pid] if seen[pid] is not None else current
             diff = counted[pid] - system_qty
             movement = None
             if diff != 0:
                 text = f"Stock opname: sistem {system_qty}, hitung fisik {counted[pid]} (selisih {diff:+d})"
+                if system_qty != current:
+                    text += f"; stok saat disimpan {current} -> {current + diff} (ada transaksi di tengah opname)"
                 if note:
                     text += f". {note.strip()}"
                 movement = apply_movement(db, stock, type="adjust", delta=diff, ref=ref, note=text, created_by=created_by)

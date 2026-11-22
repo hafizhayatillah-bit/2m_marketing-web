@@ -14,20 +14,16 @@ import hashlib
 import hmac
 import os
 import secrets
-import threading
 import time
 from typing import Optional
 
 from fastapi import HTTPException, Request, Response
 
+from app import rate_limit
+
 COOKIE_NAME = "pos_admin"
 COOKIE_PATH = "/api/v1/admin"
 SESSION_SECONDS = int(os.getenv("ADMIN_SESSION_HOURS", "12")) * 3600
-
-_lock = threading.Lock()
-_failures: list[float] = []
-MAX_FAILURES = 5
-WINDOW_SECONDS = 300
 
 
 def _secret() -> bytes:
@@ -64,23 +60,23 @@ def read_token(token: str) -> Optional[str]:
         return None
 
 
-def check_credentials(username: str, password: str) -> bool:
+def check_credentials(username: str, password: str, request: Request) -> bool:
     expected_user = os.getenv("ADMIN_USERNAME", "")
     expected_pass = os.getenv("ADMIN_PASSWORD", "")
     if not (expected_user and expected_pass):
         raise HTTPException(503, detail={"code": "ADMIN_NOT_CONFIGURED", "message": "ADMIN_USERNAME/ADMIN_PASSWORD belum diset di server."})
-    now = time.monotonic()
-    with _lock:
-        _failures[:] = [t for t in _failures if now - t < WINDOW_SECONDS]
-        if len(_failures) >= MAX_FAILURES:
-            raise HTTPException(429, detail={"code": "LOGIN_LOCKED", "message": "Terlalu banyak percobaan gagal. Coba lagi 5 menit lagi."})
-        ok_user = secrets.compare_digest(username, expected_user)
-        ok_pass = secrets.compare_digest(password, expected_pass)
-        if not (ok_user and ok_pass):
-            _failures.append(now)
-            return False
-        _failures.clear()
-        return True
+    # Dulu satu daftar gagal global: siapa pun di internet bisa mengunci pemilik toko dengan 5 request / 5 menit.
+    # Sekarang per IP (+ cadangan global yang jauh lebih longgar), dan dipakai bersama Basic Auth /admin lama.
+    wait = rate_limit.admin_login_locked(request)
+    if wait:
+        raise HTTPException(429, detail={"code": "LOGIN_LOCKED", "message": f"Terlalu banyak percobaan gagal. Coba lagi {wait} detik lagi."})
+    ok_user = secrets.compare_digest(username.encode(), expected_user.encode())
+    ok_pass = secrets.compare_digest(password.encode(), expected_pass.encode())
+    if not (ok_user and ok_pass):
+        rate_limit.admin_login_failed(request)
+        return False
+    rate_limit.admin_login_succeeded(request)
+    return True
 
 
 def _is_https(request: Request) -> bool:

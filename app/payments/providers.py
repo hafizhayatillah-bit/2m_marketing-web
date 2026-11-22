@@ -128,6 +128,10 @@ def get_provider() -> PaymentProvider:
     if name == "manual":
         return ManualQrisProvider()
     if name == "mock":
+        # Mock = barang gratis (lunas otomatis + webhook tanpa tanda tangan). Render selalu men-set env RENDER,
+        # jadi salah set PAYMENT_PROVIDER=mock di produksi gagal tertutup, kecuali sengaja diizinkan.
+        if os.getenv("RENDER") and os.getenv("ALLOW_MOCK_PAYMENTS") != "1":
+            raise RuntimeError("PAYMENT_PROVIDER=mock ditolak di Render (set ALLOW_MOCK_PAYMENTS=1 hanya untuk staging)")
         return MockQrisProvider()
     if name in ("midtrans", "xendit"):
         return GatewayQrisProviderStub(name)

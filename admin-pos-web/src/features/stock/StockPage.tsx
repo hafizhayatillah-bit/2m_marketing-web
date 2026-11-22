@@ -369,6 +369,11 @@ function OpnameSection() {
   const toast = useToast();
   const done = useStockDone();
   const [counts, setCounts] = useState<Record<number, string>>({});
+  // Stok sistem saat angka hitung pertama kali diisi. Dikirim sebagai system_qty supaya penjualan kiosk di antara
+  // hitung dan simpan tidak tertimpa (server menerapkan selisihnya ke stok terkini).
+  const [seen, setSeen] = useState<Record<number, number>>({});
+  const snapshot = (list: { product_id: number; stock: number }[]) =>
+    setSeen((s) => ({ ...Object.fromEntries(list.map((p) => [p.product_id, p.stock])), ...s }));
   const [search, setSearch] = useState("");
   const q = useDeferredValue(search.trim().toLowerCase());
   const [category, setCategory] = useState("");
@@ -379,7 +384,8 @@ function OpnameSection() {
   const all = products.data?.products ?? [];
   const rows = all.filter((p) => (!category || p.category === category) && (!q || p.name.toLowerCase().includes(q) || (p.sku ?? "").toLowerCase().includes(q)));
   const entered = all.filter((p) => counts[p.product_id] !== undefined && counts[p.product_id] !== "");
-  const diffs = entered.map((p) => ({ p, diff: Number(counts[p.product_id]) - p.stock })).filter((d) => d.diff !== 0);
+  const baseQty = (p: { product_id: number; stock: number }) => seen[p.product_id] ?? p.stock;
+  const diffs = entered.map((p) => ({ p, diff: Number(counts[p.product_id]) - baseQty(p) })).filter((d) => d.diff !== 0);
   const valueDiff = diffs.reduce((s, d) => s + d.diff * (d.p.cost_price ?? 0), 0);
 
   const save = useMutation({
@@ -387,12 +393,13 @@ function OpnameSection() {
       api.post<OpnameResponse>("/stock/opname", {
         branch_id: branchId,
         note: note.trim() || null,
-        items: entered.map((p) => ({ product_id: p.product_id, counted: Number(counts[p.product_id]) })),
+        items: entered.map((p) => ({ product_id: p.product_id, counted: Number(counts[p.product_id]), system_qty: baseQty(p) })),
       }),
     onSuccess: (r) => {
       setResult(r);
       setConfirming(false);
       setCounts({});
+      setSeen({});
       setNote("");
       toast("success", r.changed ? `Opname ${r.ref} disimpan: ${r.changed} produk dikoreksi` : `Opname ${r.ref} disimpan: semua cocok`);
       done();
@@ -412,7 +419,7 @@ function OpnameSection() {
         </div>
       )}
       <p className="text-muted-foreground">
-        Hitung barang di rak, lalu isi kolom <span className="font-semibold text-foreground">Hitung fisik</span>. Produk yang dikosongkan tidak ikut diopname. Selisih dihitung ulang saat disimpan, jadi penjualan di tengah hitungan tetap aman.
+        Hitung barang di rak, lalu isi kolom <span className="font-semibold text-foreground">Hitung fisik</span>. Produk yang dikosongkan tidak ikut diopname. Stok sistem dicatat saat angka hitung diisi, jadi penjualan kiosk setelah itu tetap terhitung saat disimpan.
       </p>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <SearchField value={search} onChange={setSearch} label="Cari produk" className="lg:max-w-sm" />
@@ -426,7 +433,10 @@ function OpnameSection() {
         />
         <button
           className="btn btn-secondary btn-sm lg:ml-auto"
-          onClick={() => setCounts((c) => ({ ...c, ...Object.fromEntries(rows.map((p) => [p.product_id, c[p.product_id] ?? String(Math.max(0, p.stock))])) }))}
+          onClick={() => {
+            snapshot(rows);
+            setCounts((c) => ({ ...c, ...Object.fromEntries(rows.map((p) => [p.product_id, c[p.product_id] ?? String(Math.max(0, p.stock))])) }));
+          }}
           disabled={rows.length === 0}
           title="Isi kolom hitung dengan stok sistem, lalu ubah yang berbeda saja"
         >
@@ -449,7 +459,7 @@ function OpnameSection() {
             <tbody>
               {rows.map((p) => {
                 const v = counts[p.product_id] ?? "";
-                const diff = v === "" ? null : Number(v) - p.stock;
+                const diff = v === "" ? null : Number(v) - baseQty(p);
                 return (
                   <tr key={p.product_id}>
                     <td data-primary>
@@ -469,7 +479,10 @@ function OpnameSection() {
                         aria-label={`Hitung fisik ${p.name}`}
                         value={v}
                         placeholder="–"
-                        onChange={(e) => setCounts((c) => ({ ...c, [p.product_id]: digitsOnly(e.target.value) }))}
+                        onChange={(e) => {
+                          snapshot([p]);
+                          setCounts((c) => ({ ...c, [p.product_id]: digitsOnly(e.target.value) }));
+                        }}
                       />
                     </td>
                     <td data-label="Selisih" className={cn("font-bold tabular-nums md:text-right", diff !== null && diff < 0 && "text-destructive", diff !== null && diff > 0 && "text-success")}>

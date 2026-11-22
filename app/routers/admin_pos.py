@@ -52,7 +52,7 @@ class LoginIn(BaseModel):
 
 @router.post("/auth/login")
 def login(body: LoginIn, request: Request, response: Response):
-    if not admin_session.check_credentials(body.username, body.password):
+    if not admin_session.check_credentials(body.username, body.password, request):
         raise _fail(401, "BAD_CREDENTIALS", "Username atau password salah.")
     admin_session.set_session_cookie(response, request, body.username)
     return {"username": body.username}
@@ -483,6 +483,8 @@ def post_adjust(body: AdjustIn, db: Session = Depends(get_db), username: str = D
 class OpnameLineIn(BaseModel):
     product_id: int
     counted: int = Field(ge=0, le=1_000_000)
+    # Stok sistem yang tampil saat barang dihitung (lihat stock_svc.opname). Opsional untuk kompatibilitas.
+    system_qty: Optional[int] = Field(default=None, ge=-1_000_000, le=1_000_000)
 
 
 class OpnameIn(BaseModel):
@@ -497,7 +499,7 @@ def post_opname(body: OpnameIn, db: Session = Depends(get_db), username: str = D
     ref = f"OPN-{datetime.now(WIB):%y%m%d-%H%M}"
     try:
         results = stock_svc.opname(
-            db, body.branch_id, [stock_svc.OpnameLine(i.product_id, i.counted) for i in body.items],
+            db, body.branch_id, [stock_svc.OpnameLine(i.product_id, i.counted, i.system_qty) for i in body.items],
             ref=ref, note=(body.note or "").strip() or None, created_by=username,
         )
     except stock_svc.StockError as e:
@@ -981,12 +983,20 @@ def report_summary(branch_id: int, date_from: Optional[str] = None, date_to: Opt
     }
 
 
+def _csv_cell(v: Any) -> Any:
+    # Teks yang diawali = + - @ (atau tab/CR) dijalankan Excel sebagai formula (mis. nama produk/catatan
+    # "=HYPERLINK(...)"). Diberi awalan ' supaya tampil sebagai teks. Angka (int) tidak disentuh.
+    if isinstance(v, str) and v[:1] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + v
+    return v
+
+
 def _csv_response(filename: str, header: list[str], rows: list[list[Any]]) -> Response:
     buf = io.StringIO()
     # ";" karena Excel dengan setelan Indonesia memakai titik koma sebagai pemisah daftar. BOM supaya UTF-8 terbaca.
     writer = csv.writer(buf, delimiter=";")
     writer.writerow(header)
-    writer.writerows(rows)
+    writer.writerows([[_csv_cell(v) for v in row] for row in rows])
     return Response(
         content="﻿" + buf.getvalue(),
         media_type="text/csv; charset=utf-8",

@@ -8,8 +8,6 @@ from __future__ import annotations
 import logging
 import os
 import secrets
-import threading
-import time
 from datetime import datetime
 from typing import Any, List, Optional
 
@@ -22,6 +20,7 @@ from app.database import get_db
 from app.models import Order
 from app.payments.base import WebhookRejected
 from app.payments.providers import get_provider
+from app.rate_limit import FailureLimiter
 from app.services import kiosk_orders as svc
 
 log = logging.getLogger("kiosk")
@@ -37,29 +36,27 @@ def require_device(x_kiosk_token: str = Header(default="")) -> None:
     # Fail closed: tanpa token di server, kiosk tidak bisa dipakai sama sekali.
     if not expected:
         raise HTTPException(503, detail={"code": "KIOSK_NOT_CONFIGURED", "message": "KIOSK_DEVICE_TOKEN belum diset di server."})
-    if not secrets.compare_digest(x_kiosk_token, expected):
+    if not secrets.compare_digest(x_kiosk_token.encode(), expected.encode()):
         raise HTTPException(401, detail={"code": "BAD_DEVICE_TOKEN", "message": "Perangkat kiosk tidak dikenali."})
 
 
-_pin_lock = threading.Lock()
-_pin_failures: list[float] = []
-PIN_MAX_FAILURES = 5
-PIN_WINDOW_SECONDS = 300
+# PIN salah 5x dalam 1 menit -> terkunci 1 menit. Dulu 5 menit: pelanggan iseng yang menekan logo 5x lalu PIN asal
+# bisa membuat staf tidak bisa menandai lunas selama 5 menit (antrean macet). Endpoint ini juga butuh device token,
+# jadi penebak PIN hanya bisa lewat layar kiosk. Pakai PIN minimal 6 digit.
+_pin_limiter = FailureLimiter(max_failures=5, window_seconds=60, lock_seconds=60)
 
 
 def require_staff(x_staff_pin: str = Header(default="")) -> None:
     expected = os.getenv("KIOSK_STAFF_PIN", "")
     if not expected:
         raise HTTPException(503, detail={"code": "STAFF_PIN_NOT_CONFIGURED", "message": "KIOSK_STAFF_PIN belum diset di server."})
-    now = time.monotonic()
-    with _pin_lock:
-        _pin_failures[:] = [t for t in _pin_failures if now - t < PIN_WINDOW_SECONDS]
-        if len(_pin_failures) >= PIN_MAX_FAILURES:
-            raise HTTPException(429, detail={"code": "PIN_LOCKED", "message": "Terlalu banyak PIN salah. Coba lagi 5 menit lagi."})
-        if not secrets.compare_digest(x_staff_pin, expected):
-            _pin_failures.append(now)
-            raise HTTPException(401, detail={"code": "BAD_PIN", "message": "PIN salah."})
-        _pin_failures.clear()
+    wait = _pin_limiter.locked_for("kiosk")
+    if wait:
+        raise HTTPException(429, detail={"code": "PIN_LOCKED", "message": f"Terlalu banyak PIN salah. Coba lagi {wait} detik lagi."})
+    if not secrets.compare_digest(x_staff_pin.encode(), expected.encode()):
+        _pin_limiter.fail("kiosk")
+        raise HTTPException(401, detail={"code": "BAD_PIN", "message": "PIN salah."})
+    _pin_limiter.success("kiosk")
 
 
 router = APIRouter(prefix="/api/v1/kiosk", tags=["kiosk"])
@@ -204,6 +201,10 @@ async def payment_webhook(provider_name: str, request: Request, db: Session = De
         # 200 supaya gateway tidak mengulang terus untuk ref yang memang bukan milik kita.
         log.warning("webhook %s: provider_ref %s tidak dikenal", provider_name, event.provider_ref)
         return {"ok": True, "ignored": True}
+    if event.status == "PAID" and event.amount is None and provider.name != "mock":
+        # Gateway sungguhan wajib mengirim nominal; tanpa itu order bisa dilunasi dengan nominal berapa pun.
+        log.warning("webhook %s PAID tanpa nominal untuk ref %s ditolak", provider_name, event.provider_ref)
+        raise HTTPException(400, detail="nominal pembayaran wajib ada")
     try:
         if event.status == "PAID":
             order = svc.mark_paid(db, order_id, source="webhook", raw=event.raw, amount=event.amount)
@@ -214,6 +215,9 @@ async def payment_webhook(provider_name: str, request: Request, db: Session = De
     except svc.KioskError as e:
         if e.code == "ALREADY_PAID":
             return {"ok": True}
+        if e.code == "AMOUNT_MISMATCH":
+            # Sudah dicatat di payments.raw_callback untuk dicek admin; 200 supaya gateway tidak mengulang terus.
+            return {"ok": True, "flagged": "AMOUNT_MISMATCH"}
         return _err(e)
     return {"ok": True, "status": order.status}
 

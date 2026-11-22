@@ -45,8 +45,8 @@ Kalau gambar belum ada, kiosk menampilkan "Gambar QRIS belum tersedia. Silakan m
 | Env | Wajib | Contoh | Keterangan |
 |---|---|---|---|
 | `KIOSK_DEVICE_TOKEN` | ya | string acak panjang | Header `X-Kiosk-Token`. Tanpa ini semua endpoint kiosk menolak (fail closed). Buat dengan `python -c "import secrets; print(secrets.token_urlsafe(32))"`. |
-| `KIOSK_STAFF_PIN` | ya | `482916` | PIN panel staf. 5× salah → terkunci 5 menit. |
-| `PAYMENT_PROVIDER` | ya | `manual` | `manual` (Senin), `mock` (tes lokal), `midtrans`/`xendit` (belum diimplementasi). |
+| `KIOSK_STAFF_PIN` | ya | `482916` | PIN panel staf, **minimal 6 digit**. 5× salah dalam 1 menit → terkunci 1 menit (dulu 5 menit; pelanggan iseng bisa memacetkan konfirmasi bayar). Cadangan kalau terkunci: tandai lunas dari `/admin-pos` → Transaksi. |
+| `PAYMENT_PROVIDER` | ya | `manual` | `manual` (Senin), `mock` (tes lokal; **ditolak di Render** kecuali `ALLOW_MOCK_PAYMENTS=1`), `midtrans`/`xendit` (belum diimplementasi). |
 | `KIOSK_QRIS_IMAGE_URL` | untuk manual | `/kiosk/qris-static.png` | Gambar QRIS statis toko. |
 | `KIOSK_DEFAULT_BRANCH` | tidak | `jatibening` | Cabang kalau URL kiosk tidak menyebut `branch`. Bisa id angka atau kata dari nama cabang. |
 | `KIOSK_ORDER_TTL_SECONDS` | tidak | `600` | Batas waktu bayar. |
@@ -153,9 +153,11 @@ Mock bayar manual: `POST /api/v1/kiosk/payments/webhook/mock` body `{"provider_r
    ```
 
    Jalankan sekali URL yang berisi `&token=…` supaya token tersimpan (profil `C:\kiosk-chrome` menyimpannya). Setelah itu shortcut tanpa token sudah cukup.
+   URL ber-token ikut tercatat di log akses Render dan riwayat Chrome: setelah tablet siap, ganti `KIOSK_DEVICE_TOKEN` di Render dan buka sekali lagi URL dengan token baru.
+   - **Chrome tertutup/crash tidak hidup lagi sendiri** (shortcut Startup hanya jalan saat login). Tambahkan Task Scheduler: Create Task → Trigger "At log on" (user `kiosk`) → Action `powershell -WindowStyle Hidden -Command "while ($true) { if (-not (Get-Process chrome -ErrorAction SilentlyContinue)) { Start-Process '<target shortcut di atas>' }; Start-Sleep 10 }"`, atau pakai Windows **Assigned Access / Shell Launcher** supaya desktop tidak pernah terlihat.
    - `--kiosk-printing` = `window.print()` langsung ke printer default tanpa dialog.
    - Keluar dari kiosk mode: Alt+F4 (pakai keyboard), atau Ctrl+Alt+Del → Task Manager.
-4. **Layar sentuh Windows**: matikan swipe dari tepi layar (supaya pelanggan tidak membuka Action Center / Task View): `gpedit.msc` → Computer Configuration → Administrative Templates → Windows Components → Edge UI → **Allow edge swipe = Disabled** (Windows Home: registry `HKLM\SOFTWARE\Policies\Microsoft\Windows\EdgeUI` DWORD `AllowEdgeSwipe = 0`). Matikan juga keyboard sentuh otomatis kalau mengganggu (kiosk tidak memakai kolom ketik).
+4. **Layar sentuh Windows**: Settings → Bluetooth & devices → Touch → matikan **Three- and four-finger touch gestures** (Windows 11: gestur 3/4 jari membuka Task View / pindah aplikasi, tidak ikut dimatikan kebijakan edge swipe). Lalu matikan swipe dari tepi layar (supaya pelanggan tidak membuka Action Center / Task View): `gpedit.msc` → Computer Configuration → Administrative Templates → Windows Components → Edge UI → **Allow edge swipe = Disabled** (Windows Home: registry `HKLM\SOFTWARE\Policies\Microsoft\Windows\EdgeUI` DWORD `AllowEdgeSwipe = 0`). Matikan juga keyboard sentuh otomatis kalau mengganggu (kiosk tidak memakai kolom ketik).
 5. **Jangan tidur**: Settings → System → Power → Screen & sleep: semua **Never**. (Kiosk juga meminta Wake Lock ke browser.) Matikan screen saver.
 6. **Update di jam buka**: Settings → Windows Update → **Active hours** (mis. 06:00–22:00) dan "Pause updates" selama minggu pertama; matikan "Get the latest updates as soon as they're available". Chrome boleh update sendiri (restart malam hari).
 7. **Notifikasi**: Settings → System → Notifications → off, Focus/Do not disturb on, supaya tidak ada pop-up di atas kiosk.

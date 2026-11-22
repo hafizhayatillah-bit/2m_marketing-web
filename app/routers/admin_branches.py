@@ -3,11 +3,12 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth import verify_admin
 from app.database import get_db
-from app.models import Branch
+from app.models import Branch, BranchStock, Expense, Order, StockMovement
 
 router = APIRouter(prefix="/admin/branches", tags=["Admin Branches"], dependencies=[Depends(verify_admin)])
 templates = Jinja2Templates(directory="app/templates")
@@ -117,6 +118,17 @@ def edit_branch(
 @router.post("/{branch_id}/delete")
 def delete_branch(branch_id: int, db: Session = Depends(get_db)):
     branch = _get_branch_or_404(branch_id, db)
+    # Cabang dengan data kiosk (stok, riwayat stok, biaya, order) jangan dihapus: stok/riwayat/biaya ikut terhapus
+    # (ON DELETE CASCADE) dan order membuat DELETE gagal (500). Nonaktifkan saja.
+    used = any(
+        db.execute(select(model.id).where(model.branch_id == branch.id).limit(1)).first()
+        for model in (Order, StockMovement, BranchStock, Expense)
+    )
+    if used:
+        raise HTTPException(
+            status_code=409,
+            detail="Cabang ini sudah punya data kiosk (stok, order, atau biaya), jadi tidak bisa dihapus. Nonaktifkan saja.",
+        )
     db.delete(branch)
     db.commit()
     return RedirectResponse(url="/admin/branches/", status_code=303)

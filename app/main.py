@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -62,6 +63,10 @@ def _kiosk_file(path: str):
             cache = "public, max-age=300"
         media_type = "application/manifest+json" if target.suffix == ".webmanifest" else None
         return FileResponse(target, media_type=media_type, headers={"Cache-Control": cache})
+    if path.startswith("assets/"):
+        # Aset ber-hash lama yang sudah tidak ada setelah deploy: 404. Kalau dijawab index.html (200), service worker
+        # kiosk menyimpannya di cache sebagai file JS/CSS dan tablet bisa layar putih sampai cache dihapus.
+        raise HTTPException(status_code=404, detail="Not found")
     index = KIOSK_DIST / "index.html"
     if not index.is_file():
         raise HTTPException(status_code=404, detail="Kiosk belum di-build (kiosk-web/dist tidak ada).")
@@ -123,8 +128,10 @@ def health_db(db: Session = Depends(get_db)):
     """Cek app + koneksi database benar-benar berhasil."""
     try:
         db.execute(text("SELECT 1"))
-    except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"database unreachable: {exc}")
+    except Exception:
+        # Pesan asli (host pooler, user DB, dsb.) hanya ke log server, bukan ke publik.
+        logging.getLogger("health").exception("health/db gagal")
+        raise HTTPException(status_code=503, detail="database unreachable")
     return {"status": "ok", "db": "connected"}
 
 # app.mount("/static", StaticFiles(directory="app/static"), name="static")

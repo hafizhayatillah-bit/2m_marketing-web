@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.auth import verify_admin
 from app.cloudinary_utils import upload_image
 from app.database import get_db
-from app.models import Product
+from app.models import BranchStock, OrderItem, Product, StockMovement
 
 router = APIRouter(prefix="/admin/products", tags=["Admin Products"], dependencies=[Depends(verify_admin)])
 templates = Jinja2Templates(directory="app/templates")
@@ -97,6 +97,17 @@ def edit_product(
 @router.post("/{product_id}/delete")
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     product = _get_product_or_404(product_id, db)
+    # Produk yang sudah dipakai kiosk jangan dihapus: branch_stock & stock_movements ikut terhapus (ON DELETE CASCADE)
+    # dan order_items membuat DELETE gagal (500). Nonaktifkan saja.
+    used = any(
+        db.execute(select(model.id).where(model.product_id == product.id).limit(1)).first()
+        for model in (OrderItem, StockMovement, BranchStock)
+    )
+    if used:
+        raise HTTPException(
+            status_code=409,
+            detail="Produk ini sudah dipakai di kiosk/stok cabang, jadi tidak bisa dihapus (riwayat stok & penjualan ikut hilang). Nonaktifkan saja.",
+        )
     db.delete(product)
     db.commit()
     return RedirectResponse(url="/admin/products/", status_code=303)

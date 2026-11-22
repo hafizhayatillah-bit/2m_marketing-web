@@ -264,33 +264,50 @@ def mark_paid(
 ) -> Order:
     """Tandai order PAID dan potong stok. Idempotent. Satu transaksi, dengan row lock."""
     try:
-        order = db.execute(select(Order).where(Order.id == order_id).with_for_update()).scalar_one_or_none()
+        # populate_existing WAJIB: kalau order/payment sudah pernah dimuat di session ini (mis. kiosk_get_order ->
+        # refresh_from_provider), tanpa ini SQLAlchemy mengembalikan objek lama dari identity map walaupun
+        # SELECT ... FOR UPDATE sudah menunggu transaksi lain selesai menandai PAID -> stok terpotong dua kali.
+        order = db.execute(
+            select(Order).where(Order.id == order_id).with_for_update().execution_options(populate_existing=True)
+        ).scalar_one_or_none()
         if order is None:
             raise KioskError(404, "ORDER_NOT_FOUND", "Order tidak ditemukan.")
         payment = db.execute(
-            select(Payment).where(Payment.order_id == order.id).order_by(Payment.id.desc()).limit(1).with_for_update()
+            select(Payment)
+            .where(Payment.order_id == order.id)
+            .order_by(Payment.id.desc())
+            .limit(1)
+            .with_for_update()
+            .execution_options(populate_existing=True)
         ).scalar_one_or_none()
         now = now_utc()
+
+        if order.status == "PAID":
+            if amount is not None and amount != order.total:
+                log.warning("callback nominal %s untuk order %s yang sudah PAID (%s) diabaikan", amount, order.id, order.total)
+                if payment is not None:
+                    _append_callback(payment, source, {"ignored": "amount_mismatch_after_paid", "amount": amount, "raw": raw})
+                db.commit()
+            else:
+                db.rollback()
+            return get_order(db, order.id)
 
         if amount is not None and amount != order.total:
             log.warning("nominal pembayaran %s tidak sama dengan total order %s (%s)", amount, order.id, order.total)
             if payment is not None:
-                payment.raw_callback = {"amount_mismatch": amount, "raw": raw}
+                _append_callback(payment, source, {"amount_mismatch": amount, "raw": raw})
             db.commit()
             raise KioskError(400, "AMOUNT_MISMATCH", "Nominal pembayaran tidak sesuai total order.")
-
-        if order.status == "PAID":
-            db.rollback()
-            return get_order(db, order.id)
 
         if order.status in ("CANCELLED", "EXPIRED") and source != "staff":
             # Uang masuk setelah order dibatalkan/kedaluwarsa: jangan ubah order & stok,
             # tandai pembayarannya supaya admin bisa refund / proses manual.
-            if payment is not None and payment.status != "PAID_LATE":
-                payment.status = "PAID_LATE"
-                payment.paid_at = now
-                payment.confirmed_by = source
-                payment.raw_callback = raw
+            if payment is not None:
+                if payment.status != "PAID_LATE":
+                    payment.status = "PAID_LATE"
+                    payment.paid_at = now
+                    payment.confirmed_by = source
+                _append_callback(payment, source, raw)
             log.warning("pembayaran masuk untuk order %s yang sudah %s", order.order_number, order.status)
             db.commit()
             return get_order(db, order.id)
@@ -322,12 +339,24 @@ def mark_paid(
             payment.status = "PAID"
             payment.paid_at = now
             payment.confirmed_by = source
-            payment.raw_callback = raw
+            _append_callback(payment, source, raw)
         db.commit()
     except Exception:
         db.rollback()
         raise
     return get_order(db, order_id)
+
+
+MAX_CALLBACK_EVENTS = 20
+
+
+def _append_callback(payment: Payment, source: str, raw: Optional[dict[str, Any]]) -> None:
+    """Simpan callback/konfirmasi sebagai riwayat (bukan ditimpa), supaya rekonsiliasi & sengketa bisa dilacak."""
+    current = payment.raw_callback
+    events = list(current.get("events", [])) if isinstance(current, dict) and "events" in current else ([current] if current else [])
+    events.append({"at": now_utc().isoformat(), "source": source, "data": raw})
+    # Assign objek baru supaya SQLAlchemy mendeteksi perubahan kolom JSONB.
+    payment.raw_callback = {"events": events[-MAX_CALLBACK_EVENTS:]}
 
 
 def find_order_by_provider_ref(db: Session, provider: str, provider_ref: str) -> Optional[int]:
@@ -340,7 +369,9 @@ def find_order_by_provider_ref(db: Session, provider: str, provider_ref: str) ->
 
 
 def cancel_order(db: Session, order_id: int, reason: str) -> Order:
-    order = db.execute(select(Order).where(Order.id == order_id).with_for_update()).scalar_one_or_none()
+    order = db.execute(
+        select(Order).where(Order.id == order_id).with_for_update().execution_options(populate_existing=True)
+    ).scalar_one_or_none()
     if order is None:
         db.rollback()
         raise KioskError(404, "ORDER_NOT_FOUND", "Order tidak ditemukan.")
@@ -352,7 +383,12 @@ def cancel_order(db: Session, order_id: int, reason: str) -> Order:
         order.status = "CANCELLED"
         order.cancelled_at = now
         order.cancel_reason = reason
-        payments = db.execute(select(Payment).where(Payment.order_id == order.id, Payment.status == "PENDING")).scalars().all()
+        payments = db.execute(
+            select(Payment)
+            .where(Payment.order_id == order.id, Payment.status == "PENDING")
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        ).scalars().all()
         for p in payments:
             p.status = "CANCELLED"
             try:

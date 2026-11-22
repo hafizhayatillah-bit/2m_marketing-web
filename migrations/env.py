@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
@@ -66,6 +67,16 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
+        # `alembic upgrade head` jalan di buildCommand Render saat versi lama masih melayani kiosk. ALTER TABLE butuh
+        # ACCESS EXCLUSIVE lock; kalau tertahan transaksi yang sedang jalan, semua query berikutnya ke tabel itu ikut
+        # antre (kiosk macet). Dengan lock_timeout, migrasi gagal cepat -> build gagal -> versi lama tetap jalan.
+        # Ubah lewat env MIGRATION_LOCK_TIMEOUT (mis. "0" untuk mematikan saat migrasi manual).
+        lock_timeout = os.getenv("MIGRATION_LOCK_TIMEOUT", "10s").strip()
+        if connection.dialect.name == "postgresql" and lock_timeout != "0":
+            if not re.fullmatch(r"\d+(ms|s|min)?", lock_timeout):
+                raise RuntimeError(f"MIGRATION_LOCK_TIMEOUT tidak valid: {lock_timeout!r}")
+            connection.exec_driver_sql(f"SET lock_timeout = '{lock_timeout}'")
+            connection.commit()
         context.configure(
             connection=connection, target_metadata=target_metadata
         )
