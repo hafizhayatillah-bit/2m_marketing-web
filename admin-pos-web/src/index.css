@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Struk thermal (sama dengan kiosk-web/src/index.css). Hanya tampil saat window.print(). */
+#receipt-root {
+  display: none;
+}
+
+@media print {
+  html,
+  body {
+    height: auto;
+    overflow: visible;
+    background: #fff !important;
+  }
+  #root {
+    display: none !important;
+  }
+  #receipt-root {
+    display: block;
+  }
+}
+
+.receipt {
+  width: var(--receipt-width, 48mm);
+  padding: 2mm 0 6mm;
+  margin: 0 auto;
+  color: #000;
+  background: #fff;
+  font-family: "Plus Jakarta Sans Variable", ui-monospace, "Segoe UI", sans-serif;
+  font-size: 9pt;
+  line-height: 1.35;
+}
+.receipt-center {
+  text-align: center;
+}
+.receipt-store {
+  font-size: 12pt;
+  font-weight: 800;
+}
+.receipt-rule {
+  border: 0;
+  border-top: 1px dashed #000;
+  margin: 2mm 0;
+}
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 2mm;
+  font-variant-numeric: tabular-nums;
+}
+.receipt-item-name {
+  font-weight: 600;
+  word-break: break-word;
+}
+.receipt-total {
+  font-size: 11pt;
+  font-weight: 800;
+}
