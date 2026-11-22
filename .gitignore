@@ -7,3 +7,12 @@ __pycache__/
 # Tailwind standalone CLI binary — large, OS-specific, fetched via /tools/README.md
 tools/tailwindcss
 tools/tailwindcss.exe
+.env.local
+kiosk-web/node_modules/
+
+# Deploy hygiene
+node_modules/
+*.log
+.env.*
+!.env.example
+.claude/settings.local.json
