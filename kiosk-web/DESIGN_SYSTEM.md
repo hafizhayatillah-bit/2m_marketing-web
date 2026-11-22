@@ -1,0 +1,222 @@
+# 2M Design System
+
+The house rules for the three 2M apps (admin-web, courier-pwa, customer-web). The source of truth for values is the shared preset `packages/config/tailwind-preset.js`; this file explains what they are for. Motion, materials and type follow the Apple design skill in `.claude/skills/apple-design/SKILL.md`. Where this file and the skill differ, this file records the deliberate choice for 2M.
+
+Direction since 14 Nov 2026: **warm Swiss grid**. Sand page, flat warm-white surfaces, crisp 1px borders, one ink-blue accent, a bold type scale, and a full-strength hairline rule above each section. Depth is reserved for things that really float (the order panel over the map, the dock, sheets, dialogs, toasts). The admin Tracking screen (live map, dark rail, click-only segmented tabs, floating panel) is still the bar for a new screen.
+
+## 1. What the product needs to feel like
+
+- **Calm and confident.** Admins watch orders all day and couriers work on the move. Nothing should blink, bounce or ask for attention unless something needs a decision.
+- **One strong element per screen.** On admin Tracking that is the live map; for the courier it is the ink status panel and its big action button; in the shop it is the ink hero and the product grid. Everything around it stays quiet.
+- **State is never hidden.** Every list shows a count, every courier shows Online or Offline, and every empty area explains itself. A screen is never blank.
+- **Indonesian, plain, sentence case.** Buttons are a verb plus an object ("Catat penarikan", "Tugaskan manual"). Errors say what happened and what to do next. Labels are sentence case, never uppercase.
+
+## 2. Tokens
+
+All colours are HSL triplets on `:root`, used through Tailwind (`bg-primary`, `text-muted-foreground`, `bg-primary/10`). Never hard-code a hex value in a component. Map shapes and pins read the same variables through the classes in `packages/map/src/map.css`.
+
+### Colour ("Tinta pasir")
+
+| Role | Token | Use |
+|---|---|---|
+| Page | `--background` (sand) | Body background |
+| Surface | `--surface`, `--card` | Cards, lists, inputs, solid panels |
+| Ink | `--foreground` | Body text, section rules, selected chips, segmented thumb, stepper frame |
+| Muted | `--muted`, `--muted-foreground` | Tab tracks, icon tiles, secondary text |
+| Hairline | `--border`, `--input` | 1px borders; `--input` is the stronger one for controls and dashed frames |
+| Primary | `--primary` (ink blue #1E3A5F), `--primary-pressed`, `--primary-surface` | The one accent: primary buttons, links, avatars, the courier pin |
+| Rail | `--rail`, `--rail-foreground`, `--rail-muted` | The heaviest surface: admin rail, docks, `.panel-ink`, toasts, auth brand panels |
+| Success on ink | `--success-on-ink` | Green that reads on rail: the success toast dot and the courier `.status-dot` |
+| Promo | `--promo` (terracotta) | A signal, never a general accent: the destination pin, the unread count badge, promotions |
+| Status | `success`, `warning`, `info`, `destructive`, each with a `-surface` tint | Status pills, alerts, notices |
+
+Order status colours are the same in every app:
+
+| Status | Pill |
+|---|---|
+| PENDING_PAYMENT | `pill-warning` |
+| PAID, ACCEPTED | `pill-info` |
+| PICKING | `pill-warning` (admin, courier), `pill-primary` (customer) |
+| ON_DELIVERY | `pill-primary` |
+| DELIVERED | `pill-success` |
+| FAILED, CANCELLED | `pill-danger` |
+
+PICKING differs between admin and customer; pick one before adding a new screen that shows it.
+
+### Type
+
+- **Face:** Plus Jakarta Sans Variable, self-hosted through `@fontsource-variable/plus-jakarta-sans` and imported in each app's `main.tsx`; the system stack is the fallback. The skill says to prefer the system font. We override it because Segoe UI on Windows desktops made the admin look generic, and Jakarta, designed in Indonesia, fits the product.
+- **Scale.** Use the type classes, not ad-hoc sizes:
+
+| Class | Size | Use |
+|---|---|---|
+| `.t-display` | 2.25–3.75rem fluid, 800, tracking -0.04em | One per screen at most: the shop hero, auth brand panels, the courier welcome |
+| `.t-headline` | 1.75–2.375rem fluid, 800 | Page title (`h1`), a receiver's name, the courier status |
+| `.t-title` | 1.1875rem, 700 | Section and card titles |
+| `.t-figure` | 1.875–2.5rem fluid, 800, tabular | The one number that matters: a total, a balance |
+| `.t-label` | 0.75rem, 600, muted, tracking +0.01em | Metadata, field hints, table headers, timestamps |
+
+- **Tracking depends on size.** Display and headline tighten and add word-spacing so the word gaps stay open; body stays at `0`; labels open up slightly.
+- **Numbers that change or line up** (counts, codes, money, times) use `tabular-nums`. Order codes and prices are `font-extrabold tracking-tight`.
+- **The section rule.** `.section-head` puts a 1px ink line above a section, the title on the left and a count or action on the right. It replaces boxed section headers.
+
+### Shape and depth
+
+| Token | Value | Use |
+|---|---|---|
+| `rounded-md` / `--radius` | 0.625rem | Buttons, inputs, chips, icon tiles |
+| `rounded-lg` / `.card` / `.list` | 0.875rem | Cards, ruled lists, product tiles, map frames in a column |
+| `rounded-xl` | 1rem | `.panel-ink`, dialogs |
+| `rounded-2xl` | 1.25rem | The largest surfaces: the admin map frame and the floating order panel |
+| `rounded-full` | | Pills, avatars, count badges only |
+
+Surfaces are flat: a 1px `--border` and no shadow. Shadows belong to floating layers only: `.material`, `.dock`, `.sheet-panel`, `.dialog-panel`, `.toast`, a faint lift on `.card-link:hover`, and the lift of a `.product-card` on hover. Primary and danger buttons carry an inset top highlight so they read as a pressable key. No gradients.
+
+### Easing
+
+| Name | Curve | Use |
+|---|---|---|
+| `settle` | `cubic-bezier(0.32, 0.72, 0, 1)` | Tabs, thumbs, content swaps, arrow nudges, dialogs. Critically damped, no overshoot |
+| `slow` | `cubic-bezier(0.2, 0.8, 0.2, 1)` | Sheets, toasts, `animate-rise` |
+| `nav` | `cubic-bezier(0.34, 1.45, 0.64, 1)` | Only the courier dock tab widening. The one place with overshoot |
+
+## 3. Layout
+
+Check every screen at 375, 768, 1100 and 1440. The page never scrolls sideways. A grid that stacks on phones needs `grid-cols-1`, and a grid child that holds a horizontal scroller needs `min-w-0`, or the track grows past the viewport.
+
+### Admin (desktop first, works down to 375px)
+
+- **Navigation:** an ink rail on the left at `md` and up; below that, a floating ink dock at the bottom. A sand thumb slides behind the active item. "Segera" items are hidden on mobile.
+- **Header:** a 4rem bar with a bottom hairline: search (Tracking only), branch select, avatar, "Keluar". On phones the search drops to its own row.
+- **Tracking and Pesan:** a 24rem list column, then a working area.
+  - Tracking has a `DatePicker` under the heading. Empty is the live board; a date lists every order created that day (any status) and lands on the first status tab that has orders. "Kembali ke live" clears it.
+  - On Tracking the working area is the live map. The selected order card is solid ink; a late card is destructive.
+  - From `xl` (1280px) up, the order panel floats over the right side of the map as a `.material` sheet. It is 24rem wide and can be widened with a grip on its left edge (shown on panel hover or keyboard focus; drag, arrow keys, double-click to reset) up to a quarter of the window, never capped below 32rem. The width is saved per browser and the map's fit padding follows it.
+  - The order list keeps a 6px inset inside its scroll box so the 4px late ring on a selected card is never clipped.
+  - Below `xl` the panel stacks under the map; below `lg` the list is capped in height so the map stays reachable.
+- **Saldo, recording a withdrawal:** after "Catat" the dialog turns into a receipt step ("Penarikan tercatat": amount, remaining balance) and the slip PDF downloads straight away; "Unduh ulang slip" and "Selesai" close it. Each withdrawal in "Riwayat" has a "Slip PDF" button, and the courier PWA shows a "Slip penarikan" button on its withdrawal rows.
+- **Refund:** headline and one line on the job, "Refund manual" (`btn-secondary`, dialog with order code, amount and a reason the customer sees), a `Segmented` "Perlu diproses (n)" / "Selesai", then a `.data-table` card (order + customer, reason, amount, destination account in full, status pill: `pill-warning` "Menunggu rekening", `pill-info` "Siap ditransfer", `pill-success` "Selesai"). "Bayar & unggah bukti" opens a dialog: amount as `.t-figure`, the account, the receipt upload (preview, "Ganti foto"), the transfer reference, then "Tandai selesai". The rail shows a `count-badge` with refunds that are ready to pay. On the customer order page a "Pengembalian dana" card lists each refund: amount, reason, status pill, the destination form while it is missing, then the masked account, reference and the receipt photo (tap to enlarge).
+- **Kurir and Saldo:** a `.data-table` in a card. Each row starts with an avatar, statuses are pills with Indonesian labels. Under 768px every row becomes a labelled block (`data-label`, `data-primary`, `data-actions` on the cells).
+- **Config:** a `Segmented` control (Produk, Lokasi, and Katalog and Cabang for super_admin) above the section. Produk, Katalog and Cabang are `.data-table`s with a row action that opens a `Dialog`. "Tambah produk" is a two-step dialog: a searchable `.list` of catalogue products, then the price and stock form with a "Kembali" step back. Produk opens with a `.stock-warning` when anything is out of stock or low (it ignores the filters and offers "Lihat habis" / "Lihat menipis"), then search, a category `Select`, and status `.chip`s with counts. The Katalog dialog (super_admin) ends with a "Halaman produk" section: photos (up to 8, resized in the browser to a JPEG of at most 1600px / 400 KB and uploaded straight to storage), the description (2000 characters) and label/value spec rows (up to 20, with suggested labels). Lokasi puts the `MapPicker` (the service circle follows the pin) beside a form card, stacking under `lg`.
+
+### Courier PWA (phone first)
+
+- One centred column (`--content-max-width` 34rem), with a sticky header and a floating ink dock. From 768px the column sits on a `--muted` page with side hairlines, so it reads as a deliberate sheet.
+- Home leads with the ink status panel and its action, then the balance row, the four-tile `Layanan` grid (one frame, shared hairlines) and the job list.
+  - The status panel is compact so the list starts on the first screen of a phone: a `.status-dot` and a one-line `.t-title` ("Siap menerima order", "Sedang mengantar", "Anda offline"), one hint line with a count, then one full-width 3.5rem button ("Berhenti bekerja", "Mulai bekerja", or "Lihat pesanan aktif" while delivering).
+  - The header shows only the avatar, greeting and name; the panel is the one place the work status appears.
+- Actions use `Button` (full width, 3.5rem). Destructive actions sit last and use `variant="destructive"`.
+- The Chat tab is a list: the branch admin first, then the customer chats that are still open. Back in a chat room returns to the page it was opened from (the list, an order, Home); a room opened directly falls back to its order, else to the Chat tab.
+- The order detail shows the two-step progress rule, the delivery map (your position, the destination, a dashed line), then the receiver card.
+
+### Customer web (phone first, wide from 768px)
+
+- A sticky header with the 2M mark and the branch switcher. From `md` the destinations are text links in the header; below that, a full-width tab bar at the bottom with a short ink bar over the current tab.
+- Content sits in a 72rem shell and every page uses its full width, so the content edge lines up with the header on both sides. Pages that have two concerns split at `lg`: catalogue (category rail + grid), cart, address list and checkout (main column + a 22rem sticky aside with the summary and the one primary button), mock pay (invoice + the same aside), order (tracking and timeline + a 25rem aside, 28rem from `xl`), address form (map + fields). List pages (branch picker, chat list, account) use the full shell width. `.page-narrow` (44rem) is only for a single message (payment return).
+- Order detail: while ON_DELIVERY the tracking card leads the left column. The aside holds "Ringkasan belanja" (one row per item: name, then `qty unit × price` under it, line total on the right; no multi-column table in a side column) and "Pengiriman" (receiver, address, note, payment). "Chat <kurir>" sits on the right of the header from `sm`.
+- Tracking fullscreen (`.map-fullscreen`, portalled to `<body>`): opened only from the "Layar penuh" chip on the map (one control per action; a second button under the map squeezed the status title on phones); kept in the URL as `?lacak=1`, so the back gesture, "Kembali" and Escape all close it and focus returns to the opener. The map fills the screen; "Kembali" and "Pusatkan peta" float top-left as `.material-chip` + `.map-chip-btn`; a `.material` panel (`.map-fullscreen-panel`) floats on the right from 768px and along the bottom on phones, with the status pill, a sentence on what the courier is doing ("Kurir menuju alamat Anda", "Kurir hampir sampai", "Lokasi kurir terputus"), ETA and distance, freshness (`.live-dot`), the courier with "Chat", and the destination. On phones the zoom buttons hide (pinch) and the attribution moves to the top right; `fitPadding` keeps both pins clear of the panel.
+- Catalogue cards (`.product-card`): a solid `--surface` card with a border, so it stands off the sand page. The cover photo (or the category icon on a tint when there is none) and the text are one link to the product page (`.product-card-link`); the cart button or stepper under it stays outside the link. On hover the whole card lifts 3px with a soft shadow and a darker border, and the photo scales a little (`settle`); the name is never underlined. Pressing scales the card to 0.99. Category, search and page live in the URL (`?kategori=&q=&hal=`), and the grid's scroll position is restored on back, so returning from a product lands where the shopper was.
+- Product page (`/b/:branchId/p/:productId`): "Kembali ke katalog" (history back when opened from the catalogue), then the gallery beside the info from `md` (gallery sticky). Info: category · branch, name (`.t-headline`), unit and weight, price (`.t-figure`), the live stock line (`.stock-live`: a status pill that always carries the count, "Stok 128 bungkus" / "Sisa 3 bungkus" / "Stok habis", the number rolling in with `.stock-tick` when it changes; then `.stock-live-meta` with a `.live-dot` and "Live", or a grey dot and "Diperbarui berkala" when the stream is down), the one primary button (or the `QtyStepper` and "Lihat keranjang"), then "Deskripsi" and "Spesifikasi" (`.spec-list`: the admin's rows, then Satuan, Berat, Kategori; the SKU is internal and not shown to customers). The list row stands in from the query cache while the detail loads, with a skeleton for the description.
+- Below `md` the catalogue's category chips move into a bottom sheet behind a filter button beside the search field; the button turns ink while a category is active. From `md` the chips show inline (a scroll row, then the rail at `lg`).
+- The tracking card shows the map while the order is ON_DELIVERY.
+- Login and register split into an ink brand panel and the form at `lg`.
+
+## 4. Components
+
+**No text-only actions.** Every action is a visible button: `.btn` with a fill or a border (`btn-secondary btn-sm` for small row actions like "Ubah", `btn-danger-quiet btn-sm` for "Hapus"), or an `.icon-btn`. Never underlined text, never a borderless text button. The `.link` and `.btn-ghost` classes were removed from the preset for this reason; do not bring them back. Only the header destinations (`.nav-link`, tab bar) stay text.
+
+| Component | Where | Rules |
+|---|---|---|
+| `.btn` + `.btn-primary` / `-secondary` / `-danger` / `-danger-quiet` / `-invert` / `-invert-outline`; sizes `.btn-lg`, `.btn-sm`, `.btn-block` | preset | The only buttons. One primary per view. `-invert*` only on ink. `.btn-sm` is for table rows and inline actions and grows to the tap target on touch. A `<Link>` that does an action ("Ubah", "Kembali ke katalog", "Daftar") gets the same `.btn` classes |
+| `Button` (courier) | `apps/courier-pwa/src/components/ui/button.tsx` | `btn btn-lg btn-block`; variants `primary`, `secondary`, `destructive`; `loading` shows "Memproses…" |
+| `.icon-btn`, `.send-btn` | preset | Square icon buttons; icon-only buttons carry an `aria-label` |
+| `.field`, `.field-label`, `.option-row`, `.file-picker`, `.stepper`, `.meter` | preset | Form controls. Focus is a primary border plus a 3px ring. `.option-row` makes the whole row the radio's hit area |
+| `QtyStepper` + `.stepper-input` | `apps/customer-web/src/components/QtyStepper.tsx`, preset | Minus, a typed number (numeric keypad, 16px so iOS does not zoom, commits on Enter or blur, clamps to `max` with a toast that names the limit) and plus. Never disable it while a request is in flight: taps update the cart at once through `useCartSync` |
+| `.chip` | preset | Filter chips with `aria-pressed`; selected is solid ink |
+| `Select` + `.select-trigger` / `.select-menu` / `.select-option` / `.select-highlight` | `apps/admin-web/src/components/Select.tsx`, preset | The only dropdown in admin; never a native `<select>`. The trigger looks like a field; on hover the border turns ink and the chevron dips 2px, and it rotates while open. The menu is portalled and fixed (so dialogs and the order panel cannot clip it), opens with `menu-in`, and one highlight slides between options under the pointer or keyboard. `active` marks a filter that is narrowing a list. Options can carry a `hint` (a count, "Nonaktif") |
+| `DatePicker` + `.calendar*` | `apps/admin-web/src/components/DatePicker.tsx`, preset | Date filter on the same trigger. Monday-first month grid, six rows, today ringed, picked day solid ink, days after `max` disabled; months slide with `.swap-in`. Arrows move by day and week, PageUp/PageDown by month. Footer: "Semua tanggal" (clear) and "Hari ini" |
+| `.date-divider` | preset, `groupByDay` in `@2m/shared` | Day heading between groups of a list ("Hari ini", "Kemarin", "Kamis, 12 November"): label, hairline, count on the right. Used by Pesanan saya (customer), Riwayat and Saldo keuntungan (courier); rows inside then show only the time |
+| `.stock-warning` | preset | A standing warning above a list with its own actions; warning surface, not a toast |
+| `Segmented` | `apps/admin-web/src/components/Segmented.tsx` | The only tab control in admin. Click, or arrow keys; no swipe. All items are visible with no horizontal scroll. Shorten labels to fit and put the full name in `title` (also used as the accessible name). Counts sit above the label when the tab is a list filter |
+| `useThumb` | same file | Slides an indicator to the active element on either axis. Used by `Segmented` and the admin rail |
+| `useSwapX` + `.swap-in` | same file, preset | New tab content slides in from the side of the clicked tab, starting at 35% opacity, so there is never an empty frame. Key the container by the tab id |
+| `.card`, `.card-link`, `.card-footer` | preset | A flat bordered surface for a region of the page. Do not nest cards more than two deep |
+| `.list`, `.list-row`, `.row-arrow` | preset | Rows that share one frame and hairline dividers. Prefer this to a stack of separate cards. The arrow nudges on hover |
+| `.panel-ink` | preset | Solid ink block. One per screen at most |
+| `.status-dot` | preset | Courier work status on ink, set by `data-status`: `IDLE` green with the `live-ring` pulse, `DELIVERING` sand, `OFFLINE` a hollow ring. `aria-hidden`; the title next to it carries the status in words |
+| `.section-head` | preset | The editorial rule above a section |
+| `.data-table` | preset | Admin tables; stacks under 768px |
+| `Dialog` | `apps/admin-web/src/components/Dialog.tsx` | Admin modal. Rendered through a portal on `<body>`, because `backdrop-filter` on the order panel would otherwise trap a fixed child inside it. `wide` (`.dialog-panel-wide`, 40rem) is for a dialog that holds a map or a two-column form |
+| `.material` / `.material-chip` | preset | Translucent floating layers: the panel over the map, the status chip on the map. Never put one translucent layer on another. Solid fallbacks exist for reduced transparency and increased contrast |
+| `.map-chip-btn` (+ `.map-chip-icon`) | preset | A pill button floating on a map, always with `.material-chip`: "Layar penuh", "Kembali", "Pusatkan peta" |
+| `.map-fullscreen`, `-bar`, `-panel` | preset | A map that fills the screen with a top-left control bar and a floating `.material` info panel (right from 768px, bottom on phones). Portal it to `<body>`: an ancestor's entry-animation transform would trap it. Customer tracking uses it |
+| `.pill`, `.pill-dot` | preset | Status. Use the colour table above. One pill per row at most |
+| `.avatar` | preset | First letter on a flat primary tint. Add `grayscale` when the person is offline |
+| `.empty-state` | preset | Dashed box with a sentence that says what will appear here and when. Centre it in the empty area (`my-auto`) |
+| `ErrorBoundary` | `apps/admin-web/src/components/ErrorBoundary.tsx` | Wraps each admin page, keyed by the tab. A render error shows a message and "Coba lagi"; the sidebar stays |
+| `MapView` | `packages/map` (`@2m/map`) | The live map. `className` is required because Tailwind does not scan the package. Pins: `courier` (ink circle with a truck, `live` adds a pulse), `destination` (terracotta drop), `branch` (store tile). Pin labels go through `textContent`. Pass `fitKey` to refit when the subject changes and `fitPadding` to keep pins clear of floating UI. Markers must be memoised |
+| `MapPicker` | `packages/map` (`@2m/map`) | Tap to place a pin. `area` draws the service circle: fixed on the customer address form, following the pin in admin Config (`fitArea` refits to it). Uses the `map-2m` frame and the `.map-area`, `.map-area-center`, `.map-pick` classes for colour. `className` is required |
+| `.bubble-mine` / `.bubble-other`, `.chat-day` | preset | Chat. Mine is primary, right aligned; others are surface with a border, left aligned |
+| `.sheet-backdrop` / `.sheet-panel` / `.dialog-backdrop` / `.dialog-panel` | preset | Bottom sheets (courier) and centred dialogs. They dim the page, so use them for modal tasks only |
+| `BottomSheet` | `apps/customer-web/src/components/BottomSheet.tsx` | The draggable sheet: springs up on open, follows the finger 1:1 after a 10px slop, rubber-bands when pulled up, and on release projects the finger's velocity to close or spring back. Closes on the round X (`icon-btn rounded-full`, never a "Tutup" text link), the scrim, Escape, or a pick. The whole sheet drags when its content fits; otherwise only `[data-sheet-drag]` |
+| `.photo-tile`, `.photo-add`, `.photo-tile-badge`, `.photo-tile-state` | preset, `ProductContentFields.tsx` (admin) | Square photo frames on `--muted`. In the catalogue dialog a tile is a toggle (`aria-pressed`, ink ring); the actions for the picked photo (move left/right, "Jadikan sampul", "Hapus") sit in one row under the grid, so every control keeps the tap target. The first photo is the cover and carries a `pill-primary` "Sampul". `.photo-add` is the dashed "Tambah foto" tile around a hidden file input. Also used at 2.75rem as the row thumbnail in Produk and Katalog |
+| `.gallery-track`, `.gallery-slide`, `.gallery-thumb`, `.gallery-dot` | preset, `ProductGallery.tsx` (customer) | Product photos as one native scroll-snap track (1:1 finger tracking and momentum without a library). Thumbnails from `sm`, dots and an "n/m" pill on phones, round arrow buttons from `md`, arrow keys on the focused track. Jumps scroll smoothly unless reduced motion is on |
+| `.spec-list` | preset | Two-column `dl` of label (muted) and value, ruled by hairlines |
+| `.dialog-footer` | preset | Sticky footer inside a long `Dialog` form so Batal and the primary button stay in reach while the form scrolls |
+| `.toast` | preset | Ink toast with a status dot; errors are solid destructive |
+| `.skeleton` | preset | Loading placeholder with `role="status"` and `aria-busy` |
+
+Add a new token or component class to the preset. Do not rebuild a button, row or panel from utilities inside a feature file.
+
+## 5. Motion
+
+Follow the skill. These are the rules as 2M applies them:
+
+1. **Feedback happens on press.** Every button and tappable row responds on `:active`: 0.96 for tabs and nav items, 0.97 for buttons, 0.99 for cards; list rows darken instead of scaling.
+2. **Hover is quiet and physical.** A border darkens to ink, an arrow moves 3px with `settle`, a product icon scales a little. Hover styles sit under `@media (hover: hover)` so a tapped control on a phone does not keep its hover colour.
+3. **Interruptible.** CSS transitions retarget from the current on-screen value, so clicking another tab mid-move redirects the thumb with no jump. The map pin tween reads the marker's live position before every move.
+4. **No bounce by default.** Use `settle` everywhere. Overshoot only belongs to a gesture that carried momentum: the dock, and a `BottomSheet` released after a drag (damping 0.8, response 0.3).
+5. **No scroll-driven motion.** Nothing animates because the page scrolled. Entry animations (`animate-rise`, a 0.5rem lift) only on first render of a page section.
+6. **The live map moves gently.** A new courier position tweens over 900ms with an ease-out curve. The view refits only when the subject changes or a pin leaves the frame, so the admin's own panning is never undone by a poll.
+7. **Reduced motion.** The preset reduces every animation and transition to near zero; the map pin jumps instead of tweening and the pulse stops. Never hide content behind an animation that may not run.
+8. **If a gesture is added** (drag-to-dismiss sheets, swipe actions), follow skill sections 2–6: 1:1 tracking with pointer capture, a spring that takes the release velocity, momentum projection to pick the snap point, and rubber-banding at the edges. CSS transitions are not enough. `BottomSheet` carries a small spring integrator (damping ratio + response, seeded with the live position and velocity) instead of a library; reuse it before adding one.
+
+## 6. Materials and depth
+
+- **Weight shows hierarchy.** The rail, docks and `.panel-ink` are the heaviest (solid ink). The order panel is a thick translucent material (28px blur, deep shadow). Chips over the map are lighter (16px blur, soft shadow). Cards and lists are flat.
+- **Translucency only over moving or busy content**, which today means the map, plus the sticky headers and the customer tab bar that content scrolls under. Everywhere else use solid surfaces.
+- **Dim to focus, float to keep flow.** A modal task (assign courier, record withdrawal) uses a dimming dialog. A parallel view (order details next to the map) floats without dimming.
+
+## 7. States
+
+Every data view handles four states:
+
+| State | Treatment |
+|---|---|
+| Loading | `.skeleton` blocks shaped like the content |
+| Error | `.alert-box` with the server's message (through `errorMessage`), or the page `ErrorBoundary` for a render error |
+| Empty | `.empty-state` with a sentence about what appears here, for example "Order baru muncul di sini setelah pelanggan membayar." |
+| Success | The data, plus a toast for an action the user just took |
+
+## 8. Accessibility
+
+- Touch targets are at least `--tap-target` (2.75rem); courier actions are 3.5rem.
+- Focus uses the global `:focus-visible` ring (2px, offset 2px); on ink surfaces the ring turns sand. Fields swap the outline for a border and ring. Never remove an outline without a replacement.
+- Tabs use `role="tablist"`/`"tab"` with `aria-selected` and arrow keys. Nav items use `aria-current="page"`. Filter chips use `aria-pressed`.
+- Icons are `aria-hidden`; icon-only buttons carry an `aria-label`.
+- The map is `role="application"` with a label naming what it shows. Information on the map (distance, last ping) is repeated as text in the chip.
+- Scrollbars are thin and visible from 768px up, hidden on phones. Use `.no-scrollbar` only on a horizontal chip row.
+
+## 9. Known gaps
+
+These do not yet meet the standard. Fix them when touching the area:
+
+- **No drag on courier sheets.** The courier PWA's bottom sheets still cannot be dragged down to close; move them onto a shared `BottomSheet` when touching them.
+- **No dark mode.** The preset declares `darkMode: ["class"]`, but no dark tokens exist. The ink surfaces (rail, dock, `.panel-ink`) are the only dark elements.
+
+## 10. Before shipping UI
+
+1. Run the change on the isolated local stack (`pnpm local:up`, `pnpm local:reset`, `pnpm local:api`, `pnpm local:web`; see `docs/runbook/demo.md`) against the real API, not only a mock.
+2. Check widths 1440, 1100, 768 and 375: no horizontal scroll, no truncated tab labels, the thumb on the right item.
+3. Check loading, empty and error states, and one interrupted animation (click two tabs quickly).
+4. Run `pnpm typecheck`, `pnpm exec eslint .` and `pnpm build`.
