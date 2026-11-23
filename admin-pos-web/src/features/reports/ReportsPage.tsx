@@ -26,7 +26,7 @@ function Stat({ label, value, hint, tone }: { label: string; value: string; hint
 
 function TodayPanel({ t, pending, onNavigate }: { t: Totals; pending: number; onNavigate: (p: NavTarget) => void }) {
   return (
-    <section className="panel-ink flex flex-col gap-5 md:flex-row md:items-end" aria-label="Penjualan hari ini">
+    <section className="panel-ink flex flex-col gap-5 md:flex-row md:items-end md:gap-14" aria-label="Penjualan hari ini">
       <div className="flex flex-col gap-1">
         <p className="t-label">Omzet hari ini</p>
         <p className="t-figure">{formatIDR(t.omzet)}</p>
