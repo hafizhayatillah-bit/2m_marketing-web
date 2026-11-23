@@ -84,6 +84,21 @@ export const IconClose = (p: IconProps) => (
   </Svg>
 );
 
+export const IconTrash = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5" />
+  </Svg>
+);
+
+export const IconQr = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="4" y="4" width="6" height="6" rx="1" />
+    <rect x="14" y="4" width="6" height="6" rx="1" />
+    <rect x="4" y="14" width="6" height="6" rx="1" />
+    <path d="M14 14h2v2h-2zM18 14h2M14 18h2M18 18h2v2" />
+  </Svg>
+);
+
 export const IconFilter = (p: IconProps) => (
   <Svg {...p}>
     <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />

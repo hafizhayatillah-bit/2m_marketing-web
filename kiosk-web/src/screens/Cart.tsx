@@ -4,7 +4,7 @@ import { formatIDR } from "../lib/format";
 import { useToast } from "../lib/toast";
 import { cn } from "../lib/utils";
 import { CategoryIcon, categoryTint } from "../components/category";
-import { IconCart, IconClose } from "../components/Icons";
+import { IconBack, IconCart, IconTrash } from "../components/Icons";
 import { Stepper } from "../components/Stepper";
 import { EmptyState, rise } from "../components/States";
 
@@ -90,14 +90,14 @@ export function CartOverlay({
             Keranjang
           </h2>
           <span className="t-label tabular-nums">{count} barang</span>
-          <div className="ml-auto flex gap-3">
+          <div className="ml-auto flex items-center gap-3">
             {list.length > 0 && (
-              <button type="button" onClick={clear} className="btn btn-danger-quiet btn-lg">
-                Kosongkan
+              <button type="button" onClick={clear} className="btn btn-danger-quiet btn-lg gap-2.5">
+                <IconTrash className="text-xl" /> Kosongkan
               </button>
             )}
-            <button type="button" onClick={onClose} className="btn btn-secondary btn-lg">
-              <IconClose /> Lanjut belanja
+            <button type="button" onClick={onClose} className="btn btn-primary btn-lg gap-2.5">
+              <IconBack className="text-xl" /> Lanjut belanja
             </button>
           </div>
         </header>

@@ -10,7 +10,7 @@ import { CartButton, CartOverlay } from "../screens/Cart";
 import { Payment } from "../screens/Payment";
 import { Closed, Success } from "../screens/Done";
 import { PinPad, StaffPanel } from "../screens/Staff";
-import { IconAlert } from "../components/Icons";
+import { IconAlert, IconPin, IconQr } from "../components/Icons";
 
 type Screen =
   | { name: "catalog" }
@@ -46,18 +46,50 @@ function Logo({ onLongPress }: { onLongPress: () => void }) {
       onPointerLeave={stop}
       onPointerCancel={stop}
       aria-hidden="true"
-      className="flex size-14 shrink-0 select-none items-center justify-center"
+      // Logo aslinya persegi penuh (biru sampai ke tepi). Dulu dipotong rounded-lg sehingga sudutnya terpangkas;
+      // sekarang ditaruh utuh di dalam tile putih berpadding supaya tidak ada bagian yang terpotong.
+      className="flex size-16 shrink-0 select-none items-center justify-center rounded-2xl bg-white p-1.5 shadow-[0_1px_2px_hsl(var(--shadow-tint)/0.12),0_0_0_1px_hsl(var(--border))]"
     >
       {/* pointer-events-none: sentuhan tetap ditangkap span (pemicu PIN staf), gambar tidak bisa di-drag/disimpan. */}
       <img
         src={`${import.meta.env.BASE_URL}logo-2m.png`}
         alt=""
-        width={56}
-        height={56}
+        width={52}
+        height={52}
         draggable={false}
-        className="pointer-events-none size-14 rounded-lg"
+        className="pointer-events-none size-full object-contain"
       />
     </span>
+  );
+}
+
+/** "2M Sembako - Jatibening Baru" -> "Jatibening Baru": nama toko sudah tampil besar di sebelahnya. */
+function branchLabel(branchName: string, storeName: string): string {
+  const stripped = branchName
+    .replace(new RegExp(`^\\s*${storeName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*[-–—:·]*\\s*`, "i"), "")
+    .trim();
+  return stripped || branchName;
+}
+
+/** Jam & tanggal WIB yang berdetak tiap 15 detik, supaya header terasa hidup (bukan teks statis). */
+function useNow(intervalMs = 15_000) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), intervalMs);
+    return () => clearInterval(t);
+  }, [intervalMs]);
+  return now;
+}
+
+function HeaderClock() {
+  const now = useNow();
+  const time = now.toLocaleTimeString("id-ID", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", hour12: false }).replace(/\./g, ":");
+  const date = now.toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta", weekday: "long", day: "numeric", month: "short" });
+  return (
+    <div className="hidden text-right leading-tight md:block">
+      <p className="text-xl font-extrabold tabular-nums tracking-tight">{time}</p>
+      <p className="t-label">{date}</p>
+    </div>
   );
 }
 
@@ -202,19 +234,26 @@ export function App() {
 
   return (
     <div key={resetKey} className="flex h-dvh flex-col">
-      <header className="flex h-20 shrink-0 items-center gap-4 border-b border-border bg-background px-5">
+      <header className="flex h-24 shrink-0 items-center gap-4 border-b border-border bg-background px-6">
         <Logo onLongPress={() => setPinOpen(true)} />
         <div className="min-w-0 leading-tight">
-          <p className="text-xl font-extrabold tracking-tight">{storeName}</p>
-          <p className="t-label">{cfg.data.branch.name} · Belanja mandiri</p>
+          <p className="truncate text-2xl font-extrabold tracking-tight">{storeName}</p>
+          <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-muted-foreground">
+            <IconPin className="shrink-0 text-primary" />
+            <span className="truncate">{branchLabel(cfg.data.branch.name, storeName)}</span>
+          </p>
         </div>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-5">
           {screen.name === "catalog" && cartCount > 0 && (
             <button type="button" onClick={goHome} className="btn btn-secondary btn-lg">
               Mulai dari awal
             </button>
           )}
-          <span className="pill pill-primary text-sm">Bayar pakai QRIS</span>
+          <HeaderClock />
+          <span className="inline-flex items-center gap-2 rounded-xl bg-primary-surface px-4 py-2.5 text-sm font-bold text-primary-pressed">
+            <IconQr className="text-lg" />
+            Bayar pakai QRIS
+          </span>
         </div>
       </header>
 
