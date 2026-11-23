@@ -43,6 +43,10 @@ class BranchStock(Base):
     is_active = Column(Boolean, nullable=False, server_default=true())
     # Batas "stok menipis" untuk laporan & peringatan admin.
     min_qty = Column(Integer, nullable=False, server_default="5")
+    # Harga jual & modal per cabang (migrasi a7c9e1f3b582). Modal = rata-rata tertimbang barang masuk cabang ini.
+    # products.price tetap dipakai website dan sebagai harga usulan saat produk ditambahkan ke cabang.
+    price = Column(Integer, nullable=True)
+    cost_price = Column(Integer, nullable=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     product = relationship("Product")

@@ -2,6 +2,7 @@ import { useDeferredValue, useEffect, useLayoutEffect, useRef, useState, type Ke
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "../../components/Dialog";
 import { IconAlert, IconChevronRight } from "../../components/Icons";
+import { NumberInput } from "../../components/NumberInput";
 import { Select } from "../../components/Select";
 import { ErrorBox, LoadingRows, ProductThumb, SearchField } from "../../components/ui";
 import { api, errorMessage } from "../../lib/api";
@@ -30,7 +31,7 @@ export const STATE_LABEL: Record<ProductState, { label: string; pill: string }> 
   no_price: { label: "Belum ada harga", pill: "pill-warning" },
 };
 
-type Patch = Partial<Pick<BranchProduct, "price" | "cost_price" | "is_active" | "min_qty">>;
+type Patch = Partial<Pick<BranchProduct, "price" | "is_active" | "min_qty">>;
 
 function usePatchProduct() {
   const branchId = useBranchId();
@@ -59,7 +60,7 @@ function MoneyCell({ value, label, onSave, allowEmpty }: { value: number | null;
   useEffect(() => {
     if (!focused) setDraft(value === null ? "" : String(value));
   }, [value, focused]);
-  // Seleksi sebelum paint (nilai berganti dari "Rp18.500" ke "18500"), supaya ketikan pertama langsung mengganti angka.
+  // Seleksi semua saat fokus, supaya ketikan pertama langsung mengganti angka lama.
   useLayoutEffect(() => {
     if (focused) input.current?.select();
   }, [focused]);
@@ -84,17 +85,16 @@ function MoneyCell({ value, label, onSave, allowEmpty }: { value: number | null;
     }
   };
   return (
-    <input
-      className="field min-h-9 w-full py-1.5 text-right font-bold tabular-nums md:w-[7.5rem]"
-      inputMode="numeric"
-      autoComplete="off"
+    <NumberInput
+      ref={input}
+      prefix="Rp"
+      wrapperClassName="w-full md:w-[8.5rem]"
+      className="min-h-9 py-1.5 text-right font-bold"
       aria-label={label}
       placeholder="–"
-      maxLength={focused ? 9 : 14}
-      value={focused ? draft : draft === "" ? "" : formatIDR(Number(draft))}
-      ref={input}
+      value={draft}
+      onValueChange={setDraft}
       onFocus={() => setFocused(true)}
-      onChange={(e) => setDraft(digitsOnly(e.target.value))}
       onBlur={commit}
       onKeyDown={onKey}
     />
@@ -102,7 +102,7 @@ function MoneyCell({ value, label, onSave, allowEmpty }: { value: number | null;
 }
 
 function Margin({ p }: { p: Pick<BranchProduct, "margin" | "margin_pct"> }) {
-  if (p.margin === null) return <span className="text-muted-foreground">Isi modal</span>;
+  if (p.margin === null) return <span className="text-muted-foreground">Belum ada modal</span>;
   return (
     <span className={cn("tabular-nums", p.margin < 0 && "font-bold text-destructive")}>
       <span className="font-bold">{formatIDR(p.margin)}</span>
@@ -141,19 +141,12 @@ function SettingsDialog({ product, onClose }: { product: BranchProduct; onClose:
             {formatNumber(product.stock)}
           </p>
           <p className="text-muted-foreground">
-            Harga dan modal diubah langsung di tabel. Nama, foto dan SKU diubah di Katalog. Stok diubah lewat menu Stok supaya tercatat.
+            Harga jual cabang ini diubah langsung di tabel. Modal cabang ini dihitung otomatis (rata-rata tertimbang) dari Stok → Barang masuk. Nama, foto dan SKU diubah di Katalog. Stok diubah lewat menu Stok supaya tercatat.
           </p>
         </div>
         <label className="field-label flex flex-col gap-1.5">
           Batas stok menipis
-          <input
-            className="field tabular-nums"
-            inputMode="numeric"
-            maxLength={6}
-            value={minQty}
-            onChange={(e) => setMinQty(digitsOnly(e.target.value))}
-            disabled={patch.isPending}
-          />
+          <NumberInput maxDigits={6} value={minQty} onValueChange={setMinQty} disabled={patch.isPending} />
           <span className="text-sm font-normal">Produk muncul di daftar “perlu restock” saat stok sama atau di bawah angka ini.</span>
         </label>
         <label className="option-row" data-selected={active}>
@@ -174,7 +167,8 @@ function SettingsDialog({ product, onClose }: { product: BranchProduct; onClose:
   );
 }
 
-// Langkah 1 memilih produk katalog yang belum dijual di cabang ini; langkah 2 mengisi harga, modal dan stok awal.
+// Langkah 1 memilih produk katalog yang belum dijual di cabang ini; langkah 2 mengisi harga, stok awal dan total belanjanya
+// (modal per unit = total / stok awal). Harga & modal hanya untuk cabang ini.
 function AddProductDialog({ onClose }: { onClose: () => void }) {
   const { branchName } = useBranch();
   const branchId = useBranchId();
@@ -184,7 +178,7 @@ function AddProductDialog({ onClose }: { onClose: () => void }) {
   const q = useDeferredValue(search.trim());
   const [picked, setPicked] = useState<CatalogProduct | null>(null);
   const [price, setPrice] = useState("");
-  const [cost, setCost] = useState("");
+  const [spent, setSpent] = useState("");
   const [stock, setStock] = useState("");
   const [minQty, setMinQty] = useState("5");
   const [active, setActive] = useState(true);
@@ -195,6 +189,7 @@ function AddProductDialog({ onClose }: { onClose: () => void }) {
     placeholderData: keepPreviousData,
   });
   const rows = available.data?.products ?? [];
+  const cost = Number(stock) > 0 && Number(spent) > 0 ? Math.round(Number(spent) / Number(stock)) : null;
 
   const add = useMutation({
     mutationFn: () =>
@@ -202,7 +197,7 @@ function AddProductDialog({ onClose }: { onClose: () => void }) {
         branch_id: branchId,
         product_id: picked!.id,
         price: Number(price),
-        cost_price: cost === "" ? null : Number(cost),
+        cost_price: cost,
         initial_qty: Number(stock || 0),
         min_qty: Number(minQty || 0),
         is_active: active,
@@ -220,7 +215,7 @@ function AddProductDialog({ onClose }: { onClose: () => void }) {
   const busy = add.isPending;
 
   if (picked) {
-    const margin = Number(price) > 0 && cost !== "" ? Number(price) - Number(cost) : null;
+    const margin = Number(price) > 0 && cost !== null ? Number(price) - cost : null;
     return (
       <Dialog title={`Jual ${picked.name}`}>
         <form
@@ -235,20 +230,24 @@ function AddProductDialog({ onClose }: { onClose: () => void }) {
           </p>
           <div className="grid grid-cols-2 gap-3">
             <label className="field-label flex flex-col gap-1.5">
-              Harga jual (Rp)
-              <input className="field tabular-nums" inputMode="numeric" maxLength={9} value={price} onChange={(e) => setPrice(digitsOnly(e.target.value))} disabled={busy} autoFocus />
-            </label>
-            <label className="field-label flex flex-col gap-1.5">
-              Modal (Rp)
-              <input className="field tabular-nums" inputMode="numeric" maxLength={9} value={cost} onChange={(e) => setCost(digitsOnly(e.target.value))} disabled={busy} />
+              Harga jual
+              <NumberInput prefix="Rp" value={price} onValueChange={setPrice} disabled={busy} autoFocus />
             </label>
             <label className="field-label flex flex-col gap-1.5">
               Stok awal
-              <input className="field tabular-nums" inputMode="numeric" maxLength={6} value={stock} onChange={(e) => setStock(digitsOnly(e.target.value))} disabled={busy} />
+              <NumberInput maxDigits={6} value={stock} onValueChange={setStock} disabled={busy} />
             </label>
             <label className="field-label flex flex-col gap-1.5">
+              Total belanja stok awal
+              <NumberInput prefix="Rp" maxDigits={10} value={spent} onValueChange={setSpent} disabled={busy || !(Number(stock) > 0)} placeholder={Number(stock) > 0 ? "" : "Isi stok awal dulu"} />
+            </label>
+            <p className="field-label flex flex-col gap-1.5">
+              Modal / unit (otomatis)
+              <span className="field flex items-center font-bold tabular-nums text-muted-foreground">{cost !== null ? formatIDR(cost) : "–"}</span>
+            </p>
+            <label className="field-label flex flex-col gap-1.5">
               Batas menipis
-              <input className="field tabular-nums" inputMode="numeric" maxLength={6} value={minQty} onChange={(e) => setMinQty(digitsOnly(e.target.value))} disabled={busy} />
+              <NumberInput maxDigits={6} value={minQty} onValueChange={setMinQty} disabled={busy} />
             </label>
           </div>
           <p className="-mt-1 text-sm text-muted-foreground">
@@ -257,7 +256,7 @@ function AddProductDialog({ onClose }: { onClose: () => void }) {
                 Margin <span className={cn("font-bold", margin < 0 ? "text-destructive" : "text-foreground")}>{formatIDR(margin)}</span> per unit.{" "}
               </>
             ) : null}
-            Stok awal dicatat sebagai barang masuk. Harga dan modal berlaku di semua cabang kiosk.
+            Stok awal dicatat sebagai barang masuk. Harga jual dan modal hanya berlaku di {branchName ?? "cabang ini"}.
           </p>
           <label className="option-row" data-selected={active}>
             <input type="checkbox" className="size-5 shrink-0 accent-primary" checked={active} onChange={(e) => setActive(e.target.checked)} disabled={busy} />
@@ -303,7 +302,7 @@ function AddProductDialog({ onClose }: { onClose: () => void }) {
                 onClick={() => {
                   setPicked(p);
                   setPrice(p.price ? String(p.price) : "");
-                  setCost(p.cost_price !== null ? String(p.cost_price) : "");
+                  setSpent("");
                 }}
               >
                 <ProductThumb src={p.image_url} />
@@ -486,12 +485,9 @@ export function ProductsSection() {
                       <MoneyCell value={p.price} label={`Harga jual ${p.name}`} onSave={(v) => save(p, { price: v }, `Harga ${p.name} jadi ${formatIDR(v)}`)} />
                     </td>
                     <td data-label="Modal" className="md:text-right">
-                      <MoneyCell
-                        value={p.cost_price}
-                        allowEmpty
-                        label={`Modal ${p.name}`}
-                        onSave={(v) => save(p, { cost_price: v }, v === null ? `Modal ${p.name} dikosongkan` : `Modal ${p.name} jadi ${formatIDR(v)}`)}
-                      />
+                      <span className="tabular-nums" title="Rata-rata tertimbang dari Stok → Barang masuk">
+                        {p.cost_price !== null ? formatIDR(p.cost_price) : <span className="text-muted-foreground">–</span>}
+                      </span>
                     </td>
                     <td data-label="Margin" className="md:text-right">
                       <Margin p={p} />

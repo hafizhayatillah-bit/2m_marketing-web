@@ -120,7 +120,7 @@ def _local_day(col):
 def _state(stock: BranchStock, product: Product) -> str:
     if not stock.is_active or not product.is_active:
         return "hidden"
-    if not product.price:
+    if not stock.price:
         return "no_price"
     if stock.qty <= 0:
         return "out"
@@ -142,15 +142,15 @@ def _branch_product_out(stock: BranchStock, product: Product) -> dict[str, Any]:
         "sku": product.sku,
         "category": product.category,
         "image_url": product.image_url,
-        "price": product.price,
-        "cost_price": product.cost_price,
+        "price": stock.price,
+        "cost_price": stock.cost_price,
         "stock": stock.qty,
         "min_qty": stock.min_qty,
         "is_active": stock.is_active,
         "catalog_active": product.is_active,
         "state": _state(stock, product),
         "updated_at": _iso(stock.updated_at),
-        **_margin(product.price, product.cost_price),
+        **_margin(stock.price, stock.cost_price),
     }
 
 
@@ -200,7 +200,6 @@ def list_branch_products(branch_id: int, db: Session = Depends(get_db)):
 class BranchProductPatch(BaseModel):
     branch_id: int
     price: Optional[int] = Field(default=None, ge=1, le=100_000_000)
-    cost_price: Optional[int] = Field(default=None, ge=0, le=100_000_000)
     is_active: Optional[bool] = None
     min_qty: Optional[int] = Field(default=None, ge=0, le=100_000)
 
@@ -214,11 +213,9 @@ def update_branch_product(product_id: int, body: BranchProductPatch, db: Session
     if stock is None:
         raise _fail(404, "PRODUCT_NOT_IN_BRANCH", "Produk ini belum dijual di cabang ini.")
     fields = body.model_fields_set
-    # Harga & modal ada di tabel products (dipakai kiosk semua cabang); aktif & batas menipis per cabang.
+    # Semua per cabang. Modal tidak bisa diubah di sini: dihitung dari barang masuk (rata-rata tertimbang).
     if "price" in fields and body.price is not None:
-        product.price = body.price
-    if "cost_price" in fields:
-        product.cost_price = body.cost_price
+        stock.price = body.price
     if "is_active" in fields and body.is_active is not None:
         stock.is_active = body.is_active
     if "min_qty" in fields and body.min_qty is not None:
@@ -264,9 +261,11 @@ def add_product_to_branch(body: AddBranchProductIn, db: Session = Depends(get_db
         stock = stock_svc.lock_stock_rows(db, body.branch_id, [body.product_id])[body.product_id]
         stock.is_active = body.is_active
         stock.min_qty = body.min_qty
-        product.price = body.price
-        if body.cost_price is not None:
-            product.cost_price = body.cost_price
+        stock.price = body.price
+        stock.cost_price = body.cost_price
+        if product.price is None:
+            # Harga katalog (website & usulan untuk cabang lain) diisi dari cabang pertama yang menjualnya.
+            product.price = body.price
         if body.initial_qty > 0:
             stock_svc.apply_movement(
                 db, stock, type="in", delta=body.initial_qty, unit_cost=body.cost_price,
@@ -307,10 +306,10 @@ def list_catalog(q: Optional[str] = None, db: Session = Depends(get_db)):
         stmt = stmt.where(or_(Product.name.ilike(like), Product.sku.ilike(like), Product.category.ilike(like)))
     products = db.execute(stmt.order_by(Product.name)).scalars().all()
     sold: dict[int, list[dict[str, Any]]] = {}
-    for pid, bid, bname in db.execute(
-        select(BranchStock.product_id, Branch.id, Branch.name).join(Branch, Branch.id == BranchStock.branch_id)
+    for pid, bid, bname, bprice in db.execute(
+        select(BranchStock.product_id, Branch.id, Branch.name, BranchStock.price).join(Branch, Branch.id == BranchStock.branch_id)
     ).all():
-        sold.setdefault(pid, []).append({"id": bid, "name": bname})
+        sold.setdefault(pid, []).append({"id": bid, "name": bname, "price": bprice})
     categories = sorted(set(db.execute(select(Product.category).distinct()).scalars()), key=str.lower)
     return {"products": [_catalog_out(p, sold.get(p.id, [])) for p in products], "categories": categories}
 

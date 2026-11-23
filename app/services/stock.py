@@ -94,6 +94,17 @@ class StockInLine:
     unit_cost: Optional[int] = None
 
 
+def weighted_cost(old_qty: int, old_cost: Optional[int], in_qty: int, in_cost: int) -> int:
+    """Modal rata-rata tertimbang setelah barang masuk.
+
+    Stok lama (old_qty, dinilai old_cost) digabung dengan barang baru (in_qty @ in_cost). Kalau stok lama kosong/negatif
+    atau belum punya modal, modal baru = harga belanja ini. Hasil dibulatkan ke rupiah.
+    """
+    if old_cost is None or old_qty <= 0:
+        return in_cost
+    return round((old_qty * old_cost + in_qty * in_cost) / (old_qty + in_qty))
+
+
 def _check_products(db: Session, product_ids: Iterable[int]) -> dict[int, Product]:
     ids = set(product_ids)
     products = {p.id: p for p in db.execute(select(Product).where(Product.id.in_(ids))).scalars()}
@@ -113,33 +124,41 @@ def stock_in(
     created_by: str,
     update_cost: bool = True,
 ) -> list[StockMovement]:
-    """Barang masuk. Kalau update_cost dan unit_cost diisi, harga modal produk ikut diganti (modal terakhir)."""
+    """Barang masuk. Kalau update_cost dan unit_cost diisi, modal produk DI CABANG INI dihitung ulang sebagai rata-rata
+    tertimbang: stok cabang yang ada dengan modal lamanya, ditambah barang masuk ini dengan harga belanjanya."""
     if not lines:
         raise StockError(422, "EMPTY", "Belum ada barang yang diisi.")
     merged: dict[int, StockInLine] = {}
+    # Total belanja per produk (hanya baris yang punya harga), supaya baris ganda digabung dengan rata-rata tertimbang.
+    costed: dict[int, tuple[int, int]] = {}
     for line in lines:
         if line.qty <= 0:
             raise StockError(422, "INVALID_QTY", "Jumlah barang masuk harus lebih dari 0.")
         if line.product_id in merged:
-            prev = merged[line.product_id]
-            prev.qty += line.qty
-            prev.unit_cost = line.unit_cost if line.unit_cost is not None else prev.unit_cost
+            merged[line.product_id].qty += line.qty
         else:
-            merged[line.product_id] = StockInLine(line.product_id, line.qty, line.unit_cost)
+            merged[line.product_id] = StockInLine(line.product_id, line.qty, None)
+        if line.unit_cost is not None:
+            q, total = costed.get(line.product_id, (0, 0))
+            costed[line.product_id] = (q + line.qty, total + line.qty * line.unit_cost)
+    for pid, (q, total) in costed.items():
+        merged[pid].unit_cost = round(total / q)
     try:
-        products = _check_products(db, merged.keys())
+        _check_products(db, merged.keys())
         stocks = lock_stock_rows(db, branch_id, merged.keys())
         out = []
         for pid in sorted(merged):
             line = merged[pid]
+            stock = stocks[pid]
+            # Baris branch_stock sudah dikunci, jadi qty & modal ini tidak berubah sampai commit.
+            if update_cost and line.unit_cost is not None and line.unit_cost > 0:
+                stock.cost_price = weighted_cost(stock.qty or 0, stock.cost_price, line.qty, line.unit_cost)
             out.append(
                 apply_movement(
-                    db, stocks[pid], type="in", delta=line.qty, unit_cost=line.unit_cost,
+                    db, stock, type="in", delta=line.qty, unit_cost=line.unit_cost,
                     ref=ref, note=note or "Barang masuk", created_by=created_by,
                 )
             )
-            if update_cost and line.unit_cost is not None and line.unit_cost > 0:
-                products[pid].cost_price = line.unit_cost
         db.commit()
     except Exception:
         db.rollback()

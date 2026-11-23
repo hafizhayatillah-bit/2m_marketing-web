@@ -42,7 +42,8 @@ export interface CatalogProduct {
   is_active: boolean;
   price: number | null;
   cost_price: number | null;
-  branches: { id: number; name: string }[];
+  // Harga jual per cabang (null kalau cabang itu belum mengisi harga).
+  branches: { id: number; name: string; price: number | null }[];
 }
 
 export type MovementType = "in" | "out" | "adjust" | "sale";

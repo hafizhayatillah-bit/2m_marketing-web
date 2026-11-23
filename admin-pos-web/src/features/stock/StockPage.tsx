@@ -2,11 +2,12 @@ import { useDeferredValue, useState, type CSSProperties } from "react";
 import { keepPreviousData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "../../components/Dialog";
 import { IconPlus, IconTrash } from "../../components/Icons";
+import { NumberInput } from "../../components/NumberInput";
 import { Segmented, useSwapX, type SegmentedItem } from "../../components/Segmented";
 import { Select } from "../../components/Select";
 import { DateRangeFilter, ErrorBox, LoadingRows, PageHeader, ProductPicker, ProductThumb, SearchField, type DayRange } from "../../components/ui";
 import { api } from "../../lib/api";
-import { capitalize, digitsOnly, formatDateTime, formatIDR, formatNumber } from "../../lib/format";
+import { capitalize, formatDateTime, formatIDR, formatNumber } from "../../lib/format";
 import type { BranchProduct, Movement, MovementType } from "../../lib/types";
 import { useToast } from "../../lib/toast";
 import { cn } from "../../lib/utils";
@@ -57,8 +58,11 @@ export function StockPage() {
 interface InLine {
   product: BranchProduct;
   qty: string;
-  cost: string;
+  // Total uang yang dibayar untuk baris ini; modal per unit dihitung otomatis dari total / jumlah.
+  total: string;
 }
+
+const unitCostOf = (l: InLine): number | null => (Number(l.qty) > 0 && Number(l.total) > 0 ? Math.round(Number(l.total) / Number(l.qty)) : null);
 
 function PickDialog({ title, products, exclude, onPick, onClose }: { title: string; products: BranchProduct[]; exclude?: number[]; onPick: (p: BranchProduct) => void; onClose: () => void }) {
   return (
@@ -86,7 +90,7 @@ function StockInSection() {
 
   const valid = lines.length > 0 && lines.every((l) => Number(l.qty) > 0);
   const totalQty = lines.reduce((s, l) => s + Number(l.qty || 0), 0);
-  const totalCost = lines.reduce((s, l) => s + Number(l.qty || 0) * Number(l.cost || 0), 0);
+  const totalCost = lines.reduce((s, l) => s + Number(l.total || 0), 0);
   const set = (i: number, patch: Partial<InLine>) => setLines((ls) => ls.map((l, j) => (j === i ? { ...l, ...patch } : l)));
 
   const save = useMutation({
@@ -96,7 +100,7 @@ function StockInSection() {
         ref: ref.trim() || null,
         note: note.trim() || null,
         update_cost: updateCost,
-        items: lines.map((l) => ({ product_id: l.product.product_id, qty: Number(l.qty), unit_cost: l.cost === "" ? null : Number(l.cost) })),
+        items: lines.map((l) => ({ product_id: l.product.product_id, qty: Number(l.qty), unit_cost: unitCostOf(l) })),
       }),
     onSuccess: () => {
       toast("success", `${formatNumber(totalQty)} unit dari ${lines.length} produk masuk stok`);
@@ -123,7 +127,7 @@ function StockInSection() {
       {products.isError && <ErrorBox error={products.error} />}
       {lines.length === 0 ? (
         <div className="empty-state">
-          <p>Tambahkan produk yang datang, lalu isi jumlah dan harga modal per unit dari nota.</p>
+          <p>Tambahkan produk yang datang, lalu isi jumlah dan total belanjanya dari nota. Modal per unit dihitung otomatis.</p>
           <button className="btn btn-primary mt-2" onClick={() => setPicking(true)} disabled={!products.data}>
             <IconPlus /> Tambah barang
           </button>
@@ -136,8 +140,8 @@ function StockInSection() {
                 <th>Produk</th>
                 <th className="text-right">Stok sekarang</th>
                 <th className="text-right">Jumlah masuk</th>
+                <th className="text-right">Total belanja</th>
                 <th className="text-right">Modal / unit</th>
-                <th className="text-right">Subtotal</th>
                 <th />
               </tr>
             </thead>
@@ -154,30 +158,30 @@ function StockInSection() {
                     {formatNumber(l.product.stock)}
                   </td>
                   <td data-label="Jumlah masuk" className="md:text-right">
-                    <input
-                      className="field min-h-9 w-24 py-1.5 text-right font-bold tabular-nums"
-                      inputMode="numeric"
-                      maxLength={6}
+                    <NumberInput
+                      className="min-h-9 w-24 py-1.5 text-right font-bold"
+                      maxDigits={6}
                       aria-label={`Jumlah masuk ${l.product.name}`}
                       value={l.qty}
-                      onChange={(e) => set(i, { qty: digitsOnly(e.target.value) })}
+                      onValueChange={(v) => set(i, { qty: v })}
                       aria-invalid={l.qty !== "" && Number(l.qty) <= 0}
                       autoFocus={i === lines.length - 1}
                     />
                   </td>
-                  <td data-label="Modal / unit" className="md:text-right">
-                    <input
-                      className="field min-h-9 w-32 py-1.5 text-right tabular-nums"
-                      inputMode="numeric"
-                      maxLength={9}
-                      aria-label={`Modal per unit ${l.product.name}`}
-                      value={l.cost}
+                  <td data-label="Total belanja" className="md:text-right">
+                    <NumberInput
+                      prefix="Rp"
+                      wrapperClassName="inline-block w-40"
+                      className="min-h-9 py-1.5 text-right font-bold"
+                      maxDigits={10}
+                      aria-label={`Total belanja ${l.product.name}`}
+                      value={l.total}
                       placeholder="–"
-                      onChange={(e) => set(i, { cost: digitsOnly(e.target.value) })}
+                      onValueChange={(v) => set(i, { total: v })}
                     />
                   </td>
-                  <td data-label="Subtotal" className="font-bold tabular-nums md:text-right">
-                    {l.cost ? formatIDR(Number(l.qty || 0) * Number(l.cost)) : "–"}
+                  <td data-label="Modal / unit (otomatis)" className="font-bold tabular-nums md:text-right">
+                    {unitCostOf(l) !== null ? formatIDR(unitCostOf(l)!) : "–"}
                   </td>
                   <td data-actions className="md:text-right">
                     <button className="icon-btn" aria-label={`Hapus ${l.product.name}`} onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))}>
@@ -193,7 +197,7 @@ function StockInSection() {
               <IconPlus /> Tambah barang
             </button>
             <p className="ml-auto text-sm tabular-nums">
-              {formatNumber(totalQty)} unit · modal <span className="font-bold">{formatIDR(totalCost)}</span>
+              {formatNumber(totalQty)} unit · total belanja <span className="font-bold">{formatIDR(totalCost)}</span>
             </p>
           </div>
         </div>
@@ -202,7 +206,7 @@ function StockInSection() {
         <>
           <label className="option-row" data-selected={updateCost}>
             <input type="checkbox" className="size-5 shrink-0 accent-primary" checked={updateCost} onChange={(e) => setUpdateCost(e.target.checked)} />
-            Jadikan modal per unit ini harga modal produk (dipakai untuk laporan laba penjualan berikutnya)
+            Perbarui modal produk: rata-rata tertimbang stok yang ada dengan belanja ini (dipakai untuk laporan laba penjualan berikutnya)
           </label>
           {save.isError && <ErrorBox error={save.error} />}
           <div className="flex justify-end gap-2">
@@ -222,7 +226,7 @@ function StockInSection() {
           exclude={lines.map((l) => l.product.product_id)}
           onClose={() => setPicking(false)}
           onPick={(p) => {
-            setLines((ls) => [...ls, { product: p, qty: "", cost: p.cost_price !== null ? String(p.cost_price) : "" }]);
+            setLines((ls) => [...ls, { product: p, qty: "", total: "" }]);
             setPicking(false);
           }}
         />
@@ -307,7 +311,7 @@ function AdjustSection() {
         </div>
         <label className="field-label flex flex-col gap-1.5 sm:w-48">
           Jumlah
-          <input className="field tabular-nums" inputMode="numeric" maxLength={6} value={qty} onChange={(e) => setQty(digitsOnly(e.target.value))} />
+          <NumberInput maxDigits={6} value={qty} onValueChange={setQty} />
         </label>
         <div className="flex flex-col gap-1.5">
           <span className="field-label">Alasan</span>
@@ -472,16 +476,15 @@ function OpnameSection() {
                       {formatNumber(p.stock)}
                     </td>
                     <td data-label="Hitung fisik" className="md:text-right">
-                      <input
-                        className="field min-h-9 w-24 py-1.5 text-right font-bold tabular-nums"
-                        inputMode="numeric"
-                        maxLength={6}
+                      <NumberInput
+                        className="min-h-9 w-24 py-1.5 text-right font-bold"
+                        maxDigits={6}
                         aria-label={`Hitung fisik ${p.name}`}
                         value={v}
                         placeholder="–"
-                        onChange={(e) => {
+                        onValueChange={(digits) => {
                           snapshot([p]);
-                          setCounts((c) => ({ ...c, [p.product_id]: digitsOnly(e.target.value) }));
+                          setCounts((c) => ({ ...c, [p.product_id]: digits }));
                         }}
                       />
                     </td>

@@ -2,14 +2,17 @@ import { useState } from "react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "../../components/Dialog";
 import { IconTrash } from "../../components/Icons";
+import { NumberInput } from "../../components/NumberInput";
+import { Select } from "../../components/Select";
 import { DateRangeFilter, ErrorBox, LoadingRows, PageHeader, rangeOf, type DayRange } from "../../components/ui";
 import { api } from "../../lib/api";
-import { digitsOnly, formatDay, formatIDR, todayWIB } from "../../lib/format";
+import { formatDay, formatIDR, todayWIB } from "../../lib/format";
 import type { Expense } from "../../lib/types";
 import { useToast } from "../../lib/toast";
 import { useBranch, useBranchId } from "../branch/BranchProvider";
 
 const EXPENSES_KEY = "expenses";
+const NEW_CATEGORY = "__new__";
 
 interface ExpensesResponse {
   expenses: Expense[];
@@ -26,6 +29,9 @@ function ExpenseForm({ expense, categories, onDone, onCancel }: { expense?: Expe
   const [category, setCategory] = useState(expense?.category ?? "");
   const [amount, setAmount] = useState(expense ? String(expense.amount) : "");
   const [note, setNote] = useState(expense?.note ?? "");
+  // Kategori dipilih dari dropdown; "Kategori baru…" membuka kolom untuk menulis kategori sendiri.
+  const [custom, setCustom] = useState(false);
+  const options = categories.includes(category) || category === "" ? categories : [category, ...categories];
   const valid = day !== "" && category.trim() !== "" && Number(amount) > 0;
 
   const save = useMutation({
@@ -55,26 +61,41 @@ function ExpenseForm({ expense, categories, onDone, onCancel }: { expense?: Expe
     >
       <div className="flex flex-col gap-1.5">
         <span className="field-label">Kategori</span>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Kategori biaya">
-          {categories.map((c) => (
-            <button key={c} type="button" className="chip" aria-pressed={category === c} onClick={() => setCategory(c)}>
-              {c}
-            </button>
-          ))}
-        </div>
-        <input
-          className="field mt-1"
-          value={category}
-          maxLength={40}
-          onChange={(e) => setCategory(e.target.value)}
-          placeholder="Atau tulis kategori lain"
-          aria-label="Kategori"
+        <Select
+          label="Kategori biaya"
+          className="w-full"
+          value={custom ? NEW_CATEGORY : category}
+          onChange={(v) => {
+            if (v === NEW_CATEGORY) {
+              setCustom(true);
+              setCategory("");
+            } else {
+              setCustom(false);
+              setCategory(v);
+            }
+          }}
+          options={[
+            ...(category === "" && !custom ? [{ value: "", label: "Pilih kategori", disabled: true }] : []),
+            ...options.map((c) => ({ value: c, label: c })),
+            { value: NEW_CATEGORY, label: "+ Kategori baru…" },
+          ]}
         />
+        {custom && (
+          <input
+            className="field"
+            value={category}
+            maxLength={40}
+            autoFocus
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="Nama kategori baru, mis. Perbaikan"
+            aria-label="Nama kategori baru"
+          />
+        )}
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="field-label flex flex-col gap-1.5">
-          Jumlah (Rp)
-          <input className="field text-lg font-bold tabular-nums" inputMode="numeric" maxLength={10} value={amount} onChange={(e) => setAmount(digitsOnly(e.target.value))} />
+          Jumlah
+          <NumberInput prefix="Rp" maxDigits={10} className="text-lg font-bold" value={amount} onValueChange={setAmount} />
         </label>
         <label className="field-label flex flex-col gap-1.5">
           Tanggal
@@ -108,14 +129,18 @@ export function ExpensesPage() {
   const [range, setRange] = useState<DayRange | null>(() => rangeOf("month"));
   const [editing, setEditing] = useState<Expense | null>(null);
   const [deleting, setDeleting] = useState<Expense | null>(null);
+  const [filterCategory, setFilterCategory] = useState("");
 
   const list = useQuery({
     queryKey: [EXPENSES_KEY, branchId, range?.from, range?.to],
     queryFn: () => api.get<ExpensesResponse>("/expenses", { branch_id: branchId, date_from: range?.from, date_to: range?.to }),
     placeholderData: keepPreviousData,
   });
-  const rows = list.data?.expenses ?? [];
+  const allRows = list.data?.expenses ?? [];
+  const rows = filterCategory ? allRows.filter((e) => e.category === filterCategory) : allRows;
+  const filteredTotal = rows.reduce((s, e) => s + e.amount, 0);
   const categories = list.data?.categories ?? [];
+  const usedCategories = [...new Set(allRows.map((e) => e.category))].sort();
   const byCategory = Object.entries(rows.reduce<Record<string, number>>((m, e) => ((m[e.category] = (m[e.category] ?? 0) + e.amount), m), {})).sort((a, b) => b[1] - a[1]);
 
   const remove = useMutation({
@@ -146,15 +171,23 @@ export function ExpensesPage() {
             <span className="t-label tabular-nums">{rows.length} catatan</span>
           </div>
           <DateRangeFilter value={range} onChange={setRange} allowAll />
+          <Select
+            label="Filter kategori"
+            className="w-full sm:w-64"
+            active={filterCategory !== ""}
+            value={filterCategory}
+            onChange={setFilterCategory}
+            options={[{ value: "", label: "Semua kategori" }, ...usedCategories.map((c) => ({ value: c, label: c }))]}
+          />
           {list.isLoading && <LoadingRows />}
           {list.isError && <ErrorBox error={list.error} />}
           {list.data && (
             <div className="panel-ink flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="t-label">Total biaya {range ? "di rentang ini" : "semua"}</p>
-                <p className="t-figure">{formatIDR(list.data.total)}</p>
+                <p className="t-label">Total biaya {filterCategory ? `${filterCategory} ` : ""}{range ? "di rentang ini" : "semua"}</p>
+                <p className="t-figure">{formatIDR(filterCategory ? filteredTotal : list.data.total)}</p>
               </div>
-              {byCategory.length > 0 && (
+              {!filterCategory && byCategory.length > 0 && (
                 <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:text-right">
                   {byCategory.slice(0, 6).map(([c, a]) => (
                     <div key={c} className="contents">

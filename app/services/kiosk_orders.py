@@ -64,14 +64,14 @@ def resolve_branch(db: Session, key: Optional[str]) -> Branch:
 def list_products(db: Session, branch: Branch) -> list[dict[str, Any]]:
     """Produk aktif yang punya harga dan terdaftar di stok cabang ini."""
     rows = db.execute(
-        select(Product, BranchStock.qty)
+        select(Product, BranchStock.qty, BranchStock.price)
         .join(BranchStock, BranchStock.product_id == Product.id)
         .where(
             BranchStock.branch_id == branch.id,
             BranchStock.is_active == True,  # noqa: E712  (disembunyikan dari admin POS)
             Product.is_active == True,  # noqa: E712
-            Product.price.is_not(None),
-            Product.price > 0,
+            BranchStock.price.is_not(None),
+            BranchStock.price > 0,
         )
         .order_by(Product.category, Product.name)
     ).all()
@@ -81,10 +81,10 @@ def list_products(db: Session, branch: Branch) -> list[dict[str, Any]]:
             "name": p.name,
             "category": p.category,
             "image_url": p.image_url,
-            "price": p.price,
+            "price": price,
             "stock": max(0, qty),
         }
-        for p, qty in rows
+        for p, qty, price in rows
     ]
 
 
@@ -139,9 +139,9 @@ def create_order(db: Session, branch: Branch, lines: list[LineIn]) -> Order:
             raise KioskError(422, "INVALID_QTY", f"Maksimal {MAX_QTY_PER_ITEM} per barang.")
 
     rows = {
-        p.id: (p, qty)
-        for p, qty in db.execute(
-            select(Product, BranchStock.qty)
+        p.id: (p, s)
+        for p, s in db.execute(
+            select(Product, BranchStock)
             .join(BranchStock, BranchStock.product_id == Product.id)
             .where(
                 BranchStock.branch_id == branch.id,
@@ -154,12 +154,12 @@ def create_order(db: Session, branch: Branch, lines: list[LineIn]) -> Order:
     problems = []
     for pid, qty in merged.items():
         row = rows.get(pid)
-        if row is None or not row[0].is_active or not row[0].price:
+        if row is None or not row[0].is_active or not row[1].price:
             problems.append({"product_id": pid, "name": row[0].name if row else None, "available": 0})
             continue
         product, stock = row
-        if qty > stock:
-            problems.append({"product_id": pid, "name": product.name, "available": max(0, stock)})
+        if qty > stock.qty:
+            problems.append({"product_id": pid, "name": product.name, "available": max(0, stock.qty)})
     if problems:
         raise KioskError(
             409,
@@ -172,16 +172,17 @@ def create_order(db: Session, branch: Branch, lines: list[LineIn]) -> Order:
     order = Order(branch_id=branch.id, status="PENDING_PAYMENT", total=0, created_at=now, expires_at=now + order_ttl())
     total = 0
     for pid, qty in merged.items():
-        product, _ = rows[pid]
-        subtotal = product.price * qty
+        # Harga & modal dari cabang ini, disnapshot ke order item.
+        product, stock = rows[pid]
+        subtotal = stock.price * qty
         total += subtotal
         order.items.append(
             OrderItem(
                 product_id=product.id,
                 product_name=product.name,
                 sku=product.sku,
-                unit_price=product.price,
-                cost_price=product.cost_price,
+                unit_price=stock.price,
+                cost_price=stock.cost_price,
                 qty=qty,
                 subtotal=subtotal,
             )

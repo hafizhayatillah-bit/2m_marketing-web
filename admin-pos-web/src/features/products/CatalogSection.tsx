@@ -8,6 +8,15 @@ import { formatIDR } from "../../lib/format";
 import { compressImage } from "../../lib/image";
 import type { CatalogProduct } from "../../lib/types";
 import { useToast } from "../../lib/toast";
+
+// Harga jual tiap cabang bisa beda: tampilkan satu harga atau rentangnya.
+function priceRange(p: CatalogProduct): string {
+  const prices = p.branches.map((b) => b.price).filter((v): v is number => v !== null);
+  if (prices.length === 0) return p.price !== null ? formatIDR(p.price) : "–";
+  const lo = Math.min(...prices);
+  const hi = Math.max(...prices);
+  return lo === hi ? formatIDR(lo) : `${formatIDR(lo)} – ${formatIDR(hi)}`;
+}
 import { PRODUCTS_KEY } from "./ProductsSection";
 
 const CATALOG_KEY = "catalog";
@@ -219,7 +228,7 @@ export function CatalogSection() {
                     {p.category}
                   </td>
                   <td data-label="Harga" className="font-bold tabular-nums md:text-right">
-                    {formatIDR(p.price)}
+                    {priceRange(p)}
                   </td>
                   <td data-label="Dijual di">
                     {p.branches.length === 0 ? <span className="text-muted-foreground">Belum ada cabang</span> : p.branches.map((b) => b.name).join(", ")}
