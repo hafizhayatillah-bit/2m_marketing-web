@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { Product } from "../lib/api";
 import { cartSummary, maxQty, useCart } from "../lib/cart";
 import { formatIDR } from "../lib/format";
 import { useToast } from "../lib/toast";
 import { cn } from "../lib/utils";
 import { CategoryIcon, categoryTint } from "../components/category";
 import { IconBack, IconCart, IconTrash } from "../components/Icons";
+import { QtyPad } from "../components/QtyPad";
 import { Stepper } from "../components/Stepper";
 import { EmptyState, rise } from "../components/States";
 
@@ -68,12 +70,24 @@ export function CartOverlay({
   const setQty = useCart((s) => s.setQty);
   const clear = useCart((s) => s.clear);
   const { list, count, total } = cartSummary(lines);
+  // Barang yang jumlahnya sedang diketik lewat keypad layar.
+  const [editing, setEditing] = useState<Product | null>(null);
+  const editingQty = editing ? (lines[editing.id]?.qty ?? 0) : 0;
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (editing) setEditing(null);
+      else onClose();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, editing]);
+
+  // Barang dihapus dari keranjang (mis. stok habis saat sinkron) selagi keypad terbuka: tutup keypad.
+  useEffect(() => {
+    if (editing && !lines[editing.id]) setEditing(null);
+  }, [editing, lines]);
 
   return (
     <div
@@ -135,6 +149,7 @@ export function CartOverlay({
                       max={maxQty(p)}
                       onChange={(n) => setQty(p.id, n)}
                       onLimit={() => toast("error", `Stok ${p.name} tinggal ${p.stock}.`)}
+                      onEdit={() => setEditing(p)}
                     />
                     <p className="w-32 shrink-0 text-right font-extrabold tabular-nums tracking-tight">{formatIDR(p.price * qty)}</p>
                     <button type="button" onClick={() => setQty(p.id, 0)} aria-label={`Hapus ${p.name}`} className="btn btn-danger-quiet shrink-0">
@@ -176,6 +191,22 @@ export function CartOverlay({
           </aside>
         </div>
       </div>
+      {editing && (
+        <QtyPad
+          // Stok diambil dari data keranjang terbaru (bisa berubah saat sinkron stok).
+          name={editing.name}
+          price={(lines[editing.id]?.product ?? editing).price}
+          qty={editingQty}
+          max={maxQty(lines[editing.id]?.product ?? editing)}
+          stock={(lines[editing.id]?.product ?? editing).stock}
+          onSubmit={(n) => {
+            // Keypad sudah memotong ke batas; setQty juga memotong lagi kalau stok berubah selagi keypad terbuka.
+            setQty(editing.id, n);
+            setEditing(null);
+          }}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }

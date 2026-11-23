@@ -53,6 +53,13 @@ export const IconSearch = (p: IconProps) => (
   </Svg>
 );
 
+export const IconBackspace = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9 5h10.5A1.5 1.5 0 0121 6.5v11a1.5 1.5 0 01-1.5 1.5H9l-6-7z" />
+    <path d="M12 9.5l5 5M17 9.5l-5 5" />
+  </Svg>
+);
+
 export const IconPin = (p: IconProps) => (
   <Svg {...p}>
     <path d="M12 21s7-6.2 7-11.5A7 7 0 005 9.5C5 14.8 12 21 12 21z" />

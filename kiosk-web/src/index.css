@@ -64,6 +64,17 @@ img {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
+/* Angka jumlah yang bisa diketuk (buka keypad): garis bawah putus-putus sebagai tanda bisa disentuh. */
+.kiosk-stepper .stepper-value-edit {
+  align-self: stretch;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.3em;
+  text-decoration-thickness: 2px;
+  transition: background-color 100ms;
+}
+.kiosk-stepper .stepper-value-edit:active {
+  background-color: hsl(var(--primary-surface));
+}
 
 @layer components {
   .pin-key {
@@ -72,6 +83,63 @@ img {
   .pin-key:active {
     transform: scale(0.95);
   }
+
+  /* ---- Pencarian ---- */
+  /* Kolom cari: tombol yang terlihat seperti input (tidak ada <input>, jadi keyboard Windows tidak muncul). */
+  .search-field {
+    @apply flex h-16 w-full items-center gap-3 rounded-2xl border-2 border-input bg-surface pl-5 pr-2 text-left text-xl transition-[border-color,box-shadow] duration-150;
+  }
+  .search-field[data-active="true"] {
+    @apply border-primary;
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15);
+  }
+  .search-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.4em;
+    margin-left: 1px;
+    vertical-align: -0.25em;
+    background: hsl(var(--primary));
+    animation: caret-blink 1s steps(1) infinite;
+  }
+  .search-mark {
+    background: hsl(var(--primary-surface));
+    color: hsl(var(--primary-pressed));
+    border-radius: 0.2em;
+    box-shadow: 0 0 0 1px hsl(var(--primary-surface));
+  }
+
+  /* Keyboard layar */
+  .kb-key {
+    @apply flex h-[2.75rem] w-[5.4rem] items-center justify-center gap-2 rounded-xl border border-border bg-background text-2xl font-bold transition-transform duration-75;
+    box-shadow: 0 2px 0 hsl(var(--border));
+  }
+  .kb-key:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: none;
+    background: hsl(var(--muted));
+  }
+  .kb-key-num {
+    @apply text-xl font-semibold text-muted-foreground;
+  }
+  .kb-key-wide {
+    @apply w-[9rem];
+  }
+  .kb-key-done {
+    @apply w-[16rem] border-primary bg-primary text-lg text-primary-foreground;
+    box-shadow: 0 2px 0 hsl(var(--primary-pressed));
+  }
+  .kb-key-done:active {
+    background: hsl(var(--primary-pressed)) !important;
+  }
+}
+
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+@keyframes kb-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 /* ---- Struk (hanya tampil saat print) --------------------------------------------------------- */
