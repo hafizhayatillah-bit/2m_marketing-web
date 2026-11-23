@@ -144,6 +144,8 @@ Mock bayar manual: `POST /api/v1/kiosk/payments/webhook/mock` body `{"provider_r
 
 ## Setup tablet Windows (Chrome kiosk)
 
+> Panduan langkah demi langkah untuk PC toko: [setup/PANDUAN-PC-TOKO.md](setup/PANDUAN-PC-TOKO.md). Auto-start + watchdog dipasang dengan `setup/install-autostart.ps1` (menggantikan shortcut manual di langkah 3 di bawah).
+
 1. **Akun & auto-login**: buat akun lokal Windows khusus (mis. `kiosk`, bukan admin). Aktifkan auto-login: `netplwiz` → hapus centang "Users must enter a user name and password" (kalau opsi tidak muncul: Settings → Accounts → Sign-in options → matikan "Require Windows Hello sign-in"), atau pakai Sysinternals Autologon.
 2. **Printer thermal**: install driver, jadikan **default printer** (Settings → Bluetooth & devices → Printers → matikan "Let Windows manage my default printer" → pilih printer → Set as default). Atur ukuran kertas di Printing preferences (58 mm / 80 mm, panjang roll/continuous). Tes print sekali dari Chrome biasa: pastikan margin "None" dan header/footer mati.
 3. **Shortcut Startup**: Win+R → `shell:startup` → New → Shortcut, target:
