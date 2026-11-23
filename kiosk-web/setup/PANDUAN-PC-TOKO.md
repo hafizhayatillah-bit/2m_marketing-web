@@ -12,6 +12,12 @@ Waktu yang dibutuhkan: ±30–45 menit. Siapkan:
 - [ ] Printer thermal (58 mm atau 80 mm) beserta drivernya
 - [ ] `KIOSK_DEVICE_TOKEN` (dari environment Render)
 - [ ] Folder `kiosk-web\setup\` dari repo ini (salin lewat flashdisk atau download dari GitHub)
+- [ ] **Keyboard (dan mouse) USB/Bluetooth sementara**. Lihat catatan layar sentuh di bawah.
+
+> **Perangkat layar sentuh (mini PC / standing tablet).** Pelanggan cukup pakai sentuhan. PIN panel staf juga diketik lewat keypad di layar kiosk. Tapi selama kiosk berjalan, keyboard sentuh Windows **tidak bisa dibuka** (taskbar tersembunyi dan swipe dari tepi layar dimatikan), dan tidak ada cara keluar dari kiosk hanya dengan sentuhan. Itu disengaja supaya pelanggan tidak bisa keluar. Karena itu:
+>
+> - **Saat setup** (langkah 1–6): pakai keyboard USB/Bluetooth. Kalau tidak ada, bisa pakai keyboard sentuh Windows (ikon keyboard di taskbar, atau Settings → Personalization → Taskbar → Touch keyboard → Always). Langkah ini dikerjakan sebelum kiosk aktif.
+> - **Saat maintenance**: simpan satu keyboard USB murah di toko (laci kasir/gudang), atau pasang remote desktop (lihat bagian Maintenance).
 
 URL kiosk toko ini: **`https://twom-kiosk.onrender.com/?branch=10&paper=58`**
 
@@ -112,12 +118,14 @@ Gunakan akun admin untuk langkah yang perlu admin.
 3. **Jangan tidur**: Settings → System → Power → Screen & sleep → semua **Never**. Matikan screen saver.
 4. **Windows Update**: Settings → Windows Update → **Active hours** (mis. 06:00–22:00). Matikan "Get the latest updates as soon as they're available".
 5. **Notifikasi**: Settings → System → Notifications → **Off**, nyalakan Do not disturb.
-6. **Keyboard sentuh** (opsional): matikan kalau muncul sendiri, karena kiosk tidak memakai kolom ketik.
+6. **Keyboard sentuh**: biarkan aktif. Keyboard ini tidak muncul di kiosk karena kiosk tidak punya kolom ketik (PIN staf pakai keypad di layar), dan tetap berguna kalau maintenance tanpa keyboard fisik.
+7. **(Disarankan) Remote desktop**: install **Chrome Remote Desktop** (remotedesktop.google.com/access) atau AnyDesk di akun `kiosk`, lalu atur supaya aktif tanpa harus diterima di layar (unattended access). Dengan ini, maintenance bisa dilakukan dari HP/laptop tanpa keyboard di toko. Catat PIN/password remote-nya di tempat aman, jangan ditempel di PC.
 
 ## 7. Tes akhir (wajib sebelum toko buka)
 
 - [ ] **Restart PC.** Tanpa menyentuh apa pun: Windows login sendiri → kiosk terbuka layar penuh.
-- [ ] **Tes watchdog.** Tekan `Alt + F4` (pakai keyboard). Dalam ±10–25 detik kiosk terbuka lagi.
+- [ ] **Tes watchdog.** Colok keyboard, tekan `Alt + F4`. Dalam ±10–25 detik kiosk terbuka lagi. (Atau lewat remote desktop: kirim `Alt + F4` dari menu remote.)
+- [ ] **Tes layar sentuh.** Cabut keyboard/mouse. Pastikan semua alur bisa dilakukan dengan sentuhan: pilih produk, keranjang, bayar, dan buka panel staf + ketik PIN di keypad layar.
 - [ ] **Tes transaksi.** Beli 1 barang murah → bayar QRIS (atau tandai lunas lewat panel staf) → layar "Pembayaran berhasil" → **struk keluar sendiri tanpa dialog**.
 - [ ] Stok barang di admin berkurang.
 - [ ] Coba swipe dari tepi layar dan gestur 3 jari: tidak ada yang terbuka.
@@ -128,13 +136,20 @@ Kalau ada yang gagal, lihat bagian **Masalah umum** di bawah.
 
 ## Maintenance (staf/pemilik)
 
+Layar sentuh saja tidak cukup untuk keluar dari kiosk. Pakai salah satu:
+
+- **Keyboard USB/Bluetooth** yang disimpan di toko, atau
+- **Remote desktop** (langkah 6.7) dari HP/laptop. Kirim tombol `Ctrl + Alt + Del` / `Alt + F4` lewat menu aplikasi remote.
+
 **Keluar dari kiosk sementara** (misalnya untuk update atau ganti setting):
 
-1. Colok keyboard. Tekan `Ctrl + Alt + Del` → Task Manager → File → Run new task → ketik `notepad C:\kiosk-chrome\STOP` → Enter → Yes (buat file baru) → Save → tutup Notepad.
+1. Tekan `Ctrl + Alt + Del` → Task Manager → File → Run new task → ketik `powershell -Command New-Item C:\kiosk-chrome\STOP` → OK.
 
-   Atau di PowerShell: `New-Item C:\kiosk-chrome\STOP`
-2. Tekan `Alt + F4` untuk menutup kiosk. Kiosk tidak akan terbuka lagi selama file `STOP` ada.
-3. Kalau sudah selesai, hapus file `C:\kiosk-chrome\STOP` (atau `STOP.txt` kalau dibuat lewat Notepad). Dalam ±10 detik kiosk terbuka lagi.
+   (Cara lain: `notepad C:\kiosk-chrome\STOP` → Yes → Save. Notepad bisa menyimpannya sebagai `STOP.txt`, dan itu juga dikenali.)
+2. Tekan `Alt + F4` untuk menutup kiosk. Kiosk tidak akan terbuka lagi selama file `STOP` ada. Sekarang desktop Windows bisa dipakai, termasuk dengan sentuhan dan keyboard sentuh di taskbar.
+3. Kalau sudah selesai, hapus file `C:\kiosk-chrome\STOP` (atau `STOP.txt`) lewat File Explorer. Dalam ±10 detik kiosk terbuka lagi.
+
+**Tanpa keyboard dan tanpa remote, kiosk macet/hang:** tekan tahan tombol power sampai mati, lalu nyalakan lagi. Windows login sendiri dan kiosk terbuka lagi.
 
 **Ganti URL** (pindah cabang, ganti ukuran kertas, ganti domain): jalankan lagi langkah 5 dengan URL baru, lalu restart PC.
 
@@ -155,5 +170,6 @@ Profil `C:\kiosk-chrome` (berisi token) tidak ikut terhapus. Hapus manual kalau 
 | Struk keluar di printer lain atau jadi PDF | Printer thermal bukan default (langkah 3). |
 | Struk terpotong atau ada header/URL di kertas | Ulangi tes print di langkah 3: Margins None, Headers and footers mati. Cek `paper=58` atau `paper=80` di URL sesuai kertas. |
 | Kiosk minta token / "perangkat tidak dikenal" | Token belum tersimpan atau sudah diganti di Render. Ulangi langkah 4 dengan token terbaru. |
-| Halaman error "tidak ada internet" setelah PC nyala | Internet lebih lambat dari 90 detik. Tunggu internet nyambung, lalu `Alt + F4`: watchdog membuka ulang kiosk. |
-| Kiosk tidak bisa ditutup untuk maintenance | Itu tugas watchdog. Buat file `STOP` dulu (lihat Maintenance). |
+| Halaman error "tidak ada internet" setelah PC nyala | Internet lebih lambat dari 90 detik. Chrome biasanya memuat ulang sendiri saat internet nyambung. Kalau tidak: `Alt + F4` (keyboard/remote) supaya watchdog membuka ulang kiosk, atau restart PC dengan tombol power. |
+| Kiosk tidak bisa ditutup untuk maintenance | Itu tugas watchdog. Buat file `STOP` dulu (lihat Maintenance). Tidak bisa dilakukan dengan sentuhan saja: pakai keyboard atau remote desktop. |
+| Keyboard sentuh tidak muncul di desktop | Settings → Personalization → Taskbar → Touch keyboard → **Always**, lalu ketuk ikon keyboard di taskbar. |
