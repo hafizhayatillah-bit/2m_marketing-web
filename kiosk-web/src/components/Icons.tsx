@@ -84,6 +84,13 @@ export const IconClose = (p: IconProps) => (
   </Svg>
 );
 
+export const IconReset = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 12a8 8 0 1 0 2.34-5.66" />
+    <path d="M4 4v4h4" />
+  </Svg>
+);
+
 export const IconTrash = (p: IconProps) => (
   <Svg {...p}>
     <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5" />

@@ -10,7 +10,7 @@ import { CartButton, CartOverlay } from "../screens/Cart";
 import { Payment } from "../screens/Payment";
 import { Closed, Success } from "../screens/Done";
 import { PinPad, StaffPanel } from "../screens/Staff";
-import { IconAlert, IconPin, IconQr } from "../components/Icons";
+import { IconAlert, IconPin, IconQr, IconReset } from "../components/Icons";
 
 type Screen =
   | { name: "catalog" }
@@ -246,7 +246,8 @@ export function App() {
         <div className="ml-auto flex items-center gap-5">
           {screen.name === "catalog" && cartCount > 0 && (
             <button type="button" onClick={goHome} className="btn btn-secondary btn-lg">
-              Mulai dari awal
+              <IconReset className="text-xl" />
+              Reset
             </button>
           )}
           <HeaderClock />
