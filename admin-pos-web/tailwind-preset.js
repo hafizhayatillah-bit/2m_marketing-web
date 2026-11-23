@@ -1244,6 +1244,9 @@ function designSystem({ addBase, addComponents }) {
       transition: control,
     },
     ".photo-tile > img": { width: "100%", height: "100%", objectFit: "cover" },
+    // Foto produk katalog: bingkai 4:3 seperti kartu kiosk, seluruh foto terlihat (pinggiran putih menyatu).
+    ".photo-tile-product": { aspectRatio: "4 / 3", backgroundColor: "#fff" },
+    ".photo-tile-product > img": { objectFit: "contain" },
     "button.photo-tile:active": { transform: "scale(0.97)" },
     ".photo-tile[aria-pressed='true']": { borderColor: c("foreground"), boxShadow: `0 0 0 2px ${c("foreground")}` },
     ".photo-tile-badge": { position: "absolute", left: "0.375rem", top: "0.375rem" },

@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 from app.auth import verify_admin
 from app.cloudinary_utils import upload_image
 from app.database import get_db
-from app.models import BranchStock, OrderItem, Product, StockMovement
+from app.models import BranchStock, FeaturedProduct, OrderItem, Product, StockMovement
+from app.services import product_images
 
 router = APIRouter(prefix="/admin/products", tags=["Admin Products"], dependencies=[Depends(verify_admin)])
 templates = Jinja2Templates(directory="app/templates")
@@ -86,11 +87,14 @@ def edit_product(
     product = _get_product_or_404(product_id, db)
     if image_file and image_file.filename:
         image_url = upload_image(image_file, folder="products")
+    old_image = product.image_url
     product.name = name
     product.category = category
     product.description = description
-    product.image_url = image_url
+    product.image_url = image_url or None
     db.commit()
+    if old_image != product.image_url:
+        product_images.destroy_unused(db, [old_image])
     return RedirectResponse(url="/admin/products/", status_code=303)
 
 
@@ -108,8 +112,12 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
             status_code=409,
             detail="Produk ini sudah dipakai di kiosk/stok cabang, jadi tidak bisa dihapus (riwayat stok & penjualan ikut hilang). Nonaktifkan saja.",
         )
+    images = [product.image_url] + list(
+        db.execute(select(FeaturedProduct.image_url).where(FeaturedProduct.product_id == product.id)).scalars()
+    )
     db.delete(product)
     db.commit()
+    product_images.destroy_unused(db, images)
     return RedirectResponse(url="/admin/products/", status_code=303)
 
 

@@ -21,7 +21,9 @@ from sqlalchemy.orm import Session, selectinload
 
 from app import admin_session
 from app.database import get_db
-from app.models import Branch, BranchStock, Expense, Order, OrderItem, Payment, Product, StockMovement
+from app.models import Branch, BranchStock, Expense, FeaturedProduct, Order, OrderItem, Payment, Product, StockMovement
+from app.routers.featured_products import invalidate_featured_products_cache
+from app.services import product_images
 from app.services import kiosk_orders as orders_svc
 from app.services import stock as stock_svc
 
@@ -375,13 +377,42 @@ def update_catalog_product(product_id: int, body: CatalogPatch, db: Session = De
         product.category = body.category.strip().lower()
     if "description" in fields:
         product.description = (body.description or "").strip() or None
+    old_image = product.image_url
     if "image_url" in fields:
         product.image_url = (body.image_url or "").strip() or None
     if "is_active" in fields and body.is_active is not None:
         product.is_active = body.is_active
     _commit_catalog(db)
     db.refresh(product)
+    invalidate_featured_products_cache()  # kartu unggulan di website memakai foto & status produk ini
+    if old_image != product.image_url:
+        product_images.destroy_unused(db, [old_image])
     return _catalog_out(product, [])
+
+
+@authed.delete("/catalog/{product_id}", status_code=204)
+def delete_catalog_product(product_id: int, db: Session = Depends(get_db)):
+    product = _product_or_404(db, product_id)
+    # Sama seperti /admin/products: produk yang sudah punya stok/penjualan jangan dihapus, karena
+    # branch_stock & stock_movements ikut terhapus (CASCADE) dan order_items membuat DELETE gagal.
+    used = any(
+        db.execute(select(model.id).where(model.product_id == product.id).limit(1)).first()
+        for model in (OrderItem, StockMovement, BranchStock)
+    )
+    if used:
+        raise _fail(
+            409,
+            "PRODUCT_IN_USE",
+            "Produk ini sudah dipakai di cabang (stok atau penjualan), jadi tidak bisa dihapus. Nonaktifkan saja.",
+        )
+    images = [product.image_url] + list(
+        db.execute(select(FeaturedProduct.image_url).where(FeaturedProduct.product_id == product.id)).scalars()
+    )
+    db.delete(product)
+    db.commit()
+    invalidate_featured_products_cache()
+    product_images.destroy_unused(db, images)
+    return Response(status_code=204)
 
 
 MAX_IMAGE_BYTES = 8 * 1024 * 1024

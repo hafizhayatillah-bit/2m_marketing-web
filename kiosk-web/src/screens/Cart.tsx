@@ -116,11 +116,12 @@ export function CartOverlay({
                   <li key={p.id} className="flex animate-rise items-center gap-4 p-4" style={rise(idx)}>
                     <span
                       className={cn(
-                        "flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-md text-4xl",
-                        p.image_url ? "bg-muted" : categoryTint(p.category),
+                        // 4:3 seperti kartu produk di katalog, jadi foto tampil utuh, tidak dipotong jadi persegi.
+                        "flex aspect-[4/3] w-28 shrink-0 items-center justify-center overflow-hidden rounded-md text-4xl",
+                        p.image_url ? "bg-white" : categoryTint(p.category),
                       )}
                     >
-                      {p.image_url ? <img src={p.image_url} alt="" className="size-full object-cover" /> : <CategoryIcon category={p.category} />}
+                      {p.image_url ? <img src={p.image_url} alt="" className="size-full object-contain" /> : <CategoryIcon category={p.category} />}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="font-bold leading-snug">{p.name}</p>
