@@ -32,7 +32,7 @@ function ProductCard({ product: p, index }: { product: Product; index: number })
     <li className={cn("product-card animate-rise", out && "opacity-60")} style={rise(index)}>
       {/* Foto + nama bisa disentuh untuk menambah, sama seperti tombol Tambah. */}
       <button type="button" onClick={onAdd} disabled={out} className="product-card-link text-left" aria-label={`Tambah ${p.name}`}>
-        <div className={cn("product-card-photo text-6xl", p.image_url ? "bg-muted" : categoryTint(p.category))}>
+        <div className={cn("product-card-photo text-6xl", p.image_url ? "bg-white" : categoryTint(p.category))}>
           {p.image_url ? <img src={p.image_url} alt="" loading="lazy" decoding="async" /> : <CategoryIcon category={p.category} />}
           {(out || atLimit || low) && (
             <span className={cn("pill absolute left-2 top-2 text-sm", out ? "pill-danger" : atLimit ? "pill-info" : "pill-warning")}>

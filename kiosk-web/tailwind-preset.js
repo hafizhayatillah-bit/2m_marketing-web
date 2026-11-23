@@ -1341,7 +1341,8 @@ function designSystem({ addBase, addComponents }) {
       borderRadius: "var(--radius)",
     },
     ".product-card-photo > img, .product-card-photo > svg": { transition: `scale 360ms ${ease.settle}` },
-    ".product-card-photo > img": { width: "100%", height: "100%", objectFit: "cover" },
+    // contain, bukan cover: foto dari admin sudah diatur pas bingkai 4:3; foto lama yang rasionya lain tidak terpotong.
+    ".product-card-photo > img": { width: "100%", height: "100%", objectFit: "contain" },
     ".spec-list": { display: "grid", gridTemplateColumns: "minmax(7rem, 38%) 1fr", borderTop: `1px solid ${c("border")}` },
     ".spec-list > dt, .spec-list > dd": { padding: "0.75rem 0", borderBottom: `1px solid ${c("border")}` },
     ".spec-list > dt": { paddingRight: "1rem", color: c("muted-foreground"), fontSize: "0.875rem" },

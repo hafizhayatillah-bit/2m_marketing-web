@@ -1,13 +1,13 @@
-import { useDeferredValue, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "../../components/Dialog";
 import { IconImage, IconTrash } from "../../components/Icons";
 import { ErrorBox, LoadingRows, ProductThumb, SearchField } from "../../components/ui";
 import { api, errorMessage } from "../../lib/api";
 import { formatIDR } from "../../lib/format";
-import { compressImage } from "../../lib/image";
 import type { CatalogProduct } from "../../lib/types";
 import { useToast } from "../../lib/toast";
+import { PhotoEditor, type PhotoSource } from "./PhotoEditor";
 
 // Harga jual tiap cabang bisa beda: tampilkan satu harga atau rentangnya.
 function priceRange(p: CatalogProduct): string {
@@ -30,23 +30,19 @@ function CatalogDialog({ product, categories, onClose }: { product?: CatalogProd
   const [category, setCategory] = useState(product?.category ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [imageUrl, setImageUrl] = useState<string | null>(product?.image_url ?? null);
+  // Foto hasil editor yang belum diunggah: baru dikirim ke Cloudinary saat Simpan, jadi Batal tidak meninggalkan file yatim.
+  const [newPhoto, setNewPhoto] = useState<{ blob: Blob; preview: string } | null>(null);
+  const [editing, setEditing] = useState<PhotoSource | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [active, setActive] = useState(product?.is_active ?? true);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => () => void (newPhoto && URL.revokeObjectURL(newPhoto.preview)), [newPhoto]);
+  const shownPhoto = newPhoto?.preview ?? imageUrl;
 
   const skuValue = sku.trim().toUpperCase();
   const skuInvalid = skuValue !== "" && !SKU.test(skuValue);
   const invalid = !name.trim() || !category.trim() || skuInvalid;
-
-  const upload = useMutation({
-    mutationFn: async (file: File) => {
-      const blob = await compressImage(file);
-      const form = new FormData();
-      form.append("file", new File([blob], "produk.jpg", { type: "image/jpeg" }));
-      return api.upload<{ url: string }>("/catalog/upload-image", form);
-    },
-    onSuccess: (r) => setImageUrl(r.url),
-    onError: (e) => toast("error", errorMessage(e)),
-  });
 
   const body = {
     name: name.trim(),
@@ -62,11 +58,23 @@ function CatalogDialog({ product, categories, onClose }: { product?: CatalogProd
     body.sku !== product.sku ||
     body.category !== product.category ||
     body.description !== (product.description ?? null) ||
+    newPhoto !== null ||
     body.image_url !== product.image_url ||
     body.is_active !== product.is_active;
 
   const save = useMutation({
-    mutationFn: () => (product ? api.patch<CatalogProduct>(`/catalog/${product.id}`, body) : api.post<CatalogProduct>("/catalog", body)),
+    mutationFn: async () => {
+      let image_url = body.image_url;
+      if (newPhoto) {
+        const form = new FormData();
+        form.append("file", new File([newPhoto.blob], "produk.jpg", { type: "image/jpeg" }));
+        image_url = (await api.upload<{ url: string }>("/catalog/upload-image", form)).url;
+        setImageUrl(image_url);
+        setNewPhoto(null);
+      }
+      const payload = { ...body, image_url };
+      return product ? api.patch<CatalogProduct>(`/catalog/${product.id}`, payload) : api.post<CatalogProduct>("/catalog", payload);
+    },
     onSuccess: (p) => {
       toast("success", product ? `${p.name} disimpan` : `${p.name} masuk katalog. Tambahkan ke cabang lewat tab Produk.`);
       onClose();
@@ -76,7 +84,60 @@ function CatalogDialog({ product, categories, onClose }: { product?: CatalogProd
       void queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY] });
     },
   });
-  const busy = save.isPending || upload.isPending;
+  const remove = useMutation({
+    mutationFn: () => api.del<void>(`/catalog/${product!.id}`),
+    onSuccess: () => {
+      toast("success", `${product!.name} dihapus dari katalog`);
+      onClose();
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: [CATALOG_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY] });
+    },
+  });
+  const busy = save.isPending || remove.isPending;
+
+  if (editing) {
+    return (
+      <Dialog title="Atur foto" wide>
+        <PhotoEditor
+          source={editing}
+          onCancel={() => setEditing(null)}
+          onDone={(blob) => {
+            setNewPhoto({ blob, preview: URL.createObjectURL(blob) });
+            setEditing(null);
+          }}
+        />
+      </Dialog>
+    );
+  }
+
+  if (product && confirmDelete) {
+    const inBranches = product.branches.length > 0;
+    return (
+      <Dialog title={`Hapus ${product.name}?`}>
+        {inBranches ? (
+          <p className="notice">
+            Produk ini sudah ada di cabang ({product.branches.map((b) => b.name).join(", ")}), jadi tidak bisa dihapus: riwayat stok dan penjualannya ikut
+            hilang. Nonaktifkan saja lewat Status.
+          </p>
+        ) : (
+          <p>Produk dan fotonya dihapus permanen dari katalog dan website. Tidak bisa dibatalkan.</p>
+        )}
+        {remove.isError && <ErrorBox error={remove.error} />}
+        <div className="dialog-footer">
+          <button type="button" className="btn btn-secondary" onClick={() => setConfirmDelete(false)} disabled={remove.isPending}>
+            Kembali
+          </button>
+          {!inBranches && (
+            <button type="button" className="btn btn-danger" onClick={() => remove.mutate()} disabled={remove.isPending}>
+              {remove.isPending ? "Menghapus…" : "Hapus permanen"}
+            </button>
+          )}
+        </div>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog title={product ? `Ubah ${product.name}` : "Produk baru"} wide>
@@ -90,12 +151,12 @@ function CatalogDialog({ product, categories, onClose }: { product?: CatalogProd
         {product && product.branches.length > 0 && (
           <p className="notice">Berlaku di semua cabang yang menjual produk ini dan di website ({product.branches.map((b) => b.name).join(", ")}).</p>
         )}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[9rem_1fr]">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[12rem_1fr]">
           <div className="flex flex-col gap-2">
             <span className="field-label">Foto</span>
-            <span className="photo-tile relative flex aspect-square w-full items-center justify-center text-3xl text-muted-foreground">
-              {imageUrl ? <img src={imageUrl} alt="" /> : <IconImage />}
-              {upload.isPending && <span className="photo-tile-state">Mengunggah…</span>}
+            <span className="photo-tile photo-tile-product relative flex w-full items-center justify-center text-3xl text-muted-foreground">
+              {shownPhoto ? <img src={shownPhoto} alt="" /> : <IconImage />}
+              {save.isPending && newPhoto && <span className="photo-tile-state">Mengunggah…</span>}
             </span>
             <input
               ref={fileInput}
@@ -104,15 +165,28 @@ function CatalogDialog({ product, categories, onClose }: { product?: CatalogProd
               className="sr-only"
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) upload.mutate(f);
+                if (f) setEditing(f);
                 e.target.value = "";
               }}
             />
             <button type="button" className="btn btn-secondary btn-sm" onClick={() => fileInput.current?.click()} disabled={busy}>
-              {imageUrl ? "Ganti foto" : "Unggah foto"}
+              {shownPhoto ? "Ganti foto" : "Unggah foto"}
             </button>
-            {imageUrl && (
-              <button type="button" className="btn btn-danger-quiet btn-sm" onClick={() => setImageUrl(null)} disabled={busy}>
+            {shownPhoto && (
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => setEditing(newPhoto?.blob ?? imageUrl!)} disabled={busy}>
+                Atur posisi
+              </button>
+            )}
+            {shownPhoto && (
+              <button
+                type="button"
+                className="btn btn-danger-quiet btn-sm"
+                onClick={() => {
+                  setNewPhoto(null);
+                  setImageUrl(null);
+                }}
+                disabled={busy}
+              >
                 <IconTrash /> Hapus foto
               </button>
             )}
@@ -159,6 +233,11 @@ function CatalogDialog({ product, categories, onClose }: { product?: CatalogProd
         </label>
         {save.isError && <ErrorBox error={save.error} />}
         <div className="dialog-footer">
+          {product && (
+            <button type="button" className="btn btn-danger-quiet sm:mr-auto" onClick={() => setConfirmDelete(true)} disabled={busy}>
+              <IconTrash /> Hapus produk
+            </button>
+          )}
           <button type="button" className="btn btn-secondary" onClick={onClose} disabled={save.isPending}>
             Batal
           </button>
@@ -168,6 +247,35 @@ function CatalogDialog({ product, categories, onClose }: { product?: CatalogProd
         </div>
       </form>
     </Dialog>
+  );
+}
+
+// Aktif = tampil di website dan bisa dijual di kiosk (semua cabang). Per cabang diatur di tab Produk (Dijual/Sembunyi).
+function StatusToggle({ product }: { product: CatalogProduct }) {
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const patch = useMutation({
+    mutationFn: (is_active: boolean) => api.patch<CatalogProduct>(`/catalog/${product.id}`, { is_active }),
+    onSuccess: (p) => toast("success", p.is_active ? `${p.name} aktif lagi` : `${p.name} dinonaktifkan: hilang dari kiosk dan website`),
+    onError: (e) => toast("error", errorMessage(e)),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: [CATALOG_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY] });
+    },
+  });
+  const checked = patch.isPending ? !!patch.variables : product.is_active;
+  return (
+    <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 text-sm font-semibold">
+      <input
+        type="checkbox"
+        className="size-5 accent-primary"
+        checked={checked}
+        disabled={patch.isPending}
+        onChange={(e) => patch.mutate(e.target.checked)}
+        aria-label={`${product.name} aktif`}
+      />
+      {checked ? "Aktif" : "Nonaktif"}
+    </label>
   );
 }
 
@@ -234,7 +342,7 @@ export function CatalogSection() {
                     {p.branches.length === 0 ? <span className="text-muted-foreground">Belum ada cabang</span> : p.branches.map((b) => b.name).join(", ")}
                   </td>
                   <td data-label="Status">
-                    <span className={p.is_active ? "pill pill-dot pill-success" : "pill pill-dot"}>{p.is_active ? "Aktif" : "Nonaktif"}</span>
+                    <StatusToggle product={p} />
                   </td>
                   <td data-actions className="md:text-right">
                     <button className="btn btn-secondary btn-sm" onClick={() => setOpen({ dialog: "edit", id: p.id })}>

@@ -36,7 +36,7 @@ export function ErrorBox({ error }: { error: unknown }) {
 
 export function ProductThumb({ src, size = "size-11" }: { src: string | null; size?: string }) {
   return (
-    <span className={cn("photo-tile flex shrink-0 items-center justify-center text-lg text-muted-foreground", size)} aria-hidden="true">
+    <span className={cn("photo-tile flex shrink-0 items-center justify-center text-lg text-muted-foreground", src && "photo-tile-product", size)} aria-hidden="true">
       {src ? <img src={src} alt="" loading="lazy" /> : <IconImage />}
     </span>
   );

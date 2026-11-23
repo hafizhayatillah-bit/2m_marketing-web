@@ -4,26 +4,68 @@
     {
       "name": "2m-sembako",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--port", "8765"],
+      "runtimeArgs": [
+        "-m",
+        "uvicorn",
+        "app.main:app",
+        "--port",
+        "8765"
+      ],
       "port": 8765
     },
     {
       "name": "kiosk-local",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "set ENV_FILE=.env.local&& python -m uvicorn app.main:app --port 8766"],
+      "runtimeArgs": [
+        "/c",
+        "set ENV_FILE=.env.local&& python -m uvicorn app.main:app --port 8766"
+      ],
       "port": 8766
     },
     {
       "name": "admin-pos-local",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "set ENV_FILE=C:\\Users\\HAFIZH~1\\AppData\\Local\\Temp\\claude\\9da6d52ce3b9366e\\7fc4a5d7-6dfb-4e47-9631-7024596c105f\\scratchpad\\admin-pos-test.env&& python -m uvicorn app.main:app --port 8767"],
+      "runtimeArgs": [
+        "/c",
+        "set ENV_FILE=C:\\Users\\HAFIZH~1\\AppData\\Local\\Temp\\claude\\9da6d52ce3b9366e\\7fc4a5d7-6dfb-4e47-9631-7024596c105f\\scratchpad\\admin-pos-test.env&& python -m uvicorn app.main:app --port 8767"
+      ],
       "port": 8767
     },
     {
       "name": "kiosk-static-preview",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd kiosk-web&& set VITE_BASE=/&& npx vite preview --outDir C:\\Users\\HAFIZH~1\\AppData\\Local\\Temp\\claude\\9da6d52ce3b9366e\\91297277-9a87-43ec-946d-e443c557a76c\\scratchpad\\kiosk-static-dist --port 4173 --strictPort"],
+      "runtimeArgs": [
+        "/c",
+        "cd kiosk-web&& set VITE_BASE=/&& npx vite preview --outDir C:\\Users\\HAFIZH~1\\AppData\\Local\\Temp\\claude\\9da6d52ce3b9366e\\91297277-9a87-43ec-946d-e443c557a76c\\scratchpad\\kiosk-static-dist --port 4173 --strictPort"
+      ],
       "port": 4173
+    },
+    {
+      "name": "api-local-8000",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set ENV_FILE=.env.local&& python -m uvicorn app.main:app --port 8000"
+      ],
+      "port": 8000
+    },
+    {
+      "name": "admin-pos-dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "cd admin-pos-web&& npx vite --port 5174 --strictPort"
+      ],
+      "port": 5174
+    },
+    {
+      "name": "kiosk-dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "cd kiosk-web&& npx vite --port 5172 --strictPort"
+      ],
+      "port": 5172
     }
   ]
 }
