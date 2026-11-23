@@ -1,0 +1,173 @@
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type {
+  BranchesResponse,
+  Cart,
+  ChatChannel,
+  ChatMessage,
+  ChatMessagesResponse,
+  ChatOpenRequest,
+  ChatSendRequest,
+  ChatThread,
+  ChatThreadsResponse,
+  CreateOrderRequest,
+  CreatedOrder,
+  CustomerOrderDetail,
+  MetaConfigResponse,
+  OrderListResponse,
+  PriceBreakdown,
+  CalculatePriceRequest,
+  ProductDetail,
+  ProductsResponse,
+  TrackingResponse,
+} from "@2m/shared";
+import { isAxiosError } from "axios";
+import { api } from "./api";
+import { TERMINAL_STATUSES } from "@2m/shared";
+
+export const useBranches = () =>
+  useQuery({ queryKey: ["branches"], queryFn: async () => (await api.get<BranchesResponse>("/branches")).data.branches });
+
+export const useMetaConfig = () =>
+  useQuery({
+    queryKey: ["meta-config"],
+    queryFn: async () => (await api.get<MetaConfigResponse>("/meta/config")).data,
+    staleTime: Infinity,
+  });
+
+export const useProducts = (branchId: string, category: string | undefined, q: string, page: number) =>
+  useQuery({
+    queryKey: ["products", branchId, category, q, page],
+    queryFn: async () =>
+      (await api.get<ProductsResponse>(`/branches/${branchId}/products`, { params: { category, q: q || undefined, page } }))
+        .data,
+    placeholderData: (prev) => prev,
+  });
+
+// Opens instantly from a catalogue card: the list row stands in until the description and photos arrive.
+export function useProduct(branchId: string, productId: string) {
+  const qc = useQueryClient();
+  return useQuery({
+    queryKey: ["product", branchId, productId],
+    queryFn: async () => (await api.get<ProductDetail>(`/branches/${branchId}/products/${productId}`)).data,
+    placeholderData: () => {
+      for (const [, page] of qc.getQueriesData<ProductsResponse>({ queryKey: ["products", branchId] })) {
+        const row = page?.products.find((p) => p.id === productId);
+        if (row) return { ...row, description: "", specs: [], image_urls: row.image_url ? [row.image_url] : [] };
+      }
+      return undefined;
+    },
+    retry: (count, err) => !(isAxiosError(err) && err.response?.status === 404) && count < 2,
+  });
+}
+
+export const useCart = (branchId: string, enabled = true) =>
+  useQuery({
+    queryKey: ["cart", branchId],
+    queryFn: async () => (await api.get<Cart>("/cart", { params: { branch_id: branchId } })).data,
+    enabled,
+  });
+
+const CHAT_ROOM_POLL_MS = 4_000;
+const CHAT_LIST_POLL_MS = 15_000;
+
+export const useChatThreads = (channel: ChatChannel) =>
+  useQuery({
+    queryKey: ["chat-threads", channel],
+    queryFn: async () => (await api.get<ChatThreadsResponse>("/chat/threads", { params: { channel } })).data.threads,
+    refetchInterval: CHAT_LIST_POLL_MS,
+  });
+
+export const useChatMessages = (threadId: string) =>
+  useQuery({
+    queryKey: ["chat-messages", threadId],
+    queryFn: async () => (await api.get<ChatMessagesResponse>(`/chat/threads/${threadId}/messages`)).data,
+    refetchInterval: CHAT_ROOM_POLL_MS,
+  });
+
+export function useOpenChat() {
+  return useMutation({
+    mutationFn: async (input: ChatOpenRequest) => (await api.post<ChatThread>("/chat/threads", input)).data,
+  });
+}
+
+export function useChatSend(threadId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: ChatSendRequest) =>
+      (await api.post<ChatMessage>(`/chat/threads/${threadId}/messages`, input)).data,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["chat-messages", threadId] });
+      void qc.invalidateQueries({ queryKey: ["chat-threads"] });
+    },
+  });
+}
+
+export function useChatMarkRead(threadId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => api.post(`/chat/threads/${threadId}/read`),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["chat-messages", threadId] });
+      void qc.invalidateQueries({ queryKey: ["chat-threads"] });
+    },
+  });
+}
+
+export const useQuote = (req: CalculatePriceRequest | null) =>
+  useQuery({
+    queryKey: ["quote", req],
+    queryFn: async () => (await api.post<PriceBreakdown>("/calculate-price", req)).data,
+    enabled: req !== null,
+    retry: false,
+  });
+
+// Safe to resend with the same Idempotency-Key: no answer at all, a busy server, or the original still running.
+export function isRetryableCheckoutError(err: unknown): boolean {
+  if (!isAxiosError(err)) return false;
+  if (!err.response) return true;
+  const code = (err.response.data as { error?: { code?: string } } | undefined)?.error?.code;
+  return err.response.status === 503 || code === "CHECKOUT_IN_PROGRESS";
+}
+
+export function useCreateOrder(branchId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ req, idempotencyKey }: { req: CreateOrderRequest; idempotencyKey: string }) =>
+      (await api.post<{ order: CreatedOrder }>("/orders", req, { headers: { "Idempotency-Key": idempotencyKey } })).data
+        .order,
+    // Retries reuse the same key (the variables do not change), so a lost response is answered by a replay.
+    retry: (count, err) => count < 3 && isRetryableCheckoutError(err),
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+    onSettled: () => qc.invalidateQueries({ queryKey: ["cart", branchId] }),
+  });
+}
+
+export const useOrder = (id: string, pollMs = 10_000) =>
+  useQuery({
+    queryKey: ["order", id],
+    queryFn: async () => (await api.get<CustomerOrderDetail>(`/orders/${id}`)).data,
+    // A finished order still polls slowly while a refund is open, so the transfer receipt shows up on its own.
+    refetchInterval: (query) => {
+      const d = query.state.data;
+      if (!d || !TERMINAL_STATUSES.includes(d.order.status)) return pollMs;
+      return d.refunds.some((r) => r.status !== "COMPLETED") ? 30_000 : false;
+    },
+  });
+
+export const useTracking = (orderId: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ["tracking", orderId],
+    queryFn: async () => (await api.get<TrackingResponse>(`/orders/${orderId}/tracking`)).data,
+    enabled,
+    // Paused while the tab is hidden (refetchIntervalInBackground defaults to false); stops once inactive.
+    refetchInterval: (query) => (query.state.data && !query.state.data.active ? false : 5_000),
+  });
+
+export const useOrderHistory = () =>
+  useInfiniteQuery({
+    queryKey: ["orders"],
+    queryFn: async ({ pageParam }) =>
+      (await api.get<OrderListResponse>("/orders", { params: { cursor: pageParam, limit: 20 } })).data,
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
+  });

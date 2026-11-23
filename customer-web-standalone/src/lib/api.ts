@@ -1,0 +1,63 @@
+import axios from "axios";
+import { createApiClient } from "@2m/shared";
+
+let accessToken: string | null = null;
+let onSessionLost: () => void = () => {};
+
+export function setAccessToken(token: string | null) {
+  accessToken = token;
+}
+
+export function setSessionLostHandler(fn: () => void) {
+  onSessionLost = fn;
+}
+
+export const api = createApiClient({
+  platform: "customer-web",
+  appVersion: "0.0.0",
+  getToken: () => accessToken,
+  setToken: (token) => {
+    accessToken = token;
+    if (!token) onSessionLost();
+  },
+});
+
+type Details = Record<string, unknown> | undefined;
+
+export const OUTSIDE_COVERAGE_MESSAGE = "Lokasi pin di luar jangkauan pengantaran cabang ini.";
+
+const MESSAGES: Record<string, (d: Details, fallback: string) => string> = {
+  MAX_QTY_EXCEEDED: (d) => `Maksimal ${String(d?.max)} per produk${d?.product ? ` (${String(d.product)})` : ""}.`,
+  MAX_WEIGHT_EXCEEDED: (d) => `Total berat pesanan melebihi batas ${String(d?.max)} kg.`,
+  OUT_OF_STOCK: (d) => {
+    const items = Array.isArray(d?.items) ? (d.items as { name?: string; available?: number }[]) : [];
+    if (items.length > 0) {
+      const list = items.map((i) => `${i.name ?? "Produk"} (tersedia ${i.available ?? 0})`).join(", ");
+      return `Stok tidak mencukupi: ${list}. Kurangi jumlahnya atau hapus dari keranjang.`;
+    }
+    return `${d?.product ? String(d.product) : "Produk"} sedang habis.`;
+  },
+  PRODUCT_UNAVAILABLE: () => "Sebagian produk di keranjang tidak lagi dijual di cabang ini.",
+  CART_EMPTY: () => "Keranjang masih kosong.",
+  MIN_ORDER_NOT_MET: (d) => `Minimal belanja Rp${Number(d?.min_order ?? 0).toLocaleString("id-ID")}.`,
+  OUTSIDE_COVERAGE: () => OUTSIDE_COVERAGE_MESSAGE,
+  VOUCHER_UNSUPPORTED: () => "Voucher belum tersedia.",
+  VALIDATION_ERROR: (_d, fallback) => fallback,
+  PAYMENT_INIT_FAILED: () => "Pembayaran belum bisa dimulai. Keranjang Anda aman, silakan coba lagi.",
+  CHECKOUT_IN_PROGRESS: () => "Pesanan Anda sedang diproses. Cek halaman Pesanan sebentar lagi.",
+  IDEMPOTENCY_KEY_REUSED: () => "Permintaan checkout berubah di tengah proses. Tekan Bayar sekali lagi.",
+  IDEMPOTENCY_KEY_REQUIRED: () => "Permintaan checkout tidak lengkap. Muat ulang halaman lalu coba lagi.",
+  REFUND_ALREADY_COMPLETED: () => "Dana refund ini sudah dikirim, rekening tidak bisa diubah lagi.",
+  REFUND_NOT_FOUND: () => "Refund tidak ditemukan. Muat ulang halaman pesanan.",
+  STOCK_UNAVAILABLE: () => "Pengecekan stok sedang sibuk. Coba lagi beberapa detik lagi.",
+};
+
+export function errorMessage(err: unknown): string {
+  if (axios.isAxiosError(err)) {
+    const e = (err.response?.data as { error?: { code?: string; message?: string; details?: Details } } | undefined)
+      ?.error;
+    if (e?.code && MESSAGES[e.code]) return MESSAGES[e.code]!(e.details, "Data yang dimasukkan tidak valid.");
+    return e?.message ?? err.message;
+  }
+  return err instanceof Error ? err.message : "Terjadi kesalahan";
+}
